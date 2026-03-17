@@ -6,6 +6,7 @@ import { ScanFace, Sparkles, Phone, ArrowRight, KeyRound } from 'lucide-react';
 import { toast } from 'sonner';
 import { motion } from 'motion/react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Navbar } from '@/components/Navbar';
 import { supabase } from '@/lib/supabase';
 
@@ -58,7 +59,14 @@ export default function CustomerLogin() {
                   onClick={handleGoogleLogin}
                   className="w-full bg-white border border-gray-300 text-gray-700 py-3.5 rounded-full font-semibold hover:bg-gray-50 transition-colors flex items-center justify-center gap-2"
                 >
-                  <img src="https://www.google.com/favicon.ico" alt="Google" className="w-4 h-4" />
+                  <Image 
+                    src="https://www.google.com/favicon.ico" 
+                    alt="Google" 
+                    width={16} 
+                    height={16} 
+                    className="w-4 h-4" 
+                    referrerPolicy="no-referrer"
+                  />
                   Sign in with Google
                 </button>
 

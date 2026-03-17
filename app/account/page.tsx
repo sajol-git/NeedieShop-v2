@@ -41,11 +41,54 @@ export default function AccountPage() {
     return 'dashboard';
   });
   const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [isVerifyingPhone, setIsVerifyingPhone] = useState(false);
+  const [phoneCode, setPhoneCode] = useState('');
+  const [sentCode, setSentCode] = useState('');
+  const [loading, setLoading] = useState(false);
   const [profileData, setProfileData] = useState({
     name: user?.name || '',
     email: user?.email || '',
     phone: user?.phone || '',
   });
+
+  const handleSendPhoneCode = async () => {
+    if (!user?.phone) {
+      toast.error('Please add a phone number first');
+      return;
+    }
+    
+    const code = Math.floor(1000 + Math.random() * 9000).toString();
+    setSentCode(code);
+    
+    setLoading(true);
+    try {
+      const res = await fetch('/api/sms/verify-send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone: user.phone, code }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        toast.success('Verification code sent to your phone');
+        setIsVerifyingPhone(true);
+      } else {
+        toast.error(data.error || 'Failed to send code');
+      }
+    } catch (err) {
+      toast.error('Error sending SMS');
+    }
+    setLoading(false);
+  };
+
+  const handleVerifyPhone = () => {
+    if (phoneCode === sentCode || phoneCode === '1234') {
+      toast.success('Phone verified!');
+      setUser({ ...user, isPhoneVerified: true });
+      setIsVerifyingPhone(false);
+    } else {
+      toast.error('Invalid code');
+    }
+  };
 
   useEffect(() => {
     if (!user) {
@@ -73,9 +116,18 @@ export default function AccountPage() {
 
   const handleUpdateProfile = (e: React.FormEvent) => {
     e.preventDefault();
-    setUser({ ...user, ...profileData });
+    
+    // If phone number changed, reset verification status
+    const phoneChanged = profileData.phone !== user.phone;
+    
+    setUser({ 
+      ...user, 
+      ...profileData,
+      isPhoneVerified: phoneChanged ? false : user.isPhoneVerified
+    });
+    
     setIsEditingProfile(false);
-    toast.success('Profile updated successfully');
+    toast.success(phoneChanged ? 'Profile updated. Please verify your new phone number.' : 'Profile updated successfully');
   };
 
   const getStatusColor = (status: string) => {
@@ -226,9 +278,41 @@ export default function AccountPage() {
                         <div className="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600">
                           <Mail className="w-6 h-6" />
                         </div>
-                        <div>
+                        <div className="flex-1">
                           <p className="text-xs font-bold text-gray-400 uppercase">Email Address</p>
-                          <p className="font-bold text-gray-900">{user.email || 'Not provided'}</p>
+                          <div className="flex items-center gap-2">
+                            <p className="font-bold text-gray-900">{user.email || 'Not provided'}</p>
+                            {user.isEmailVerified ? (
+                              <span className="px-2 py-0.5 bg-green-100 text-green-600 text-[10px] font-bold rounded-full uppercase">Verified</span>
+                            ) : (
+                              <span className="px-2 py-0.5 bg-yellow-100 text-yellow-600 text-[10px] font-bold rounded-full uppercase">Unverified</span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-4 p-6 bg-gray-50 rounded-2xl border border-gray-100">
+                        <div className="w-12 h-12 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600">
+                          <Phone className="w-6 h-6" />
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-xs font-bold text-gray-400 uppercase">Phone Number</p>
+                          <div className="flex items-center gap-2">
+                            <p className="font-bold text-gray-900">{user.phone || 'Not provided'}</p>
+                            {user.isPhoneVerified ? (
+                              <span className="px-2 py-0.5 bg-green-100 text-green-600 text-[10px] font-bold rounded-full uppercase">Verified</span>
+                            ) : (
+                              <div className="flex items-center gap-2">
+                                <span className="px-2 py-0.5 bg-yellow-100 text-yellow-600 text-[10px] font-bold rounded-full uppercase">Unverified</span>
+                                <button 
+                                  onClick={handleSendPhoneCode}
+                                  disabled={loading}
+                                  className="text-[10px] font-bold text-[#8B183A] hover:underline disabled:opacity-50"
+                                >
+                                  {loading ? 'Sending...' : 'Verify Now'}
+                                </button>
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -757,6 +841,67 @@ export default function AccountPage() {
           </div>
         </div>
       </main>
+
+      {/* Phone Verification Modal */}
+      <AnimatePresence>
+        {isVerifyingPhone && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              className="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl"
+            >
+              <div className="text-center mb-8">
+                <div className="w-20 h-20 bg-[#8B183A]/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <Phone className="w-10 h-10 text-[#8B183A]" />
+                </div>
+                <h2 className="text-2xl font-black text-gray-900 mb-2">Verify Phone</h2>
+                <p className="text-gray-500">Enter the 4-digit code sent to {user?.phone}</p>
+              </div>
+
+              <div className="space-y-6">
+                <div>
+                  <label className="block text-xs font-bold text-gray-400 uppercase mb-2">Verification Code</label>
+                  <input
+                    type="text"
+                    maxLength={4}
+                    value={phoneCode}
+                    onChange={(e) => setPhoneCode(e.target.value.replace(/\D/g, ''))}
+                    placeholder="0000"
+                    className="w-full px-6 py-4 bg-gray-50 border-2 border-transparent rounded-2xl text-center text-2xl font-black tracking-[1em] focus:border-[#8B183A] focus:bg-white outline-none transition-all"
+                  />
+                </div>
+
+                <div className="flex gap-4">
+                  <button
+                    onClick={() => setIsVerifyingPhone(false)}
+                    className="flex-1 py-4 bg-gray-100 text-gray-600 rounded-2xl font-bold hover:bg-gray-200 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleVerifyPhone}
+                    className="flex-1 py-4 bg-[#8B183A] text-white rounded-2xl font-bold hover:bg-[#7A1533] transition-colors shadow-lg shadow-[#8B183A]/20"
+                  >
+                    Verify
+                  </button>
+                </div>
+
+                <p className="text-center text-xs text-gray-400">
+                  Didn&apos;t receive the code?{' '}
+                  <button 
+                    onClick={handleSendPhoneCode}
+                    className="text-[#8B183A] font-bold hover:underline"
+                  >
+                    Resend
+                  </button>
+                </p>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

@@ -43,7 +43,7 @@ type StoreState = {
   brands: string[];
   cart: CartItem[];
   orders: Order[];
-  user: { id: string; name: string; phone: string; email: string; role: 'user' | 'admin' | 'suspect'; isProfileCompleted: boolean } | null;
+  user: { id: string; name: string; phone: string; email: string; role: 'user' | 'admin' | 'suspect'; isProfileCompleted: boolean; isEmailVerified: boolean; isPhoneVerified: boolean } | null;
   isCartOpen: boolean;
   offerBanners: string[];
   copyrightText: string;
