@@ -23,6 +23,9 @@ export default function AdminLogin() {
         phone: '+880 1700 000000',
         email: 'admin@needieshop.bd',
         role: 'admin',
+        isProfileCompleted: true,
+        isEmailVerified: true,
+        isPhoneVerified: true
       });
       toast.success('Welcome back, Admin!');
       router.push('/admin');

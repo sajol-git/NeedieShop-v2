@@ -7,6 +7,7 @@ import { motion } from 'motion/react';
 import { DistrictDropdown } from '@/components/DistrictDropdown';
 import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase';
+import Link from 'next/link';
 
 export default function OnboardingPage() {
   const router = useRouter();
@@ -16,6 +17,7 @@ export default function OnboardingPage() {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
+    password: '',
     phone: '',
     code: '',
     sentCode: '',
@@ -25,38 +27,59 @@ export default function OnboardingPage() {
 
   // Step 1: Name & Email Signup
   const handleSignup = async () => {
-    if (!formData.name || !formData.email) {
-      toast.error('Please enter name and email');
+    if (!formData.name || !formData.email || !formData.password) {
+      toast.error('Please enter name, email, and password');
+      return;
+    }
+    if (formData.password.length < 6) {
+      toast.error('Password must be at least 6 characters');
       return;
     }
     setLoading(true);
-    const { data, error } = await supabase.auth.signUp({
-      email: formData.email,
-      password: 'temporary_password_123', // Supabase requires a password for email signup
-      options: {
-        data: {
-          full_name: formData.name,
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email: formData.email,
+        password: formData.password,
+        options: {
+          data: {
+            full_name: formData.name,
+          },
         },
-      },
-    });
+      });
 
-    if (error) {
-      toast.error(error.message);
-    } else {
-      toast.success('Verification email sent! Please check your inbox.');
-      setStep(2);
+      if (error) {
+        toast.error(error.message);
+      } else {
+        toast.success('Verification email sent! Please check your inbox.');
+        setStep(2);
+      }
+    } catch (err: any) {
+      if (err.message === 'Failed to fetch') {
+        toast.error('Supabase is not configured. Please add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to your environment variables.');
+      } else {
+        toast.error(err.message || 'An error occurred during signup');
+      }
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   // Step 2: Wait for Email Verification (Manual check for demo or poll)
   const checkEmailVerified = async () => {
-    const { data: { user: sbUser } } = await supabase.auth.getUser();
-    if (sbUser?.email_confirmed_at) {
-      toast.success('Email verified!');
-      setStep(3);
-    } else {
-      toast.error('Email not verified yet. Please check your inbox.');
+    try {
+      const { data: { user: sbUser } } = await supabase.auth.getUser();
+      if (sbUser?.email_confirmed_at) {
+        toast.success('Email verified!');
+        setStep(3);
+      } else {
+        toast.error('Email not verified yet. Please check your inbox.');
+      }
+    } catch (err: any) {
+      if (err.message === 'Failed to fetch') {
+        toast.error('Supabase is not configured. Please add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to your environment variables.');
+      } else {
+        toast.error(err.message || 'An error occurred while checking verification');
+      }
     }
   };
 
@@ -131,9 +154,16 @@ export default function OnboardingPage() {
           <div className="space-y-4">
             <input type="text" placeholder="Full Name" value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} className="w-full px-4 py-3 rounded-3xl border border-gray-200" />
             <input type="email" placeholder="Email Address" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} className="w-full px-4 py-3 rounded-3xl border border-gray-200" />
+            <input type="password" placeholder="Password" value={formData.password} onChange={(e) => setFormData({...formData, password: e.target.value})} className="w-full px-4 py-3 rounded-3xl border border-gray-200" />
             <button onClick={handleSignup} disabled={loading} className="w-full bg-[#8B183A] text-white py-3 rounded-full font-semibold mt-4 hover:bg-[#6d122d] transition-colors disabled:opacity-50">
               {loading ? 'Sending...' : 'Sign Up'}
             </button>
+            <div className="mt-4 text-center text-sm text-gray-500">
+              Already have an account?{' '}
+              <Link href="/login" className="text-[#8B183A] font-semibold hover:underline">
+                Log in
+              </Link>
+            </div>
           </div>
         )}
 

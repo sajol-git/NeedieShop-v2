@@ -83,7 +83,9 @@ export default function AccountPage() {
   const handleVerifyPhone = () => {
     if (phoneCode === sentCode || phoneCode === '1234') {
       toast.success('Phone verified!');
-      setUser({ ...user, isPhoneVerified: true });
+      if (user) {
+        setUser({ ...user, isPhoneVerified: true });
+      }
       setIsVerifyingPhone(false);
     } else {
       toast.error('Invalid code');
@@ -117,6 +119,8 @@ export default function AccountPage() {
   const handleUpdateProfile = (e: React.FormEvent) => {
     e.preventDefault();
     
+    if (!user) return;
+
     // If phone number changed, reset verification status
     const phoneChanged = profileData.phone !== user.phone;
     

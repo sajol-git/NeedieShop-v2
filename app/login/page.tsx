@@ -14,13 +14,21 @@ export default function CustomerLogin() {
   const router = useRouter();
 
   const handleGoogleLogin = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-      },
-    });
-    if (error) toast.error(error.message);
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+        },
+      });
+      if (error) toast.error(error.message);
+    } catch (err: any) {
+      if (err.message === 'Failed to fetch') {
+        toast.error('Supabase is not configured. Please add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to your environment variables.');
+      } else {
+        toast.error(err.message || 'An error occurred during login');
+      }
+    }
   };
 
   const handlePhoneLogin = () => {
@@ -77,6 +85,13 @@ export default function CustomerLogin() {
                   <Phone className="w-4 h-4" />
                   Sign in with Phone
                 </button>
+              </div>
+
+              <div className="mt-6 text-center text-sm text-gray-500">
+                Don&apos;t have an account?{' '}
+                <Link href="/onboarding" className="text-[#8B183A] font-semibold hover:underline">
+                  Sign up
+                </Link>
               </div>
             </div>
           </div>
