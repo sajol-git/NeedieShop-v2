@@ -1,8 +1,9 @@
 import { motion, AnimatePresence } from 'motion/react';
-import { X, Minus, Plus, Trash2, ShoppingCart } from 'lucide-react';
+import { X, Minus, Plus, Trash2 } from 'lucide-react';
 import { useStore } from '@/store/useStore';
 import Link from 'next/link';
 import Image from 'next/image';
+import { CartIcon } from './icons';
 
 export function CartDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const { cart, removeFromCart, updateCartQuantity } = useStore();
@@ -51,7 +52,7 @@ export function CartDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () =
             <div className="flex-1 overflow-y-auto p-6 space-y-6">
               {cart.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-full text-gray-500">
-                  <ShoppingCart className="w-12 h-12 mb-4 text-gray-300" />
+                  <CartIcon className="w-16 h-16 mb-4 text-gray-300" />
                   <p>Your cart is empty.</p>
                 </div>
               ) : (

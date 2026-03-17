@@ -1,12 +1,18 @@
+'use client';
+
 import Link from 'next/link';
-import { Menu, Search, Heart, X } from 'lucide-react';
+import { 
+  Menu, Search, Heart, X, 
+  PlusCircle, MapPin, 
+  Crown, Headphones, User, LogOut 
+} from 'lucide-react';
 import { useStore } from '@/store/useStore';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { CartDrawer } from './CartDrawer';
 import { useRouter, usePathname } from 'next/navigation';
 import Image from 'next/image';
-import { AccountIcon, AddToBagIcon } from './icons';
+import { AccountIcon, AddToBagIcon, CartIcon, HomeIcon, OverviewIcon, TrackOrderIcon } from './icons';
 
 export function Navbar() {
   const isCartOpen = useStore((state) => state.isCartOpen);
@@ -15,9 +21,27 @@ export function Navbar() {
   const cartItems = useStore((state) => state.cart);
   const user = useStore((state) => state.user);
   const setUser = useStore((state) => state.setUser);
+  const orders = useStore((state) => state.orders);
   const cartCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
   const router = useRouter();
   const pathname = usePathname();
+
+  const userOrders = useMemo(() => 
+    orders.filter(o => o.customerInfo.phone === user?.phone),
+    [orders, user?.phone]
+  );
+  
+  const completedOrdersCount = useMemo(() => 
+    userOrders.filter(o => o.status === 'Delivered').length,
+    [userOrders]
+  );
+
+  const primeTier = useMemo(() => {
+    if (completedOrdersCount >= 10) return { name: 'Royal', benefit: 'Lifetime Free Delivery', color: 'text-amber-600', bg: 'bg-amber-50' };
+    if (completedOrdersCount >= 5) return { name: 'Enthusiast', benefit: '10% Off (Up to 200tk)', color: 'text-indigo-600', bg: 'bg-indigo-50' };
+    if (completedOrdersCount >= 2) return { name: 'Pro', benefit: 'Free Delivery (Next 3 Orders)', color: 'text-emerald-600', bg: 'bg-emerald-50' };
+    return null;
+  }, [completedOrdersCount]);
 
   const handleLogout = () => {
     setUser(null);
@@ -63,18 +87,19 @@ export function Navbar() {
               <button className="p-2 text-gray-900 hover:text-[#8B183A] transition-colors">
                 <Search className="w-6 h-6" />
               </button>
+              
+              <Link 
+                href={user ? "/account" : "/login"} 
+                className="p-2 text-gray-900 hover:text-[#8B183A] transition-colors"
+              >
+                <AccountIcon className="w-6 h-6" />
+              </Link>
+
               <button 
                 className="p-2 text-gray-900 hover:text-[#8B183A] transition-colors relative"
                 onClick={() => setIsCartOpen(true)}
               >
-                <Image 
-                  src="https://res.cloudinary.com/byngla/image/upload/v1773672358/okvjhvnrrbk51kx5lf87.webp"
-                  alt="Cart"
-                  width={24}
-                  height={24}
-                  className="w-6 h-6"
-                  referrerPolicy="no-referrer"
-                />
+                <CartIcon className="w-6 h-6" />
                 {cartCount > 0 && (
                   <span className="absolute top-0 right-0 bg-[#D31B27] text-white text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-full">
                     {cartCount}
@@ -123,59 +148,136 @@ export function Navbar() {
               </div>
 
               <div className="flex-1 overflow-y-auto py-6 px-6">
-                <div className="space-y-6">
-                  {navLinks.map((link) => (
+                {user?.role === 'user' ? (
+                  <div className="space-y-1">
                     <Link 
-                      key={link.name}
-                      href={link.href}
+                      href="/shop"
                       onClick={() => setIsMenuOpen(false)}
-                      className={`block text-lg font-bold transition-colors ${
-                        pathname === link.href ? 'text-[#8B183A]' : 'text-gray-900'
-                      }`}
+                      className="flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-[#8B183A] bg-[#8B183A]/5 mb-4"
                     >
-                      {link.name}
+                      <PlusCircle className="w-5 h-5" />
+                      Add Order
                     </Link>
-                  ))}
-                </div>
 
-                <div className="mt-12 pt-12 border-t border-gray-100 space-y-6">
-                  <Link 
-                    href="/wishlist" 
-                    onClick={() => setIsMenuOpen(false)}
-                    className="flex items-center gap-3 text-gray-600 font-medium"
-                  >
-                    <Heart className="w-5 h-5" />
-                    Wishlist
-                  </Link>
-                  {user ? (
-                    <>
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-[#8B183A]/10 rounded-full flex items-center justify-center text-[#8B183A] font-bold">
-                          {user.name.charAt(0).toUpperCase()}
-                        </div>
-                        <div className="flex flex-col">
-                          <span className="text-sm font-bold text-gray-900">{user.name}</span>
-                          <span className="text-xs text-gray-500">{user.email}</span>
-                        </div>
-                      </div>
-                      <button 
-                        onClick={handleLogout}
-                        className="w-full py-3 bg-gray-100 text-gray-900 rounded-full font-bold hover:bg-gray-200 transition-colors"
+                    {[
+                      { name: 'Overview', href: '/account', icon: OverviewIcon },
+                      { name: 'My Orders', href: '/account/orders', icon: TrackOrderIcon },
+                      { name: 'My Address', href: '/account/address', icon: MapPin },
+                      { name: 'Support', href: '/support', icon: Headphones },
+                      { name: 'Profile', href: '/account/profile', icon: User },
+                    ].map((item) => (
+                      <Link 
+                        key={item.name}
+                        href={item.href}
+                        onClick={() => setIsMenuOpen(false)}
+                        className={`flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-colors ${
+                          pathname === item.href ? 'bg-gray-100 text-[#8B183A]' : 'text-gray-900 hover:bg-gray-50'
+                        }`}
                       >
-                        Logout
-                      </button>
-                    </>
-                  ) : (
-                    <Link 
-                      href="/login" 
-                      onClick={() => setIsMenuOpen(false)}
-                      className="flex items-center gap-3 text-gray-600 font-medium"
+                        <item.icon className="w-5 h-5" />
+                        {item.name}
+                      </Link>
+                    ))}
+
+                    <div className="mt-6 pt-6 border-t border-gray-100">
+                      <div className={`p-4 rounded-2xl border ${primeTier ? 'border-indigo-100 bg-indigo-50/30' : 'border-gray-100 bg-gray-50/30'}`}>
+                        <div className="flex items-center gap-2 mb-2">
+                          <Crown className={`w-5 h-5 ${primeTier?.color || 'text-gray-400'}`} />
+                          <span className="font-black text-sm uppercase tracking-wider">NeediePrime</span>
+                          {primeTier && (
+                            <span className={`ml-auto px-2 py-0.5 rounded-full text-[10px] font-black uppercase ${primeTier.bg} ${primeTier.color}`}>
+                              {primeTier.name}
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-xs text-gray-500 leading-relaxed">
+                          {primeTier 
+                            ? `You are a ${primeTier.name} customer! Benefit: ${primeTier.benefit}`
+                            : "Complete 2 orders to unlock Pro benefits including free delivery!"
+                          }
+                        </p>
+                        {!primeTier && (
+                          <div className="mt-3 h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
+                            <div 
+                              className="h-full bg-[#8B183A] transition-all duration-500" 
+                              style={{ width: `${(completedOrdersCount / 2) * 100}%` }}
+                            />
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    <button 
+                      onClick={handleLogout}
+                      className="w-full mt-8 flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-red-600 hover:bg-red-50 transition-colors"
                     >
-                      <AccountIcon className="w-5 h-5" />
-                      Login / Register
-                    </Link>
-                  )}
-                </div>
+                      <LogOut className="w-5 h-5" />
+                      Logout
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    <div className="space-y-6">
+                      {navLinks.map((link) => (
+                        <Link 
+                          key={link.name}
+                          href={link.href}
+                          onClick={() => setIsMenuOpen(false)}
+                          className={`flex items-center gap-3 text-lg font-bold transition-colors ${
+                            pathname === link.href ? 'text-[#8B183A]' : 'text-gray-900'
+                          }`}
+                        >
+                          {link.name === 'Home' && <HomeIcon className="w-5 h-5" />}
+                          {link.name === 'Track Order' && <TrackOrderIcon className="w-5 h-5" />}
+                          {link.name}
+                        </Link>
+                      ))}
+                    </div>
+
+                    <div className="mt-12 pt-12 border-t border-gray-100 space-y-6">
+                      <Link 
+                        href="/wishlist" 
+                        onClick={() => setIsMenuOpen(false)}
+                        className="flex items-center gap-3 text-gray-600 font-medium"
+                      >
+                        <Heart className="w-5 h-5" />
+                        Wishlist
+                      </Link>
+                      {user ? (
+                        <>
+                          <Link 
+                            href="/account"
+                            onClick={() => setIsMenuOpen(false)}
+                            className="flex items-center gap-3"
+                          >
+                            <div className="w-10 h-10 bg-[#8B183A]/10 rounded-full flex items-center justify-center text-[#8B183A] font-bold">
+                              {user.name.charAt(0).toUpperCase()}
+                            </div>
+                            <div className="flex flex-col">
+                              <span className="text-sm font-bold text-gray-900">{user.name}</span>
+                              <span className="text-xs text-gray-500">My Account</span>
+                            </div>
+                          </Link>
+                          <button 
+                            onClick={handleLogout}
+                            className="w-full py-3 bg-gray-100 text-gray-900 rounded-full font-bold hover:bg-gray-200 transition-colors"
+                          >
+                            Logout
+                          </button>
+                        </>
+                      ) : (
+                        <Link 
+                          href="/login" 
+                          onClick={() => setIsMenuOpen(false)}
+                          className="flex items-center gap-3 text-gray-600 font-medium"
+                        >
+                          <AccountIcon className="w-5 h-5" />
+                          Login / Register
+                        </Link>
+                      )}
+                    </div>
+                  </>
+                )}
               </div>
 
               <div className="p-6 border-t border-gray-100">

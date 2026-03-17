@@ -3,9 +3,9 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-import { Home, Truck, LayoutGrid } from 'lucide-react';
+import { LayoutGrid } from 'lucide-react';
 import { useStore } from '@/store/useStore';
-import { AddToBagIcon, AccountIcon } from './icons';
+import { HomeIcon, CartIcon, AccountIcon, TrackOrderIcon } from './icons';
 
 export function MobileBottomNav() {
   const pathname = usePathname();
@@ -21,10 +21,10 @@ export function MobileBottomNav() {
   if (isCartOpen || isProductPage || isCheckoutPage || isAccountPage || isAdminPage) return null;
 
   const navItems = [
-    { name: 'Home', href: '/', icon: Home },
+    { name: 'Home', href: '/', icon: HomeIcon },
     { name: 'Shop', href: '/shop', icon: LayoutGrid },
-    { name: 'Checkout', href: '/checkout', icon: AddToBagIcon, count: cartCount },
-    { name: 'Track', href: '/track-order', icon: Truck },
+    { name: 'Checkout', href: '/checkout', icon: CartIcon, count: cartCount },
+    { name: 'Track', href: '/track-order', icon: TrackOrderIcon },
     { name: 'Account', href: '/login', icon: AccountIcon },
   ];
 
@@ -42,7 +42,7 @@ export function MobileBottomNav() {
                 href={item.href} 
                 className="flex items-center gap-2 bg-[#0B1120] text-white px-4 py-2 rounded-full transition-all duration-300 shadow-lg shadow-gray-200"
               >
-                <Icon className="w-5 h-5" />
+                <Icon className="w-6 h-6" />
                 <span className="text-xs font-bold tracking-tight">
                   {item.name}
                 </span>
@@ -58,9 +58,9 @@ export function MobileBottomNav() {
           return (
             <Link key={item.name} href={item.href} className="relative p-3 group">
               {item.name === 'Bag' ? (
-                <Image src="/cart-icon.png" alt="Bag" width={20} height={20} className="w-5 h-5" />
+                <Image src="/cart-icon.png" alt="Bag" width={24} height={24} className="w-6 h-6" />
               ) : (
-                <Icon className="w-5 h-5 text-gray-400 group-hover:text-gray-600 transition-colors" />
+                <Icon className="w-6 h-6 text-gray-400 group-hover:text-gray-600 transition-colors" />
               )}
               {item.count !== undefined && item.count > 0 && (
                 <span className="absolute top-1 right-1 w-4 h-4 bg-[#8B183A] text-white text-[8px] font-black rounded-full flex items-center justify-center border-2 border-white shadow-lg">

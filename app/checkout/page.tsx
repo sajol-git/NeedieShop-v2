@@ -13,7 +13,7 @@ import {
   ShieldCheck,
   Trash2
 } from 'lucide-react';
-import { AddToBagIcon, AccountIcon } from '@/components/icons';
+import { CartIcon, AccountIcon } from '@/components/icons';
 import Link from 'next/link';
 import { useState } from 'react';
 import { toast } from 'sonner';
@@ -69,6 +69,13 @@ export default function CheckoutPage() {
         address: formData.address,
         zone: formData.zone,
       },
+      trackingHistory: [
+        {
+          status: 'Pending',
+          date: new Date().toISOString(),
+          message: 'Order placed successfully.',
+        },
+      ],
       createdAt: new Date().toISOString(),
     };
 
@@ -84,7 +91,7 @@ export default function CheckoutPage() {
         <Navbar />
         <div className="text-center space-y-6">
           <div className="w-24 h-24 bg-gray-50 rounded-full flex items-center justify-center mx-auto">
-            <AddToBagIcon className="w-12 h-12 text-gray-300" />
+            <CartIcon className="w-12 h-12 text-gray-300" />
           </div>
           <h1 className="text-3xl font-bold text-gray-900">Your cart is empty</h1>
           <p className="text-gray-500 max-w-xs mx-auto">Looks like you haven&apos;t added anything to your cart yet.</p>
@@ -247,7 +254,7 @@ export default function CheckoutPage() {
             <div className="sticky top-24 space-y-6">
               <section className="bg-white rounded-3xl p-8 md:p-10 shadow-sm border border-gray-100">
                 <h2 className="text-xl font-bold mb-8 flex items-center gap-3 text-gray-900">
-                  <AddToBagIcon className="w-6 h-6 text-[#F14B24]" />
+                  <CartIcon className="w-6 h-6 text-[#F14B24]" />
                   Order Summary
                 </h2>
 

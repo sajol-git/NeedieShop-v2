@@ -1,30 +1,19 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { initialProducts, type Product } from '@/lib/products';
 
-export type Product = {
-  id: string;
-  name: string;
-  description: string;
-  metaTitle?: string;
-  metaDescription?: string;
-  price: number;
-  compareAtPrice?: number;
-  images: string[];
-  category: string;
-  brand: string;
-  stock: number;
-  variants: { id: string; name: string; price: number; stock: number }[];
-  specifications: { name: string; value: string }[];
-  isFeatured: boolean;
-  isFlashSale: boolean;
-  flashSaleEndTime?: string;
-  relatedProducts: string[];
-};
+export type { Product };
 
 export type CartItem = {
   product: Product;
   variantId?: string;
   quantity: number;
+};
+
+export type OrderStatusUpdate = {
+  status: 'Pending' | 'Processing' | 'Shipped' | 'Delivered' | 'Cancelled';
+  date: string;
+  message: string;
 };
 
 export type Order = {
@@ -42,6 +31,8 @@ export type Order = {
     address: string;
     zone: 'Inside Dhaka' | 'Outside Dhaka';
   };
+  trackingNumber?: string;
+  trackingHistory: OrderStatusUpdate[];
   createdAt: string;
 };
 
@@ -53,6 +44,8 @@ type StoreState = {
   orders: Order[];
   user: { id: string; name: string; phone: string; email: string; role: 'user' | 'admin' | 'suspect' } | null;
   isCartOpen: boolean;
+  offerBanners: string[];
+  copyrightText: string;
   
   // Actions
   setProducts: (products: Product[]) => void;
@@ -61,6 +54,8 @@ type StoreState = {
   deleteProduct: (id: string) => void;
   setCategories: (categories: string[]) => void;
   setBrands: (brands: string[]) => void;
+  setOfferBanners: (banners: string[]) => void;
+  setCopyrightText: (text: string) => void;
   
   addToCart: (product: Product, variantId?: string, quantity?: number) => void;
   removeFromCart: (productId: string, variantId?: string) => void;
@@ -74,75 +69,6 @@ type StoreState = {
   setUser: (user: StoreState['user']) => void;
 };
 
-const initialProducts: Product[] = [
-  {
-    id: 'p1',
-    name: 'Aura Pro Max Wireless Earbuds',
-    description: 'Experience premium sound with active noise cancellation and 40-hour battery life.',
-    price: 4500,
-    compareAtPrice: 5500,
-    images: ['https://picsum.photos/seed/earbuds1/800/800', 'https://picsum.photos/seed/earbuds2/800/800'],
-    category: 'Audio',
-    brand: 'Aura',
-    stock: 50,
-    variants: [
-      { id: 'v1', name: 'Midnight Black', price: 4500, stock: 25 },
-      { id: 'v2', name: 'Frost White', price: 4500, stock: 25 },
-    ],
-    specifications: [
-      { name: 'Bluetooth', value: '5.3' },
-      { name: 'Battery Life', value: 'Up to 40 hours' },
-      { name: 'ANC', value: 'Yes, up to 40dB' },
-    ],
-    isFeatured: true,
-    isFlashSale: true,
-    flashSaleEndTime: new Date(Date.now() + 86400000).toISOString(),
-    relatedProducts: ['p2', 'p3'],
-  },
-  {
-    id: 'p2',
-    name: 'Titanium Smartwatch Series X',
-    description: 'Track your fitness, heart rate, and notifications with this sleek titanium smartwatch.',
-    price: 8900,
-    images: ['https://picsum.photos/seed/watch1/800/800'],
-    category: 'Wearables',
-    brand: 'Titanium',
-    stock: 15,
-    variants: [],
-    specifications: [
-      { name: 'Display', value: '1.43" AMOLED' },
-      { name: 'Water Resistance', value: '5ATM' },
-      { name: 'Battery', value: '14 Days' },
-    ],
-    isFeatured: true,
-    isFlashSale: false,
-    relatedProducts: ['p1'],
-  },
-  {
-    id: 'p3',
-    name: 'GamerX Mechanical Keyboard',
-    description: 'RGB mechanical keyboard with custom tactile switches for the ultimate gaming experience.',
-    price: 3200,
-    compareAtPrice: 4000,
-    images: ['https://picsum.photos/seed/keyboard1/800/800'],
-    category: 'Gaming',
-    brand: 'GamerX',
-    stock: 100,
-    variants: [
-      { id: 'v3', name: 'Blue Switches', price: 3200, stock: 50 },
-      { id: 'v4', name: 'Red Switches', price: 3200, stock: 50 },
-    ],
-    specifications: [
-      { name: 'Switches', value: 'Custom Tactile' },
-      { name: 'Backlight', value: 'RGB 16.8M Colors' },
-      { name: 'Connectivity', value: 'Wired USB-C' },
-    ],
-    isFeatured: false,
-    isFlashSale: false,
-    relatedProducts: [],
-  }
-];
-
 export const useStore = create<StoreState>()(
   persist(
     (set) => ({
@@ -150,9 +76,73 @@ export const useStore = create<StoreState>()(
       categories: ['Gadgets', 'Wearables', 'Audio', 'Gaming'],
       brands: ['Aura', 'Titanium', 'GamerX'],
       cart: [],
-      orders: [],
-      user: null,
+      orders: [
+        {
+          id: 'ORD-1710632400000',
+          items: [
+            {
+              product: initialProducts[0],
+              quantity: 1,
+            }
+          ],
+          total: 125060,
+          subtotal: 125000,
+          shippingFee: 60,
+          advancePayment: 0,
+          dueAmount: 125060,
+          status: 'Shipped',
+          customerInfo: {
+            name: 'Demo User',
+            phone: '01712345678',
+            address: 'House 1, Road 1, Dhanmondi, Dhaka',
+            zone: 'Inside Dhaka',
+          },
+          trackingHistory: [
+            { status: 'Pending', date: '2026-03-15T10:00:00Z', message: 'Order placed successfully.' },
+            { status: 'Processing', date: '2026-03-15T14:00:00Z', message: 'Our team is preparing your order.' },
+            { status: 'Shipped', date: '2026-03-16T09:00:00Z', message: 'Your order has been handed over to the courier.' },
+          ],
+          createdAt: '2026-03-15T10:00:00Z',
+        },
+        {
+          id: 'ORD-1710546000000',
+          items: [
+            {
+              product: initialProducts[1],
+              quantity: 2,
+            }
+          ],
+          total: 17120,
+          subtotal: 17000,
+          shippingFee: 120,
+          advancePayment: 0,
+          dueAmount: 17120,
+          status: 'Delivered',
+          customerInfo: {
+            name: 'Demo User',
+            phone: '01712345678',
+            address: 'House 1, Road 1, Dhanmondi, Dhaka',
+            zone: 'Inside Dhaka',
+          },
+          trackingHistory: [
+            { status: 'Pending', date: '2026-03-14T08:00:00Z', message: 'Order placed successfully.' },
+            { status: 'Processing', date: '2026-03-14T11:00:00Z', message: 'Our team is preparing your order.' },
+            { status: 'Shipped', date: '2026-03-14T16:00:00Z', message: 'Your order has been handed over to the courier.' },
+            { status: 'Delivered', date: '2026-03-15T12:00:00Z', message: 'Order delivered successfully.' },
+          ],
+          createdAt: '2026-03-14T08:00:00Z',
+        }
+      ],
+      user: {
+        id: 'user-1',
+        name: 'Demo User',
+        phone: '01712345678',
+        email: 'demo@example.com',
+        role: 'user'
+      },
       isCartOpen: false,
+      offerBanners: [],
+      copyrightText: '© 2026 NeedieShop. All rights reserved.',
 
       setProducts: (products) => set({ products }),
       addProduct: (product) => set((state) => ({ products: [...state.products, product] })),
@@ -164,6 +154,8 @@ export const useStore = create<StoreState>()(
       })),
       setCategories: (categories) => set({ categories }),
       setBrands: (brands) => set({ brands }),
+      setOfferBanners: (offerBanners) => set({ offerBanners }),
+      setCopyrightText: (copyrightText) => set({ copyrightText }),
 
       addToCart: (product, variantId, quantity = 1) => set((state) => {
         const existingItemIndex = state.cart.findIndex(
@@ -193,7 +185,30 @@ export const useStore = create<StoreState>()(
 
       addOrder: (order) => set((state) => ({ orders: [order, ...state.orders] })),
       updateOrderStatus: (id, status) => set((state) => ({
-        orders: state.orders.map((o) => (o.id === id ? { ...o, status } : o)),
+        orders: state.orders.map((o) => {
+          if (o.id === id) {
+            const messages = {
+              Pending: 'Order placed successfully.',
+              Processing: 'Our team is preparing your order.',
+              Shipped: 'Your order has been handed over to the courier.',
+              Delivered: 'Order delivered successfully.',
+              Cancelled: 'Order has been cancelled.',
+            };
+            return {
+              ...o,
+              status,
+              trackingHistory: [
+                ...o.trackingHistory,
+                {
+                  status,
+                  date: new Date().toISOString(),
+                  message: messages[status],
+                },
+              ],
+            };
+          }
+          return o;
+        }),
       })),
 
       setUser: (user) => set({ user }),

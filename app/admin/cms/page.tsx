@@ -19,10 +19,50 @@ export default function AdminCMS() {
     discount: 'Up to 60% OFF'
   });
 
+  const [cmsCategories, setCmsCategories] = useState([
+    { id: 1, name: 'Smartphones', image: 'https://picsum.photos/seed/cat1/200/200', order: 1 },
+    { id: 2, name: 'Laptops', image: 'https://picsum.photos/seed/cat2/200/200', order: 2 },
+    { id: 3, name: 'Audio', image: 'https://picsum.photos/seed/cat3/200/200', order: 3 },
+    { id: 4, name: 'Wearables', image: 'https://picsum.photos/seed/cat4/200/200', order: 4 },
+  ]);
+
   const { offerBanners, setOfferBanners, copyrightText, setCopyrightText } = useStore();
 
   return (
     <div className="space-y-8">
+      {/* Footer Settings */}
+      <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center">
+              <Settings className="w-5 h-5 text-slate-600" />
+            </div>
+            <div>
+              <h2 className="text-lg font-semibold text-gray-900">Footer Settings</h2>
+              <p className="text-sm text-gray-500">Manage site-wide footer content.</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="max-w-2xl">
+          <label className="block text-sm font-medium text-gray-700 mb-1">Copyright Text</label>
+          <div className="flex gap-3">
+            <input 
+              type="text" 
+              value={copyrightText} 
+              onChange={e => setCopyrightText(e.target.value)} 
+              className="flex-1 px-4 py-2 rounded-3xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 outline-none" 
+            />
+            <button 
+              onClick={() => toast.success('Copyright text updated!')}
+              className="bg-indigo-600 text-white px-6 py-2 rounded-3xl font-medium hover:bg-indigo-700 transition-colors"
+            >
+              Update
+            </button>
+          </div>
+        </div>
+      </div>
+
       {/* Hero Banners */}
       <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
         <div className="flex items-center justify-between mb-6">
@@ -132,7 +172,7 @@ export default function AdminCMS() {
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {categories.map((category) => (
+          {cmsCategories.map((category) => (
             <div key={category.id} className="border border-gray-100 rounded-2xl p-4 text-center hover:border-indigo-100 transition-colors group relative">
               <div className="w-20 h-20 mx-auto bg-gray-50 rounded-full mb-3 overflow-hidden relative">
                 <Image 

@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Sparkles, UploadCloud, Plus, Trash2, Check } from 'lucide-react';
-import { useStore, Product } from '@/store/useStore';
+import { useStore, type Product } from '@/store/useStore';
 import { GoogleGenAI } from '@google/genai';
 import { toast } from 'sonner';
 import Link from 'next/link';
@@ -11,9 +11,7 @@ import Image from 'next/image';
 
 export default function AddProductPage() {
   const router = useRouter();
-  const store = useStore();
-  console.log('Store:', store);
-  const { addProduct, categories, brands } = store;
+  const { addProduct, categories = [], brands = [] } = useStore();
   const [isGenerating, setIsGenerating] = useState(false);
   
   const [formData, setFormData] = useState({

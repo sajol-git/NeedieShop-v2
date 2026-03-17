@@ -14,7 +14,7 @@ export default function EditProductPage() {
   const params = useParams();
   const productId = params.id as string;
   
-  const { products, updateProduct } = useStore();
+  const { products, updateProduct, categories = [], brands = [] } = useStore();
   const [isGenerating, setIsGenerating] = useState(false);
   
   const [formData, setFormData] = useState({
@@ -302,21 +302,18 @@ export default function EditProductPage() {
                   onChange={(e) => setFormData({...formData, category: e.target.value})}
                   className="w-full px-3 py-2 border border-gray-300 rounded-3xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all bg-white"
                 >
-                  <option value="gadgets">Gadgets</option>
-                  <option value="wearables">Wearables</option>
-                  <option value="audio">Audio</option>
-                  <option value="gaming">Gaming</option>
+                  {categories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
                 </select>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Brand</label>
-                <input 
-                  type="text" 
+                <select 
                   value={formData.brand}
                   onChange={(e) => setFormData({...formData, brand: e.target.value})}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-3xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
-                  placeholder="e.g. Apple, Samsung"
-                />
+                  className="w-full px-3 py-2 border border-gray-300 rounded-3xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all bg-white"
+                >
+                  {brands.map(brand => <option key={brand} value={brand}>{brand}</option>)}
+                </select>
               </div>
             </div>
           </div>

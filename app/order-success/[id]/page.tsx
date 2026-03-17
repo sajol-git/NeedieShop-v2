@@ -2,7 +2,8 @@
 
 import { useStore } from '@/store/useStore';
 import { Navbar } from '@/components/Navbar';
-import { CheckCircle2, Package, Truck, ArrowRight, Home } from 'lucide-react';
+import { CheckCircle2, Package, Truck, ArrowRight } from 'lucide-react';
+import { HomeIcon } from '@/components/icons';
 import Link from 'next/link';
 import { use } from 'react';
 import { motion } from 'motion/react';
@@ -107,7 +108,7 @@ export default function OrderSuccessPage({ params }: { params: Promise<{ id: str
               Track Order
             </Link>
             <Link href="/" className="text-sm font-bold text-gray-400 hover:text-gray-900 transition-colors flex items-center gap-2">
-              <Home className="w-4 h-4" />
+              <HomeIcon className="w-4 h-4" />
               Back to Home
             </Link>
           </div>

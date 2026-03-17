@@ -50,6 +50,13 @@ export function QuickOrderModal({ isOpen, onClose, product, selectedVariantId, q
       dueAmount: total,
       status: 'Pending',
       customerInfo: formData,
+      trackingHistory: [
+        {
+          status: 'Pending',
+          date: new Date().toISOString(),
+          message: 'Order placed successfully.',
+        },
+      ],
       createdAt: new Date().toISOString(),
     };
 

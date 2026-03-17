@@ -17,6 +17,19 @@ export default function CustomerLogin() {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
+    if (email === 'demo@example.com' && password === 'demo123') {
+      setUser({
+        id: 'user-1',
+        name: 'Demo User',
+        phone: '01712345678',
+        email: 'demo@example.com',
+        role: 'user',
+      });
+      toast.success('Welcome back, Demo User!');
+      router.push('/account');
+      return;
+    }
+
     if (email && password) {
       setUser({
         id: 'user_' + Date.now(),
@@ -30,6 +43,12 @@ export default function CustomerLogin() {
     } else {
       toast.error('Please enter both email and password');
     }
+  };
+
+  const handleDemoLogin = () => {
+    setEmail('demo@example.com');
+    setPassword('demo123');
+    toast.info('Demo credentials filled. Click Sign In.');
   };
 
   return (
@@ -98,6 +117,14 @@ export default function CustomerLogin() {
                 >
                   Sign In
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </button>
+
+                <button 
+                  type="button"
+                  onClick={handleDemoLogin}
+                  className="w-full bg-indigo-50 text-indigo-600 py-3.5 rounded-full font-semibold hover:bg-indigo-100 transition-colors flex items-center justify-center gap-2 mt-2"
+                >
+                  Use Demo Account
                 </button>
               </form>
 
