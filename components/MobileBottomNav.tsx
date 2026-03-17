@@ -5,11 +5,12 @@ import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { LayoutGrid } from 'lucide-react';
 import { useStore } from '@/store/useStore';
-import { HomeIcon, CartIcon, AccountIcon, TrackOrderIcon } from './icons';
+import { HomeIcon, CartIcon, UserIcon, TrackOrderIcon } from './icons';
 
 export function MobileBottomNav() {
   const pathname = usePathname();
   const isCartOpen = useStore((state) => state.isCartOpen);
+  const user = useStore((state) => state.user);
   const cartCount = useStore((state) => state.cart.reduce((acc, item) => acc + item.quantity, 0));
 
   // Hide on specific pages: Product Details, Checkout, Account (Login/Register), Admin
@@ -25,7 +26,7 @@ export function MobileBottomNav() {
     { name: 'Shop', href: '/shop', icon: LayoutGrid },
     { name: 'Checkout', href: '/checkout', icon: CartIcon, count: cartCount },
     { name: 'Track', href: '/track-order', icon: TrackOrderIcon },
-    { name: 'Account', href: '/login', icon: AccountIcon },
+    { name: 'Account', href: user ? '/account' : '/login', icon: UserIcon },
   ];
 
   return (
@@ -42,7 +43,9 @@ export function MobileBottomNav() {
                 href={item.href} 
                 className="flex items-center gap-2 bg-[#0B1120] text-white px-4 py-2 rounded-full transition-all duration-300 shadow-lg shadow-gray-200"
               >
-                <Icon className="w-6 h-6" />
+                <div className="w-8 h-8 flex items-center justify-center">
+                  <Icon className={`w-6 h-6 ${['Account', 'Checkout', 'Track'].includes(item.name) ? 'scale-110' : ''}`} />
+                </div>
                 <span className="text-xs font-bold tracking-tight">
                   {item.name}
                 </span>
@@ -56,12 +59,14 @@ export function MobileBottomNav() {
           }
 
           return (
-            <Link key={item.name} href={item.href} className="relative p-3 group">
-              {item.name === 'Bag' ? (
-                <Image src="/cart-icon.png" alt="Bag" width={24} height={24} className="w-6 h-6" />
-              ) : (
-                <Icon className="w-6 h-6 text-gray-400 group-hover:text-gray-600 transition-colors" />
-              )}
+            <Link key={item.name} href={item.href} className="relative p-1 group">
+              <div className="w-10 h-10 flex items-center justify-center">
+                {item.name === 'Bag' ? (
+                  <Image src="/cart-icon.png" alt="Bag" width={24} height={24} className="w-6 h-6" />
+                ) : (
+                  <Icon className={`w-6 h-6 text-gray-400 group-hover:text-gray-600 transition-colors ${['Account', 'Checkout', 'Track'].includes(item.name) ? 'scale-110' : ''}`} />
+                )}
+              </div>
               {item.count !== undefined && item.count > 0 && (
                 <span className="absolute top-1 right-1 w-4 h-4 bg-[#8B183A] text-white text-[8px] font-black rounded-full flex items-center justify-center border-2 border-white shadow-lg">
                   {item.count}

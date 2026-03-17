@@ -30,6 +30,7 @@ export type Order = {
     phone: string;
     address: string;
     zone: 'Inside Dhaka' | 'Outside Dhaka';
+    ipAddress?: string;
   };
   trackingNumber?: string;
   trackingHistory: OrderStatusUpdate[];
@@ -42,10 +43,19 @@ type StoreState = {
   brands: string[];
   cart: CartItem[];
   orders: Order[];
-  user: { id: string; name: string; phone: string; email: string; role: 'user' | 'admin' | 'suspect' } | null;
+  user: { id: string; name: string; phone: string; email: string; role: 'user' | 'admin' | 'suspect'; isProfileCompleted: boolean } | null;
   isCartOpen: boolean;
   offerBanners: string[];
   copyrightText: string;
+  heroBanners: { id: number; title: string; image: string; link: string; status: 'Active' | 'Inactive' }[];
+  footerContent: {
+    address: string;
+    phone: string;
+    email: string;
+    facebook: string;
+    instagram: string;
+    youtube: string;
+  };
   
   // Actions
   setProducts: (products: Product[]) => void;
@@ -56,6 +66,8 @@ type StoreState = {
   setBrands: (brands: string[]) => void;
   setOfferBanners: (banners: string[]) => void;
   setCopyrightText: (text: string) => void;
+  setHeroBanners: (banners: StoreState['heroBanners']) => void;
+  setFooterContent: (content: StoreState['footerContent']) => void;
   
   addToCart: (product: Product, variantId?: string, quantity?: number) => void;
   removeFromCart: (productId: string, variantId?: string) => void;
@@ -72,77 +84,24 @@ type StoreState = {
 export const useStore = create<StoreState>()(
   persist(
     (set) => ({
-      products: initialProducts,
-      categories: ['Gadgets', 'Wearables', 'Audio', 'Gaming'],
-      brands: ['Aura', 'Titanium', 'GamerX'],
+      products: [],
+      categories: [],
+      brands: [],
       cart: [],
-      orders: [
-        {
-          id: 'ORD-1710632400000',
-          items: [
-            {
-              product: initialProducts[0],
-              quantity: 1,
-            }
-          ],
-          total: 125060,
-          subtotal: 125000,
-          shippingFee: 60,
-          advancePayment: 0,
-          dueAmount: 125060,
-          status: 'Shipped',
-          customerInfo: {
-            name: 'Demo User',
-            phone: '01712345678',
-            address: 'House 1, Road 1, Dhanmondi, Dhaka',
-            zone: 'Inside Dhaka',
-          },
-          trackingHistory: [
-            { status: 'Pending', date: '2026-03-15T10:00:00Z', message: 'Order placed successfully.' },
-            { status: 'Processing', date: '2026-03-15T14:00:00Z', message: 'Our team is preparing your order.' },
-            { status: 'Shipped', date: '2026-03-16T09:00:00Z', message: 'Your order has been handed over to the courier.' },
-          ],
-          createdAt: '2026-03-15T10:00:00Z',
-        },
-        {
-          id: 'ORD-1710546000000',
-          items: [
-            {
-              product: initialProducts[1],
-              quantity: 2,
-            }
-          ],
-          total: 17120,
-          subtotal: 17000,
-          shippingFee: 120,
-          advancePayment: 0,
-          dueAmount: 17120,
-          status: 'Delivered',
-          customerInfo: {
-            name: 'Demo User',
-            phone: '01712345678',
-            address: 'House 1, Road 1, Dhanmondi, Dhaka',
-            zone: 'Inside Dhaka',
-          },
-          trackingHistory: [
-            { status: 'Pending', date: '2026-03-14T08:00:00Z', message: 'Order placed successfully.' },
-            { status: 'Processing', date: '2026-03-14T11:00:00Z', message: 'Our team is preparing your order.' },
-            { status: 'Shipped', date: '2026-03-14T16:00:00Z', message: 'Your order has been handed over to the courier.' },
-            { status: 'Delivered', date: '2026-03-15T12:00:00Z', message: 'Order delivered successfully.' },
-          ],
-          createdAt: '2026-03-14T08:00:00Z',
-        }
-      ],
-      user: {
-        id: 'user-1',
-        name: 'Demo User',
-        phone: '01712345678',
-        email: 'demo@example.com',
-        role: 'user'
-      },
+      orders: [],
+      user: null,
       isCartOpen: false,
       offerBanners: [],
-      copyrightText: '© 2026 NeedieShop. All rights reserved.',
+      copyrightText: '',
+      heroBanners: [],
+      footerContent: {
+        address: '',
+        phone: '',
+        email: '',
+        facebook: '',
+        instagram: '',
+        youtube: '',
+      },
 
       setProducts: (products) => set({ products }),
       addProduct: (product) => set((state) => ({ products: [...state.products, product] })),
@@ -156,6 +115,8 @@ export const useStore = create<StoreState>()(
       setBrands: (brands) => set({ brands }),
       setOfferBanners: (offerBanners) => set({ offerBanners }),
       setCopyrightText: (copyrightText) => set({ copyrightText }),
+      setHeroBanners: (heroBanners) => set({ heroBanners }),
+      setFooterContent: (footerContent) => set({ footerContent }),
 
       addToCart: (product, variantId, quantity = 1) => set((state) => {
         const existingItemIndex = state.cart.findIndex(

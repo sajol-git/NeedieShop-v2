@@ -4,23 +4,23 @@ import { useStore } from '@/store/useStore';
 import { useState, useEffect } from 'react';
 import { Navbar } from '@/components/Navbar';
 import { 
-  Package, 
   Search, 
   Clock, 
   CheckCircle2, 
   XCircle, 
   Truck, 
-  User, 
   Settings, 
   LogOut, 
   ChevronRight, 
-  MapPin, 
-  Phone, 
-  Mail,
   ShoppingBag,
   CreditCard,
-  Bell
+  Bell,
+  MapPin,
+  PlusCircle,
+  Mail,
+  Phone
 } from 'lucide-react';
+import { UserIcon, DashboardIcon, TotalOrderIcon, HomeIcon, TrackOrderIcon, NeediePrimeIcon, SupportIcon } from '@/components/icons';
 import { motion, AnimatePresence } from 'motion/react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -30,7 +30,16 @@ import { toast } from 'sonner';
 export default function AccountPage() {
   const { user, orders, setUser } = useStore();
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'orders' | 'profile'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'orders' | 'profile' | 'rewards' | 'address' | 'notifications' | 'support'>(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const tab = params.get('tab');
+      if (tab && ['dashboard', 'orders', 'profile', 'rewards', 'address', 'notifications', 'support'].includes(tab)) {
+        return tab as any;
+      }
+    }
+    return 'dashboard';
+  });
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [profileData, setProfileData] = useState({
     name: user?.name || '',
@@ -47,6 +56,14 @@ export default function AccountPage() {
   if (!user) return null;
 
   const userOrders = orders.filter(o => o.customerInfo.phone === user.phone);
+  const completedOrdersCount = userOrders.filter(o => o.status === 'Delivered').length;
+
+  const primeTier = (() => {
+    if (completedOrdersCount >= 10) return { name: 'Royal', benefit: 'Lifetime Free Delivery', color: 'text-amber-600', bg: 'bg-amber-50', icon: NeediePrimeIcon, nextTier: null, progress: 100 };
+    if (completedOrdersCount >= 5) return { name: 'Enthusiast', benefit: '10% Off (Up to 200tk)', color: 'text-indigo-600', bg: 'bg-indigo-50', icon: NeediePrimeIcon, nextTier: 'Royal', progress: (completedOrdersCount / 10) * 100 };
+    if (completedOrdersCount >= 2) return { name: 'Pro', benefit: 'Free Delivery (Next 3 Orders)', color: 'text-emerald-600', bg: 'bg-emerald-50', icon: NeediePrimeIcon, nextTier: 'Enthusiast', progress: (completedOrdersCount / 5) * 100 };
+    return { name: 'Techy', benefit: 'Standard Benefits', color: 'text-gray-400', bg: 'bg-gray-50', icon: UserIcon, nextTier: 'Pro', progress: (completedOrdersCount / 2) * 100 };
+  })();
 
   const handleLogout = () => {
     setUser(null);
@@ -78,69 +95,88 @@ export default function AccountPage() {
       
       <main className="pt-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col lg:flex-row gap-8">
-          {/* Sidebar */}
-          <aside className="w-full lg:w-80 shrink-0">
-            <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 sticky top-24">
-              <div className="flex items-center gap-4 mb-8">
-                <div className="w-16 h-16 bg-[#8B183A] rounded-2xl flex items-center justify-center text-white text-2xl font-black">
+          {/* Sidebar - Desktop Only */}
+          <aside className="hidden lg:block w-72 shrink-0">
+            <div className="bg-white rounded-[2.5rem] p-8 shadow-sm border border-gray-100 sticky top-32">
+              <div className="flex items-center gap-4 mb-10 pb-10 border-b border-gray-100">
+                <div className="w-16 h-16 bg-[#8B183A] rounded-2xl flex items-center justify-center text-white text-2xl font-black shadow-lg shadow-[#8B183A]/20">
                   {user.name.charAt(0)}
                 </div>
                 <div>
-                  <h2 className="text-xl font-bold text-gray-900">{user.name}</h2>
-                  <p className="text-sm text-gray-500">{user.role.charAt(0).toUpperCase() + user.role.slice(1)} Account</p>
+                  <h3 className="font-black text-gray-900 leading-tight">{user.name}</h3>
+                  <p className="text-xs font-bold text-[#8B183A] uppercase tracking-widest mt-1">Prime Member</p>
                 </div>
               </div>
 
               <nav className="space-y-2">
                 {[
-                  { id: 'dashboard', label: 'Dashboard', icon: ShoppingBag },
-                  { id: 'orders', label: 'My Orders', icon: Package },
-                  { id: 'profile', label: 'Profile Settings', icon: Settings },
+                  { id: '/', label: 'Home', icon: HomeIcon },
+                  { id: '/shop', label: 'Shop', icon: ShoppingBag },
+                  { id: '/track-order', label: 'Track Order', icon: TrackOrderIcon },
                 ].map((item) => (
-                  <button
+                  <Link
                     key={item.id}
-                    onClick={() => setActiveTab(item.id as any)}
-                    className={`w-full flex items-center justify-between p-4 rounded-2xl transition-all ${
-                      activeTab === item.id 
-                        ? 'bg-[#8B183A] text-white shadow-lg shadow-red-100' 
-                        : 'text-gray-600 hover:bg-gray-50'
-                    }`}
+                    href={item.id}
+                    className="flex items-center gap-4 px-6 py-4 rounded-2xl text-sm font-bold text-gray-500 hover:bg-gray-50 hover:text-[#8B183A] transition-all group"
                   >
-                    <div className="flex items-center gap-3">
-                      <item.icon className="w-5 h-5" />
-                      <span className="font-bold text-sm">{item.label}</span>
-                    </div>
-                    <ChevronRight className={`w-4 h-4 ${activeTab === item.id ? 'opacity-100' : 'opacity-0'}`} />
-                  </button>
+                    <item.icon className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                    {item.label}
+                  </Link>
                 ))}
-                
                 <button
                   onClick={handleLogout}
-                  className="w-full flex items-center gap-3 p-4 rounded-2xl text-red-500 hover:bg-red-50 transition-all mt-8"
+                  className="w-full flex items-center gap-4 px-6 py-4 rounded-2xl text-sm font-bold text-red-500 hover:bg-red-50 transition-all group mt-8"
                 >
-                  <LogOut className="w-5 h-5" />
-                  <span className="font-bold text-sm">Logout</span>
+                  <LogOut className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                  Logout
                 </button>
               </nav>
             </div>
           </aside>
 
           {/* Content Area */}
-          <div className="flex-1 min-w-0">
+          <div className="flex-1 min-w-0 space-y-8">
+            {/* Customer Sections Grid - Static at the top */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
+              {[
+                { id: 'dashboard', label: 'Overview', icon: DashboardIcon, color: 'text-gray-600', bg: 'bg-gray-50' },
+                { id: 'orders', label: 'My Orders', icon: TotalOrderIcon, color: 'text-blue-600', bg: 'bg-blue-50' },
+                { id: 'rewards', label: 'NeediePrime', icon: NeediePrimeIcon, color: 'text-amber-600', bg: 'bg-amber-50' },
+                { id: 'address', label: 'Address', icon: MapPin, color: 'text-emerald-600', bg: 'bg-emerald-50' },
+                { id: 'notifications', label: 'Notifications', icon: Bell, color: 'text-indigo-600', bg: 'bg-indigo-50' },
+                { id: 'support', label: 'Support', icon: SupportIcon, color: 'text-purple-600', bg: 'bg-purple-50' },
+              ].map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => setActiveTab(item.id as any)}
+                  className={`flex flex-col items-center justify-center p-4 sm:p-6 rounded-3xl border transition-all group ${
+                    activeTab === item.id 
+                      ? 'bg-white border-[#8B183A] shadow-md ring-1 ring-[#8B183A]/10' 
+                      : 'bg-white border-gray-100 shadow-sm hover:shadow-md hover:border-[#8B183A]/20'
+                  }`}
+                >
+                  <div className={`w-10 h-10 sm:w-12 sm:h-12 ${item.bg} ${item.color} rounded-2xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform`}>
+                    <item.icon className="w-5 h-5 sm:w-6 sm:h-6" />
+                  </div>
+                  <span className={`text-xs sm:text-sm font-bold ${activeTab === item.id ? 'text-[#8B183A]' : 'text-gray-900'}`}>{item.label}</span>
+                </button>
+              ))}
+            </div>
+
             <AnimatePresence mode="wait">
               {activeTab === 'dashboard' && (
                 <motion.div
                   key="dashboard"
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
                   className="space-y-8"
                 >
                   {/* Stats */}
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                     <div className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
                       <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600 mb-4">
-                        <ShoppingBag className="w-6 h-6" />
+                        <TotalOrderIcon className="w-6 h-6 scale-110" />
                       </div>
                       <p className="text-sm font-bold text-gray-400 uppercase tracking-widest">Total Orders</p>
                       <h3 className="text-3xl font-black text-gray-900 mt-1">{userOrders.length}</h3>
@@ -165,6 +201,39 @@ export default function AccountPage() {
                     </div>
                   </div>
 
+                  {/* Profile Summary */}
+                  <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100">
+                    <div className="flex items-center justify-between mb-8">
+                      <h2 className="text-2xl font-black text-gray-900">Profile Overview</h2>
+                      <button 
+                        onClick={() => setActiveTab('profile')}
+                        className="text-sm font-bold text-[#8B183A] hover:underline"
+                      >
+                        Edit Profile
+                      </button>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                      <div className="flex items-center gap-4 p-6 bg-gray-50 rounded-2xl border border-gray-100">
+                        <div className="w-12 h-12 bg-[#8B183A] rounded-xl flex items-center justify-center text-white text-xl font-black">
+                          {user.name.charAt(0)}
+                        </div>
+                        <div>
+                          <p className="text-xs font-bold text-gray-400 uppercase">Full Name</p>
+                          <p className="font-bold text-gray-900">{user.name}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-4 p-6 bg-gray-50 rounded-2xl border border-gray-100">
+                        <div className="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600">
+                          <Mail className="w-6 h-6" />
+                        </div>
+                        <div>
+                          <p className="text-xs font-bold text-gray-400 uppercase">Email Address</p>
+                          <p className="font-bold text-gray-900">{user.email || 'Not provided'}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
                   {/* Recent Orders */}
                   <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100">
                     <div className="flex items-center justify-between mb-8">
@@ -186,7 +255,7 @@ export default function AccountPage() {
                         >
                           <div className="flex items-center gap-4">
                             <div className="w-12 h-12 bg-gray-50 rounded-xl flex items-center justify-center text-gray-400 group-hover:bg-white transition-colors">
-                              <Package className="w-6 h-6" />
+                              <TotalOrderIcon className="w-6 h-6" />
                             </div>
                             <div>
                               <h4 className="font-bold text-gray-900">{order.id}</h4>
@@ -221,7 +290,10 @@ export default function AccountPage() {
                         <Bell className="w-8 h-8 text-indigo-400 mb-4" />
                         <h3 className="text-xl font-bold mb-2">Order Notifications</h3>
                         <p className="text-sm text-gray-400 mb-6">Get real-time updates on your active orders via SMS and Email.</p>
-                        <button className="bg-white text-black px-6 py-2 rounded-full text-sm font-bold hover:bg-gray-200 transition-colors">
+                        <button 
+                          onClick={() => setActiveTab('notifications')}
+                          className="bg-white text-black px-6 py-2 rounded-full text-sm font-bold hover:bg-gray-200 transition-colors"
+                        >
                           Manage Alerts
                         </button>
                       </div>
@@ -229,10 +301,13 @@ export default function AccountPage() {
                     </div>
                     <div className="bg-[#8B183A] rounded-3xl p-8 text-white relative overflow-hidden group">
                       <div className="relative z-10">
-                        <CreditCard className="w-8 h-8 text-red-300 mb-4" />
-                        <h3 className="text-xl font-bold mb-2">Needie Rewards</h3>
+                        <NeediePrimeIcon className="w-8 h-8 text-red-300 mb-4" />
+                        <h3 className="text-xl font-bold mb-2">NeediePrime</h3>
                         <p className="text-sm text-red-100/60 mb-6">You have 250 points available. Use them to get discounts on your next purchase.</p>
-                        <button className="bg-white text-[#8B183A] px-6 py-2 rounded-full text-sm font-bold hover:bg-gray-100 transition-colors">
+                        <button 
+                          onClick={() => setActiveTab('rewards')}
+                          className="bg-white text-[#8B183A] px-6 py-2 rounded-full text-sm font-bold hover:bg-gray-100 transition-colors"
+                        >
                           Redeem Now
                         </button>
                       </div>
@@ -271,7 +346,7 @@ export default function AccountPage() {
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                           <div className="flex items-center gap-4">
                             <div className="w-12 h-12 bg-gray-50 rounded-2xl flex items-center justify-center text-gray-400">
-                              <Package className="w-6 h-6" />
+                              <TotalOrderIcon className="w-6 h-6" />
                             </div>
                             <div>
                               <h4 className="font-bold text-gray-900">{order.id}</h4>
@@ -324,6 +399,251 @@ export default function AccountPage() {
                 </motion.div>
               )}
 
+              {activeTab === 'rewards' && (
+                <motion.div
+                  key="rewards"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  className="space-y-8"
+                >
+                  <div className="bg-gradient-to-br from-[#0B1120] via-[#111827] to-[#8B183A]/40 rounded-[2.5rem] p-10 text-white relative overflow-hidden border border-white/10 shadow-2xl">
+                    <div className="relative z-10">
+                      <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-12">
+                        <div className="flex items-center gap-4">
+                          <div className="w-20 h-20 bg-white/10 rounded-3xl flex items-center justify-center backdrop-blur-sm border border-white/20">
+                            <NeediePrimeIcon className="w-10 h-10 text-white" />
+                          </div>
+                          <div>
+                            <h2 className="text-4xl font-black tracking-tight">NeediePrime</h2>
+                            <p className="text-red-200/80 text-sm font-medium">Your Loyalty Status</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3 bg-white/10 backdrop-blur-md px-6 py-4 rounded-3xl border border-white/20">
+                          <div className="text-right">
+                            <p className="text-[10px] font-bold text-gray-300 uppercase tracking-widest">Available Points</p>
+                            <p className="text-2xl font-black text-white">2,450</p>
+                          </div>
+                          <div className="w-px h-10 bg-white/20 mx-2" />
+                          <button className="text-sm font-bold bg-white text-[#8B183A] px-6 py-3 rounded-2xl hover:bg-gray-100 transition-colors">
+                            Redeem
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        <div className="lg:col-span-2 p-8 bg-white/5 rounded-[2rem] border border-white/10">
+                          <div className="flex items-center justify-between mb-8">
+                            <div>
+                              <p className="text-xs font-bold text-red-400 uppercase tracking-widest mb-1">Current Tier</p>
+                              <h3 className="text-5xl font-black">{primeTier.name}</h3>
+                            </div>
+                            <div className={`px-4 py-2 rounded-full text-xs font-black uppercase ${primeTier.bg} ${primeTier.color}`}>
+                              {primeTier.benefit}
+                            </div>
+                          </div>
+                          
+                          {primeTier.nextTier && (
+                             <div className="space-y-4">
+                                <div className="flex justify-between text-sm">
+                                  <span className="font-bold">Progress to {primeTier.nextTier}</span>
+                                  <span className="font-black text-red-400">{completedOrdersCount} / {primeTier.nextTier === 'Pro' ? 2 : primeTier.nextTier === 'Enthusiast' ? 5 : 10} Orders</span>
+                                </div>
+                                <div className="h-4 w-full bg-black/20 rounded-full overflow-hidden">
+                                  <motion.div 
+                                    initial={{ width: 0 }}
+                                    animate={{ width: `${primeTier.progress}%` }}
+                                    className="h-full bg-gradient-to-r from-red-500 to-indigo-500 rounded-full"
+                                  />
+                                </div>
+                             </div>
+                          )}
+                        </div>
+
+                        <div className="p-8 bg-white/5 rounded-[2rem] border border-white/10">
+                          <h4 className="font-bold text-lg mb-6">Tier Timeline</h4>
+                          <div className="space-y-6">
+                            {['Techy', 'Pro', 'Enthusiast', 'Royal'].map((tier, i) => (
+                              <div key={tier} className="flex items-center gap-4">
+                                <div className={`w-8 h-8 rounded-full flex items-center justify-center font-black text-xs ${i <= ['Techy', 'Pro', 'Enthusiast', 'Royal'].indexOf(primeTier.name) ? 'bg-red-500 text-white' : 'bg-white/10 text-gray-400'}`}>
+                                  {i + 1}
+                                </div>
+                                <span className={`font-bold ${i <= ['Techy', 'Pro', 'Enthusiast', 'Royal'].indexOf(primeTier.name) ? 'text-white' : 'text-gray-500'}`}>{tier}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    {/* Decorative Elements */}
+                    <div className="absolute -right-40 -top-40 w-96 h-96 bg-red-500/20 rounded-full blur-[120px]" />
+                    <div className="absolute -left-40 -bottom-40 w-96 h-96 bg-indigo-500/20 rounded-full blur-[120px]" />
+                  </div>
+
+                  <div className="bg-white rounded-[2.5rem] p-8 shadow-sm border border-gray-100">
+                    <h3 className="text-xl font-bold text-gray-900 mb-6">Reward Points</h3>
+                    <div className="flex items-center justify-between p-8 bg-gray-50 rounded-3xl border border-gray-100">
+                      <div>
+                        <p className="text-sm font-bold text-gray-400 uppercase tracking-widest">Available Points</p>
+                        <h4 className="text-4xl font-black text-gray-900 mt-1">250</h4>
+                        <p className="text-sm text-gray-500 mt-2">৳1.00 = 1 Point</p>
+                      </div>
+                      <button className="bg-[#8B183A] text-white px-8 py-3 rounded-2xl font-bold hover:bg-[#721430] transition-all shadow-lg shadow-red-100">
+                        Redeem Points
+                      </button>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+
+              {activeTab === 'address' && (
+                <motion.div
+                  key="address"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100"
+                >
+                  <div className="flex items-center justify-between mb-8">
+                    <h2 className="text-2xl font-black text-gray-900">My Addresses</h2>
+                    <button className="flex items-center gap-2 text-sm font-bold text-[#8B183A] hover:underline">
+                      <PlusCircle className="w-4 h-4" />
+                      Add New Address
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="p-6 rounded-3xl border-2 border-[#8B183A] bg-[#8B183A]/5 relative group">
+                      <div className="absolute top-6 right-6">
+                        <span className="px-2 py-1 bg-[#8B183A] text-white text-[10px] font-black uppercase rounded-lg">Default</span>
+                      </div>
+                      <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-[#8B183A] mb-4 shadow-sm">
+                        <MapPin className="w-5 h-5" />
+                      </div>
+                      <h4 className="font-bold text-gray-900 mb-1">Home</h4>
+                      <p className="text-sm text-gray-600 leading-relaxed mb-4">
+                        House 1, Road 1, Dhanmondi<br />
+                        Dhaka - 1209, Bangladesh
+                      </p>
+                      <div className="flex gap-4">
+                        <button className="text-xs font-bold text-[#8B183A] hover:underline">Edit</button>
+                        <button className="text-xs font-bold text-gray-400 hover:text-red-500">Remove</button>
+                      </div>
+                    </div>
+
+                    <div className="p-6 rounded-3xl border border-gray-100 hover:border-gray-200 transition-all group">
+                      <div className="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center text-gray-400 mb-4 group-hover:bg-white transition-colors">
+                        <MapPin className="w-5 h-5" />
+                      </div>
+                      <h4 className="font-bold text-gray-900 mb-1">Office</h4>
+                      <p className="text-sm text-gray-600 leading-relaxed mb-4">
+                        Level 4, BDBL Bhaban, Karwan Bazar<br />
+                        Dhaka - 1215, Bangladesh
+                      </p>
+                      <div className="flex gap-4">
+                        <button className="text-xs font-bold text-[#8B183A] hover:underline">Edit</button>
+                        <button className="text-xs font-bold text-gray-400 hover:text-red-500">Remove</button>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+
+              {activeTab === 'notifications' && (
+                <motion.div
+                  key="notifications"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100"
+                >
+                  <div className="flex items-center justify-between mb-8">
+                    <h2 className="text-2xl font-black text-gray-900">Notifications</h2>
+                    <button className="text-sm font-bold text-gray-400 hover:text-[#8B183A]">Mark all as read</button>
+                  </div>
+
+                  <div className="space-y-4">
+                    {[
+                      { title: 'Order Shipped!', desc: 'Your order #ORD-1710632400000 has been shipped.', time: '2 hours ago', unread: true, icon: Truck, color: 'text-indigo-600', bg: 'bg-indigo-50' },
+                      { title: 'New Reward Points', desc: 'You earned 50 points from your last purchase.', time: '1 day ago', unread: false, icon: CreditCard, color: 'text-emerald-600', bg: 'bg-emerald-50' },
+                      { title: 'Welcome to NeedieShop', desc: 'Thanks for joining our premium gadget store.', time: '3 days ago', unread: false, icon: TotalOrderIcon, color: 'text-[#8B183A]', bg: 'bg-red-50' },
+                    ].map((notif, i) => (
+                      <div key={i} className={`flex items-start gap-4 p-6 rounded-3xl border transition-all ${notif.unread ? 'bg-gray-50/50 border-gray-100' : 'bg-transparent border-transparent opacity-60'}`}>
+                        <div className={`w-12 h-12 ${notif.bg} ${notif.color} rounded-2xl flex items-center justify-center shrink-0`}>
+                          <notif.icon className="w-6 h-6" />
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex items-center justify-between mb-1">
+                            <h4 className="font-bold text-gray-900">{notif.title}</h4>
+                            <span className="text-[10px] font-bold text-gray-400 uppercase">{notif.time}</span>
+                          </div>
+                          <p className="text-sm text-gray-500">{notif.desc}</p>
+                        </div>
+                        {notif.unread && <div className="w-2 h-2 bg-[#8B183A] rounded-full mt-2" />}
+                      </div>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+
+              {activeTab === 'support' && (
+                <motion.div
+                  key="support"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  className="space-y-8"
+                >
+                  <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100">
+                    <div className="flex items-center gap-4 mb-8">
+                      <div className="w-12 h-12 bg-purple-50 rounded-2xl flex items-center justify-center text-purple-600">
+                        <SupportIcon className="w-6 h-6" />
+                      </div>
+                      <h2 className="text-2xl font-black text-gray-900">Support Center</h2>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+                      <div className="p-6 bg-gray-50 rounded-3xl border border-gray-100 text-center group hover:bg-white hover:shadow-md transition-all">
+                        <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-[#8B183A] mx-auto mb-4 shadow-sm group-hover:scale-110 transition-transform">
+                          <Mail className="w-6 h-6" />
+                        </div>
+                        <h4 className="font-bold text-gray-900 mb-1">Email Us</h4>
+                        <p className="text-xs text-gray-500">support@needieshop.bd</p>
+                      </div>
+                      <div className="p-6 bg-gray-50 rounded-3xl border border-gray-100 text-center group hover:bg-white hover:shadow-md transition-all">
+                        <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-indigo-600 mx-auto mb-4 shadow-sm group-hover:scale-110 transition-transform">
+                          <Phone className="w-6 h-6" />
+                        </div>
+                        <h4 className="font-bold text-gray-900 mb-1">Call Us</h4>
+                        <p className="text-xs text-gray-500">+880 1700 000000</p>
+                      </div>
+                      <div className="p-6 bg-gray-50 rounded-3xl border border-gray-100 text-center group hover:bg-white hover:shadow-md transition-all">
+                        <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-emerald-600 mx-auto mb-4 shadow-sm group-hover:scale-110 transition-transform">
+                          <SupportIcon className="w-6 h-6" />
+                        </div>
+                        <h4 className="font-bold text-gray-900 mb-1">Live Chat</h4>
+                        <p className="text-xs text-gray-500">Available 10AM - 10PM</p>
+                      </div>
+                    </div>
+
+                    <div className="space-y-4">
+                      <h3 className="font-bold text-gray-900 mb-4">Frequently Asked Questions</h3>
+                      {[
+                        'How do I track my order?',
+                        'What is your return policy?',
+                        'How can I pay for my order?',
+                        'Do you deliver outside Dhaka?',
+                      ].map((q, i) => (
+                        <button key={i} className="w-full flex items-center justify-between p-6 rounded-2xl border border-gray-100 hover:border-[#8B183A]/20 transition-all text-left group">
+                          <span className="font-bold text-sm text-gray-700 group-hover:text-gray-900">{q}</span>
+                          <ChevronRight className="w-4 h-4 text-gray-300 group-hover:text-[#8B183A]" />
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+
               {activeTab === 'profile' && (
                 <motion.div
                   key="profile"
@@ -350,7 +670,7 @@ export default function AccountPage() {
                       <div className="space-y-2">
                         <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">Full Name</label>
                         <div className="relative">
-                          <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                          <UserIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                           <input 
                             type="text" 
                             disabled={!isEditingProfile}

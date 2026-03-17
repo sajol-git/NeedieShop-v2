@@ -29,7 +29,7 @@ export function ProductCard({ product }: ProductCardProps) {
           src={product.images[0]} 
           alt={product.name} 
           fill 
-          className="object-contain p-6 group-hover:scale-110 transition-transform duration-700"
+          className="object-cover group-hover:scale-110 transition-transform duration-700"
           referrerPolicy="no-referrer"
         />
         
@@ -54,21 +54,21 @@ export function ProductCard({ product }: ProductCardProps) {
         </button>
       </Link>
 
-      <div className="p-6">
-        <div className="flex items-center gap-1 mb-2">
+      <div className="p-4">
+        <div className="flex items-center gap-1 mb-1.5">
           {[...Array(5)].map((_, i) => (
             <Star key={i} className={`w-3 h-3 ${i < 4 ? 'fill-yellow-400 text-yellow-400' : 'text-gray-200'}`} />
           ))}
         </div>
         
         <Link href={`/products/${product.id}`}>
-          <h3 className="text-sm font-bold text-gray-900 mb-2 line-clamp-1 group-hover:text-[#8B183A] transition-colors">
+          <h3 className="text-sm font-bold text-gray-900 mb-1 line-clamp-1 group-hover:text-[#8B183A] transition-colors">
             {product.name}
           </h3>
         </Link>
 
-        <div className="flex items-center justify-between gap-3 mt-4">
-          <div className="flex items-center gap-3">
+        <div className="flex items-center justify-between gap-3 mt-3">
+          <div className="flex items-center gap-2">
             <span className="text-lg font-black text-gray-900">৳{product.price.toLocaleString()}</span>
             {product.compareAtPrice && (
               <span className="text-sm text-gray-400 line-through font-medium">৳{product.compareAtPrice.toLocaleString()}</span>

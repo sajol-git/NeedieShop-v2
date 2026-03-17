@@ -2,53 +2,28 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useStore } from '@/store/useStore';
-import { ScanFace, Fingerprint, Sparkles, KeyRound, ArrowRight } from 'lucide-react';
+import { ScanFace, Sparkles, Phone, ArrowRight, KeyRound } from 'lucide-react';
 import { toast } from 'sonner';
 import { motion } from 'motion/react';
 import Link from 'next/link';
 import { Navbar } from '@/components/Navbar';
+import { supabase } from '@/lib/supabase';
 
 export default function CustomerLogin() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const router = useRouter();
-  const setUser = useStore((state) => state.setUser);
 
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (email === 'demo@example.com' && password === 'demo123') {
-      setUser({
-        id: 'user-1',
-        name: 'Demo User',
-        phone: '01712345678',
-        email: 'demo@example.com',
-        role: 'user',
-      });
-      toast.success('Welcome back, Demo User!');
-      router.push('/account');
-      return;
-    }
-
-    if (email && password) {
-      setUser({
-        id: 'user_' + Date.now(),
-        name: email.split('@')[0],
-        phone: '+880 1700 000000',
-        email: email,
-        role: 'user',
-      });
-      toast.success('Welcome back to NeedieShop!');
-      router.push('/');
-    } else {
-      toast.error('Please enter both email and password');
-    }
+  const handleGoogleLogin = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
+    });
+    if (error) toast.error(error.message);
   };
 
-  const handleDemoLogin = () => {
-    setEmail('demo@example.com');
-    setPassword('demo123');
-    toast.info('Demo credentials filled. Click Sign In.');
+  const handlePhoneLogin = () => {
+    toast.info('Phone sign-in flow coming soon.');
   };
 
   return (
@@ -61,7 +36,6 @@ export default function CustomerLogin() {
           className="w-full max-w-md"
         >
           <div className="bg-white p-8 rounded-3xl shadow-xl shadow-red-100/50 border border-white/20 relative overflow-hidden">
-            {/* Decorative background elements */}
             <div className="absolute top-0 right-0 -mr-16 -mt-16 w-48 h-48 bg-red-50 rounded-full blur-3xl opacity-50"></div>
             <div className="absolute bottom-0 left-0 -ml-16 -mb-16 w-48 h-48 bg-orange-50 rounded-full blur-3xl opacity-50"></div>
 
@@ -79,58 +53,22 @@ export default function CustomerLogin() {
                 <p className="text-gray-500 text-sm">Sign in to track orders and save favorites</p>
               </div>
 
-              <form onSubmit={handleLogin} className="space-y-5">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5 ml-1">Email Address</label>
-                  <div className="relative">
-                    <Fingerprint className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                    <input 
-                      type="email" 
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="you@example.com"
-                      className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-3xl focus:ring-2 focus:ring-[#8B183A]/20 focus:border-[#8B183A] outline-none transition-all"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <div className="flex items-center justify-between mb-1.5 ml-1 pr-1">
-                    <label className="block text-sm font-medium text-gray-700">Password</label>
-                    <a href="#" className="text-xs font-medium text-[#8B183A] hover:text-[#6d122d]">Forgot?</a>
-                  </div>
-                  <div className="relative">
-                    <KeyRound className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                    <input 
-                      type="password" 
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder="••••••••"
-                      className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-3xl focus:ring-2 focus:ring-[#8B183A]/20 focus:border-[#8B183A] outline-none transition-all"
-                    />
-                  </div>
-                </div>
-
+              <div className="space-y-4">
                 <button 
-                  type="submit"
-                  className="w-full bg-gray-900 text-white py-3.5 rounded-full font-semibold hover:bg-[#8B183A] transition-colors flex items-center justify-center gap-2 group mt-2"
+                  onClick={handleGoogleLogin}
+                  className="w-full bg-white border border-gray-300 text-gray-700 py-3.5 rounded-full font-semibold hover:bg-gray-50 transition-colors flex items-center justify-center gap-2"
                 >
-                  Sign In
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  <img src="https://www.google.com/favicon.ico" alt="Google" className="w-4 h-4" />
+                  Sign in with Google
                 </button>
 
                 <button 
-                  type="button"
-                  onClick={handleDemoLogin}
-                  className="w-full bg-indigo-50 text-indigo-600 py-3.5 rounded-full font-semibold hover:bg-indigo-100 transition-colors flex items-center justify-center gap-2 mt-2"
+                  onClick={handlePhoneLogin}
+                  className="w-full bg-white border border-gray-300 text-gray-700 py-3.5 rounded-full font-semibold hover:bg-gray-50 transition-colors flex items-center justify-center gap-2"
                 >
-                  Use Demo Account
+                  <Phone className="w-4 h-4" />
+                  Sign in with Phone
                 </button>
-              </form>
-
-              <div className="mt-8 text-center text-sm text-gray-500">
-                Don&apos;t have an account?{' '}
-                <a href="#" className="font-semibold text-[#8B183A] hover:text-[#6d122d]">Create one</a>
               </div>
             </div>
           </div>

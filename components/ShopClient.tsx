@@ -52,7 +52,7 @@ export default function ShopClient({ allProducts }: ShopClientProps) {
       </div>
 
       {/* Product Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-6 sm:gap-x-6 sm:gap-y-10 mb-16">
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-6 sm:gap-x-6 sm:gap-y-8 mb-16">
         {filteredProducts.length === 0 ? (
           <div className="col-span-full py-20 text-center">
             <p className="text-gray-500 text-lg">No products found matching your search.</p>

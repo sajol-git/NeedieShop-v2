@@ -170,46 +170,6 @@ export default function AdminSettings() {
           ))}
         </div>
       </div>
-
-      {/* Categories */}
-      <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 bg-purple-50 rounded-xl flex items-center justify-center">
-            <Tag className="w-5 h-5 text-purple-600" />
-          </div>
-          <div>
-            <h2 className="text-lg font-semibold text-gray-900">Categories</h2>
-            <p className="text-sm text-gray-500">Manage product categories.</p>
-          </div>
-        </div>
-        <div className="flex gap-2 mb-4">
-          <input type="text" value={newCategory} onChange={e => setNewCategory(e.target.value)} className="flex-1 px-4 py-2 rounded-3xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="New category name" />
-          <button onClick={() => { if(newCategory) { setCategories([...categories, newCategory]); setNewCategory(''); toast.success('Category added'); } }} className="bg-[#8B183A] text-white px-6 py-2 rounded-3xl font-medium hover:bg-[#6d122d]">Add</button>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          {categories.map(cat => <span key={cat} className="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm">{cat}</span>)}
-        </div>
-      </div>
-
-      {/* Brands */}
-      <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center">
-            <Package className="w-5 h-5 text-orange-600" />
-          </div>
-          <div>
-            <h2 className="text-lg font-semibold text-gray-900">Brands</h2>
-            <p className="text-sm text-gray-500">Manage product brands.</p>
-          </div>
-        </div>
-        <div className="flex gap-2 mb-4">
-          <input type="text" value={newBrand} onChange={e => setNewBrand(e.target.value)} className="flex-1 px-4 py-2 rounded-3xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="New brand name" />
-          <button onClick={() => { if(newBrand) { setBrands([...brands, newBrand]); setNewBrand(''); toast.success('Brand added'); } }} className="bg-indigo-600 text-white px-6 py-2 rounded-3xl font-medium hover:bg-indigo-700">Add</button>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          {brands.map(brand => <span key={brand} className="bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-sm">{brand}</span>)}
-        </div>
-      </div>
     </div>
   );
 }

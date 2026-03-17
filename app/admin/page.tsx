@@ -2,8 +2,9 @@
 
 import { useStore } from '@/store/useStore';
 import { motion } from 'motion/react';
-import { Banknote, Inbox, VenetianMask, Activity, ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import { Banknote, VenetianMask, Activity, ArrowUpRight, ArrowDownRight } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { TotalOrderIcon } from '@/components/icons';
 
 export default function AdminDashboard() {
   const { orders, products } = useStore();
@@ -37,7 +38,7 @@ export default function AdminDashboard() {
         <StatCard 
           title="Total Orders" 
           value={totalOrders.toString()} 
-          icon={Inbox} 
+          icon={TotalOrderIcon} 
           trend="+5.2%" 
           isPositive={true} 
         />

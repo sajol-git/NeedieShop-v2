@@ -3,7 +3,8 @@
 import { useState } from 'react';
 import { useStore } from '@/store/useStore';
 import { Navbar } from '@/components/Navbar';
-import { Search, Package, Truck, CheckCircle, Clock, ChevronRight, MapPin, Phone, User } from 'lucide-react';
+import { Search, Truck, CheckCircle, Clock, ChevronRight, MapPin, Phone, User } from 'lucide-react';
+import { TotalOrderIcon } from '@/components/icons';
 import { motion, AnimatePresence } from 'motion/react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -120,7 +121,7 @@ function TrackOrderContent() {
                 <div className="flex justify-between">
                   {[
                     { label: 'Pending', icon: Clock },
-                    { label: 'Processing', icon: Package },
+                    { label: 'Processing', icon: TotalOrderIcon },
                     { label: 'Shipped', icon: Truck },
                     { label: 'Delivered', icon: CheckCircle },
                   ].map((step, index) => {
@@ -207,7 +208,7 @@ function TrackOrderContent() {
                 <div className="mt-8 pt-8 border-t border-gray-100">
                   <div className="flex justify-between items-center">
                     <span className="text-sm text-gray-500">Total Amount</span>
-                    <span className="text-xl font-black text-[#F14B24]">৳{trackingResult.total.toLocaleString()}</span>
+                    <span className="text-xl font-black text-[#8B183A]">৳{trackingResult.total.toLocaleString()}</span>
                   </div>
                 </div>
               </div>

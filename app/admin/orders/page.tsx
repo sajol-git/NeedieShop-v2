@@ -2,7 +2,8 @@
 
 import { useStore } from '@/store/useStore';
 import { useState } from 'react';
-import { Search, Filter, MoreVertical, Eye, CheckCircle, XCircle, Truck, Package } from 'lucide-react';
+import { Search, Filter, MoreVertical, Eye, CheckCircle, XCircle, Truck } from 'lucide-react';
+import { TotalOrderIcon } from '@/components/icons';
 import { motion } from 'motion/react';
 
 export default function AdminOrders() {
@@ -31,6 +32,16 @@ export default function AdminOrders() {
 
   return (
     <div className="space-y-6">
+      <div className="flex items-center gap-3 mb-2">
+        <div className="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center">
+          <TotalOrderIcon className="w-6 h-6 text-indigo-600" />
+        </div>
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Order Management</h1>
+          <p className="text-sm text-gray-500">View and manage all customer orders.</p>
+        </div>
+      </div>
+
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
         <div className="relative flex-1 max-w-md">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -108,7 +119,18 @@ export default function AdminOrders() {
                     <td className="px-6 py-4">
                       <select
                         value={order.status}
-                        onChange={(e) => updateOrderStatus(order.id, e.target.value as any)}
+                        onChange={(e) => {
+                          const newStatus = e.target.value as any;
+                          updateOrderStatus(order.id, newStatus);
+                          fetch('/api/sms/send', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                              number: order.customerInfo.phone,
+                              message: `Your order #${order.id} status has been updated to ${newStatus}.`,
+                            }),
+                          }).catch(console.error);
+                        }}
                         className={`text-sm font-medium px-3 py-1.5 rounded-full border outline-none cursor-pointer ${getStatusColor(order.status)}`}
                       >
                         <option value="Pending">Pending</option>

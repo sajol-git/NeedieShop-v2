@@ -52,7 +52,9 @@ export function CartDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () =
             <div className="flex-1 overflow-y-auto p-6 space-y-6">
               {cart.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-full text-gray-500">
-                  <CartIcon className="w-16 h-16 mb-4 text-gray-300" />
+                <div className="w-16 h-16 mb-4 flex items-center justify-center">
+                  <CartIcon className="w-16 h-16 scale-110 text-gray-300" />
+                </div>
                   <p>Your cart is empty.</p>
                 </div>
               ) : (

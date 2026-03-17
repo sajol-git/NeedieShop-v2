@@ -4,16 +4,14 @@ import { useStore, Order } from '@/store/useStore';
 import { Navbar } from '@/components/Navbar';
 import { motion } from 'motion/react';
 import { 
-  ChevronLeft, 
   MapPin, 
   Phone, 
   User, 
-  Truck, 
   CreditCard, 
   ShieldCheck,
   Trash2
 } from 'lucide-react';
-import { CartIcon, AccountIcon } from '@/components/icons';
+import { CartIcon, UserIcon, TrackOrderIcon } from '@/components/icons';
 import Link from 'next/link';
 import { useState } from 'react';
 import { toast } from 'sonner';
@@ -24,14 +22,15 @@ const generateOrderId = () => `ORD-${Date.now()}-${Math.floor(Math.random() * 10
 
 export default function CheckoutPage() {
   const cart = useStore((state) => state.cart);
+  const user = useStore((state) => state.user);
   const removeFromCart = useStore((state) => state.removeFromCart);
   const addOrder = useStore((state) => state.addOrder);
   const clearCart = useStore((state) => state.clearCart);
   const router = useRouter();
 
   const [formData, setFormData] = useState({
-    name: '',
-    phone: '',
+    name: user && user.isProfileCompleted ? user.name : '',
+    phone: user && user.isProfileCompleted ? user.phone : '',
     address: '',
     zone: 'Inside Dhaka' as 'Inside Dhaka' | 'Outside Dhaka',
     paymentMethod: 'Cash on Delivery' as 'Cash on Delivery' | 'bKash',
@@ -41,7 +40,7 @@ export default function CheckoutPage() {
   const shippingFee = formData.zone === 'Inside Dhaka' ? 60 : 120;
   const total = subtotal + shippingFee;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (cart.length === 0) {
@@ -52,6 +51,15 @@ export default function CheckoutPage() {
     if (!formData.name || !formData.phone || !formData.address) {
       toast.error('Please fill in all required fields');
       return;
+    }
+
+    let ipAddress = 'unknown';
+    try {
+      const response = await fetch('https://api.ipify.org?format=json');
+      const data = await response.json();
+      ipAddress = data.ip;
+    } catch (error) {
+      console.error('Failed to get IP address', error);
     }
 
     const newOrder: Order = {
@@ -68,6 +76,7 @@ export default function CheckoutPage() {
         phone: formData.phone,
         address: formData.address,
         zone: formData.zone,
+        ipAddress,
       },
       trackingHistory: [
         {
@@ -111,14 +120,9 @@ export default function CheckoutPage() {
       <Navbar />
       
       <main className="pt-24 max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center gap-4 mb-10">
-          <Link href="/shop" className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center shadow-sm hover:bg-gray-50 transition-colors">
-            <ChevronLeft className="w-6 h-6 text-gray-900" />
-          </Link>
-          <div>
-            <h1 className="text-3xl font-black text-gray-900">Checkout</h1>
-            <p className="text-sm text-gray-500">Complete your order details below</p>
-          </div>
+        <div className="mb-10">
+          <h1 className="text-3xl font-black text-gray-900">Checkout</h1>
+          <p className="text-sm text-gray-500">Complete your order details below</p>
         </div>
 
         <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-12 gap-12">
@@ -128,7 +132,7 @@ export default function CheckoutPage() {
             <section className="bg-white rounded-3xl p-8 md:p-10 shadow-sm border border-gray-100">
               <div className="flex items-center gap-3 mb-8">
                 <div className="w-10 h-10 bg-[#8B183A]/10 rounded-xl flex items-center justify-center text-[#8B183A]">
-                  <Truck className="w-5 h-5" />
+                  <TrackOrderIcon className="w-5 h-5" />
                 </div>
                 <h2 className="text-xl font-bold text-gray-900">Shipping Information</h2>
               </div>
@@ -138,7 +142,7 @@ export default function CheckoutPage() {
                   <div className="space-y-2">
                     <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">Full Name</label>
                     <div className="relative">
-                      <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                      <UserIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                       <input
                         type="text"
                         required
@@ -188,7 +192,7 @@ export default function CheckoutPage() {
                       formData.zone === 'Inside Dhaka' ? 'border-[#8B183A] bg-[#8B183A]/5 text-[#8B183A]' : 'border-gray-100 text-gray-500'
                     }`}
                   >
-                    <Truck className="w-6 h-6" />
+                    <TrackOrderIcon className="w-6 h-6" />
                     <span className="text-xs font-bold uppercase">Inside Dhaka</span>
                     <span className="text-sm font-bold">৳60</span>
                   </button>
@@ -199,7 +203,7 @@ export default function CheckoutPage() {
                       formData.zone === 'Outside Dhaka' ? 'border-[#8B183A] bg-[#8B183A]/5 text-[#8B183A]' : 'border-gray-100 text-gray-500'
                     }`}
                   >
-                    <Truck className="w-6 h-6" />
+                    <TrackOrderIcon className="w-6 h-6" />
                     <span className="text-xs font-bold uppercase">Outside Dhaka</span>
                     <span className="text-sm font-bold">৳120</span>
                   </button>
@@ -254,7 +258,7 @@ export default function CheckoutPage() {
             <div className="sticky top-24 space-y-6">
               <section className="bg-white rounded-3xl p-8 md:p-10 shadow-sm border border-gray-100">
                 <h2 className="text-xl font-bold mb-8 flex items-center gap-3 text-gray-900">
-                  <CartIcon className="w-6 h-6 text-[#F14B24]" />
+                  <CartIcon className="w-6 h-6 scale-110 text-[#8B183A]" />
                   Order Summary
                 </h2>
 
@@ -291,13 +295,13 @@ export default function CheckoutPage() {
                   </div>
                   <div className="flex justify-between text-2xl font-black text-gray-900 pt-6 border-t border-dashed border-gray-200">
                     <span>Total</span>
-                    <span className="text-[#F14B24]">৳{total.toLocaleString()}</span>
+                    <span className="text-[#8B183A]">৳{total.toLocaleString()}</span>
                   </div>
                 </div>
 
                 <button
                   type="submit"
-                  className="w-full bg-[#F14B24] text-white py-5 rounded-full font-bold text-lg mt-10 hover:bg-[#d94320] transition-all shadow-xl shadow-orange-100"
+                  className="w-full bg-[#8B183A] text-white py-5 rounded-full font-bold text-lg mt-10 hover:bg-[#721430] transition-all shadow-xl shadow-red-100"
                 >
                   Place Order Now
                 </button>

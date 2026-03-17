@@ -2,12 +2,13 @@
 
 import { useStore } from '@/store/useStore';
 import { useState } from 'react';
-import { Search, ShieldAlert, ShieldCheck, UserX, UserCheck } from 'lucide-react';
+import { Search, ShieldAlert, ShieldCheck, UserX, UserCheck, X } from 'lucide-react';
 import { motion } from 'motion/react';
 
 export default function AdminCustomers() {
   const { orders } = useStore();
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCustomer, setSelectedCustomer] = useState<any>(null);
 
   // Extract unique customers from orders for demo purposes
   const customersMap = new Map();
@@ -34,6 +35,10 @@ export default function AdminCustomers() {
     setCustomers(customers.map(c => 
       c.phone === phone ? { ...c, isSuspect: !c.isSuspect } : c
     ));
+  };
+
+  const getCustomerOrders = (phone: string) => {
+    return orders.filter(o => o.customerInfo.phone === phone);
   };
 
   const filteredCustomers = customers.filter(customer => 
@@ -108,10 +113,17 @@ export default function AdminCustomers() {
                         </span>
                       )}
                     </td>
-                    <td className="px-6 py-4 text-right">
+                    <td className="px-6 py-4 text-right flex items-center justify-end gap-2">
+                      <button 
+                        onClick={() => setSelectedCustomer(customer)}
+                        className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                        title="View Activity"
+                      >
+                        Activity
+                      </button>
                       <button 
                         onClick={() => toggleSuspectStatus(customer.phone)}
-                        className={`p-2 transition-colors rounded-lg flex items-center gap-2 ml-auto ${
+                        className={`p-2 transition-colors rounded-lg flex items-center gap-2 ${
                           customer.isSuspect 
                             ? 'text-emerald-600 hover:bg-emerald-50' 
                             : 'text-red-600 hover:bg-red-50'
@@ -129,6 +141,39 @@ export default function AdminCustomers() {
           </table>
         </div>
       </div>
+
+      {/* Customer Activity Modal */}
+      {selectedCustomer && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white rounded-3xl p-8 max-w-2xl w-full max-h-[80vh] overflow-y-auto"
+          >
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-xl font-bold">Activity: {selectedCustomer.name}</h3>
+              <button onClick={() => setSelectedCustomer(null)} className="p-2 hover:bg-gray-100 rounded-full">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="space-y-4">
+              {getCustomerOrders(selectedCustomer.phone).map((order: any) => (
+                <div key={order.id} className="p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="font-bold text-sm">Order #{order.id}</span>
+                    <span className={`text-xs font-bold px-2 py-1 rounded-full ${
+                      order.status === 'Pending' ? 'bg-amber-100 text-amber-700' :
+                      order.status === 'Delivered' ? 'bg-emerald-100 text-emerald-700' : 'bg-indigo-100 text-indigo-700'
+                    }`}>{order.status}</span>
+                  </div>
+                  <div className="text-sm text-gray-600">Total: ৳{order.total.toLocaleString()}</div>
+                  <div className="text-xs text-gray-400 mt-1">Date: {new Date(order.createdAt).toLocaleString()}</div>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 }

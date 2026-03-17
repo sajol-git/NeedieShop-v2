@@ -1,10 +1,10 @@
-export const CartIcon = ({ className }: { className?: string }) => (
+import React from 'react';
+
+export const TotalOrderIcon = ({ className = "w-6 h-6" }: { className?: string }) => (
   <svg 
     xmlns="http://www.w3.org/2000/svg" 
-    width="24" 
-    height="24" 
-    fill="none" 
     viewBox="0 0 128 128" 
+    fill="none" 
     className={className}
   >
     <path 
@@ -22,6 +22,13 @@ export const CartIcon = ({ className }: { className?: string }) => (
       strokeLinecap="round" 
       strokeWidth="10" 
       d="M51 50C51 57.1797 57.3726 63 64 63C70.6274 63 77 57.1797 77 50"
+    />
+    <path 
+      stroke="currentColor" 
+      strokeLinecap="round" 
+      strokeLinejoin="round" 
+      strokeWidth="10" 
+      d="M56 89.6667L60.0845 93.8228C61.2601 95.0191 63.1882 95.0191 64.3638 93.8228L75 83"
     />
   </svg>
 );

@@ -243,7 +243,7 @@ export default function ProductDetailsClient({ product, relatedProducts }: Produ
       {/* Related Products Section */}
       <section className="mb-20">
         <h2 className="text-4xl font-bold text-gray-900 mb-12">Related Products</h2>
-        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
           {relatedProducts.map((p) => (
             <ProductCard key={p.id} product={p as any} />
           ))}

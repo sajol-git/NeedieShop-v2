@@ -2,9 +2,10 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Command, Hexagon, Inbox, VenetianMask, SlidersHorizontal, Sparkles, Layers, LogOut, Menu, X } from 'lucide-react';
+import { Command, Hexagon, Inbox, VenetianMask, SlidersHorizontal, Sparkles, Layers, LogOut, Menu, X, Tag, MessageSquare } from 'lucide-react';
 import { useStore } from '@/store/useStore';
 import { useEffect, useState } from 'react';
+import { TotalOrderIcon } from '@/components/icons';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -40,10 +41,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   const navigation = [
     { name: 'Dashboard', href: '/admin', icon: Command },
-    { name: 'Orders', href: '/admin/orders', icon: Inbox },
+    { name: 'Orders', href: '/admin/orders', icon: TotalOrderIcon },
     { name: 'Products', href: '/admin/products', icon: Hexagon },
+    { name: 'Catalog', href: '/admin/catalog', icon: Tag },
     { name: 'Customers', href: '/admin/customers', icon: VenetianMask },
     { name: 'Marketing', href: '/admin/marketing', icon: Sparkles },
+    { name: 'SMS', href: '/admin/sms', icon: MessageSquare },
     { name: 'CMS', href: '/admin/cms', icon: Layers },
     { name: 'Settings', href: '/admin/settings', icon: SlidersHorizontal },
   ];
@@ -84,7 +87,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                 }`}
               >
-                <item.icon className={`w-5 h-5 ${isActive ? 'text-indigo-600' : 'text-gray-400'}`} />
+                <item.icon className={`w-6 h-6 ${isActive ? 'text-indigo-600' : 'text-gray-400'}`} />
                 {item.name}
               </Link>
             );
@@ -95,7 +98,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             onClick={handleLogout}
             className="flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors text-red-600 hover:bg-red-50 w-full"
           >
-            <LogOut className="w-5 h-5" />
+            <LogOut className="w-6 h-6" />
             Logout
           </button>
         </div>

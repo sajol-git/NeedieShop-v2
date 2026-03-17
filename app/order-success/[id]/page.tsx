@@ -2,8 +2,8 @@
 
 import { useStore } from '@/store/useStore';
 import { Navbar } from '@/components/Navbar';
-import { CheckCircle2, Package, Truck, ArrowRight } from 'lucide-react';
-import { HomeIcon } from '@/components/icons';
+import { CheckCircle2, Truck, ArrowRight } from 'lucide-react';
+import { HomeIcon, TotalOrderIcon } from '@/components/icons';
 import Link from 'next/link';
 import { use } from 'react';
 import { motion } from 'motion/react';
@@ -90,13 +90,13 @@ export default function OrderSuccessPage({ params }: { params: Promise<{ id: str
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button 
               onClick={() => toast.info('Receipt download started...')}
-              className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-[#F14B24] text-white px-10 py-4 rounded-full font-bold hover:bg-[#d94320] transition-all shadow-lg shadow-orange-200"
+              className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-[#8B183A] text-white px-10 py-4 rounded-full font-bold hover:bg-[#721430] transition-all shadow-lg shadow-red-200"
             >
               Download Receipt
             </button>
             <button 
               onClick={() => toast.error('Please contact support to cancel order')}
-              className="flex-1 sm:flex-none flex items-center justify-center gap-2 border-2 border-[#F14B24] text-[#F14B24] px-10 py-4 rounded-full font-bold hover:bg-orange-50 transition-all"
+              className="flex-1 sm:flex-none flex items-center justify-center gap-2 border-2 border-[#8B183A] text-[#8B183A] px-10 py-4 rounded-full font-bold hover:bg-red-50 transition-all"
             >
               Cancel Order
             </button>

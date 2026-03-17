@@ -32,12 +32,21 @@ export function QuickOrderModal({ isOpen, onClose, product, selectedVariantId, q
   const subtotal = product.price * quantity;
   const total = subtotal + shippingFee;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!formData.name || !formData.phone || !formData.address) {
       toast.error('Please fill in all required fields');
       return;
+    }
+
+    let ipAddress = 'unknown';
+    try {
+      const response = await fetch('https://api.ipify.org?format=json');
+      const data = await response.json();
+      ipAddress = data.ip;
+    } catch (error) {
+      console.error('Failed to get IP address', error);
     }
 
     const newOrder: Order = {
@@ -49,7 +58,10 @@ export function QuickOrderModal({ isOpen, onClose, product, selectedVariantId, q
       advancePayment: 0,
       dueAmount: total,
       status: 'Pending',
-      customerInfo: formData,
+      customerInfo: {
+        ...formData,
+        ipAddress,
+      },
       trackingHistory: [
         {
           status: 'Pending',
@@ -172,13 +184,13 @@ export function QuickOrderModal({ isOpen, onClose, product, selectedVariantId, q
                   </div>
                   <div className="flex justify-between text-xl font-black text-gray-900 pt-4 border-t border-dashed border-gray-200">
                     <span>Total</span>
-                    <span className="text-[#F14B24]">৳{total.toLocaleString()}</span>
+                    <span className="text-[#8B183A]">৳{total.toLocaleString()}</span>
                   </div>
                 </div>
 
                 <button
                   type="submit"
-                  className="w-full bg-[#F14B24] text-white py-5 rounded-full font-bold text-lg hover:bg-[#d94320] transition-all shadow-xl shadow-orange-100"
+                  className="w-full bg-[#8B183A] text-white py-5 rounded-full font-bold text-lg hover:bg-[#721430] transition-all shadow-xl shadow-red-100"
                 >
                   Confirm Order
                 </button>

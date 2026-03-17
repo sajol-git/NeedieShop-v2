@@ -7,12 +7,7 @@ import { Zap, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import { ProductCard } from '@/components/ProductCard';
 import { Product } from '@/lib/products';
-
-const BANNERS = [
-  'https://picsum.photos/seed/banner1/1400/500',
-  'https://picsum.photos/seed/banner2/1400/500',
-  'https://picsum.photos/seed/banner3/1400/500',
-];
+import { useStore } from '@/store/useStore';
 
 const CATEGORIES = [
   { id: 'light', name: 'Light', image: 'https://picsum.photos/seed/light/200/200' },
@@ -30,15 +25,18 @@ interface HomeClientProps {
 }
 
 export default function HomeClient({ featuredProducts, flashSaleProducts }: HomeClientProps) {
+  const { heroBanners } = useStore();
+  const activeBanners = heroBanners.filter(b => b.status === 'Active');
   const [timeLeft, setTimeLeft] = useState({ hours: 23, minutes: 59, seconds: 59 });
   const [currentBanner, setCurrentBanner] = useState(0);
 
   useEffect(() => {
+    if (activeBanners.length <= 1) return;
     const bannerTimer = setInterval(() => {
-      setCurrentBanner((prev) => (prev + 1) % BANNERS.length);
+      setCurrentBanner((prev) => (prev + 1) % activeBanners.length);
     }, 5000);
     return () => clearInterval(bannerTimer);
-  }, []);
+  }, [activeBanners.length]);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -57,35 +55,47 @@ export default function HomeClient({ featuredProducts, flashSaleProducts }: Home
       {/* Hero Banner Slider */}
       <section className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 mb-16">
         <div className="relative rounded-3xl overflow-hidden h-[300px] md:h-[500px] w-full">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={currentBanner}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.5 }}
-              className="absolute inset-0"
-            >
-              <Image
-                src={BANNERS[currentBanner]}
-                alt="Banner"
-                fill
-                className="object-cover"
-                referrerPolicy="no-referrer"
-              />
-            </motion.div>
-          </AnimatePresence>
-          
-          {/* Carousel Dots */}
-          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-20">
-            {BANNERS.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => setCurrentBanner(index)}
-                className={`w-8 h-2 rounded-full transition-all ${currentBanner === index ? 'bg-white' : 'bg-white/50'}`}
-              />
-            ))}
-          </div>
+          {activeBanners.length > 0 ? (
+            <>
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={currentBanner}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.5 }}
+                  className="absolute inset-0"
+                >
+                  <Link href={activeBanners[currentBanner].link}>
+                    <Image
+                      src={activeBanners[currentBanner].image}
+                      alt={activeBanners[currentBanner].title}
+                      fill
+                      className="object-cover"
+                      referrerPolicy="no-referrer"
+                    />
+                  </Link>
+                </motion.div>
+              </AnimatePresence>
+              
+              {/* Carousel Dots */}
+              {activeBanners.length > 1 && (
+                <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-20">
+                  {activeBanners.map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setCurrentBanner(index)}
+                      className={`w-8 h-2 rounded-full transition-all ${currentBanner === index ? 'bg-white' : 'bg-white/50'}`}
+                    />
+                  ))}
+                </div>
+              )}
+            </>
+          ) : (
+            <div className="w-full h-full bg-gray-100 flex items-center justify-center">
+              <p className="text-gray-400">No active banners</p>
+            </div>
+          )}
         </div>
       </section>
 
@@ -144,7 +154,7 @@ export default function HomeClient({ featuredProducts, flashSaleProducts }: Home
               </div>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
               {flashSaleProducts.map((product) => (
                 <ProductCard key={product.id} product={product as any} />
               ))}
@@ -161,7 +171,7 @@ export default function HomeClient({ featuredProducts, flashSaleProducts }: Home
             <p className="text-gray-600">Handpicked premium gadgets for you.</p>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             {featuredProducts.map((product) => (
               <ProductCard key={product.id} product={product as any} />
             ))}
