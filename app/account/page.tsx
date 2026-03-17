@@ -319,6 +319,21 @@ export default function AccountPage() {
                           </div>
                         </div>
                       </div>
+                      <div className="flex items-center gap-4 p-6 bg-gray-50 rounded-2xl border border-gray-100">
+                        <div className="w-12 h-12 bg-purple-50 rounded-xl flex items-center justify-center text-purple-600">
+                          <Clock className="w-6 h-6" />
+                        </div>
+                        <div>
+                          <p className="text-xs font-bold text-gray-400 uppercase">Member Since</p>
+                          <p className="font-bold text-gray-900">
+                            {user.registrationDate ? new Date(user.registrationDate).toLocaleDateString('en-US', { 
+                              year: 'numeric', 
+                              month: 'long', 
+                              day: 'numeric' 
+                            }) : 'N/A'}
+                          </p>
+                        </div>
+                      </div>
                     </div>
                   </div>
 

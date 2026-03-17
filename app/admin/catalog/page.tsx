@@ -1,46 +1,72 @@
 'use client';
 
 import { useState } from 'react';
-import { Tag, Plus, Trash2, Edit2, Search } from 'lucide-react';
+import { Tag, Plus, Trash2, Edit2, Search, Image as ImageIcon } from 'lucide-react';
 import { TotalOrderIcon } from '@/components/icons';
 import { toast } from 'sonner';
 import { useStore } from '@/store/useStore';
+import Image from 'next/image';
+import slugify from 'slugify';
+import { ImageUpload } from '@/components/ImageUpload';
 
 export default function AdminCatalog() {
   const { categories, setCategories, brands, setBrands } = useStore();
-  const [newCategory, setNewCategory] = useState('');
-  const [newBrand, setNewBrand] = useState('');
-  const [searchQuery, setSearchQuery] = useState('');
+  
+  const [newCategoryName, setNewCategoryName] = useState('');
+  const [newCategoryPhoto, setNewCategoryPhoto] = useState('');
+  
+  const [newBrandName, setNewBrandName] = useState('');
+  const [newBrandPhoto, setNewBrandPhoto] = useState('');
 
   const handleAddCategory = () => {
-    if (!newCategory.trim()) return;
-    if (categories.includes(newCategory.trim())) {
+    if (!newCategoryName.trim()) return;
+    const slug = slugify(newCategoryName, { lower: true, strict: true });
+    
+    if (categories.some(c => c.slug === slug)) {
       toast.error('Category already exists');
       return;
     }
-    setCategories([...categories, newCategory.trim()]);
-    setNewCategory('');
+    
+    setCategories([...categories, {
+      id: Date.now().toString(),
+      name: newCategoryName.trim(),
+      slug,
+      photo: newCategoryPhoto.trim()
+    }]);
+    
+    setNewCategoryName('');
+    setNewCategoryPhoto('');
     toast.success('Category added successfully');
   };
 
-  const handleDeleteCategory = (cat: string) => {
-    setCategories(categories.filter(c => c !== cat));
+  const handleDeleteCategory = (id: string) => {
+    setCategories(categories.filter(c => c.id !== id));
     toast.success('Category removed');
   };
 
   const handleAddBrand = () => {
-    if (!newBrand.trim()) return;
-    if (brands.includes(newBrand.trim())) {
+    if (!newBrandName.trim()) return;
+    const slug = slugify(newBrandName, { lower: true, strict: true });
+    
+    if (brands.some(b => b.slug === slug)) {
       toast.error('Brand already exists');
       return;
     }
-    setBrands([...brands, newBrand.trim()]);
-    setNewBrand('');
+    
+    setBrands([...brands, {
+      id: Date.now().toString(),
+      name: newBrandName.trim(),
+      slug,
+      photo: newBrandPhoto.trim()
+    }]);
+    
+    setNewBrandName('');
+    setNewBrandPhoto('');
     toast.success('Brand added successfully');
   };
 
-  const handleDeleteBrand = (brand: string) => {
-    setBrands(brands.filter(b => b !== brand));
+  const handleDeleteBrand = (id: string) => {
+    setBrands(brands.filter(b => b.id !== id));
     toast.success('Brand removed');
   };
 
@@ -66,30 +92,52 @@ export default function AdminCatalog() {
             </div>
           </div>
 
-          <div className="flex gap-2 mb-6">
+          <div className="flex flex-col gap-2 mb-6">
             <input 
               type="text" 
-              value={newCategory} 
-              onChange={e => setNewCategory(e.target.value)} 
-              onKeyDown={e => e.key === 'Enter' && handleAddCategory()}
-              className="flex-1 px-4 py-2.5 rounded-2xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 outline-none transition-all" 
-              placeholder="Add new category..." 
+              value={newCategoryName} 
+              onChange={e => setNewCategoryName(e.target.value)} 
+              className="w-full px-4 py-2.5 rounded-2xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 outline-none transition-all" 
+              placeholder="Category Name" 
             />
-            <button 
-              onClick={handleAddCategory}
-              className="bg-indigo-600 text-white px-5 py-2.5 rounded-2xl font-medium hover:bg-indigo-700 transition-colors flex items-center gap-2"
-            >
-              <Plus className="w-4 h-4" />
-              Add
-            </button>
+            <div className="flex gap-2">
+              <input 
+                type="url" 
+                value={newCategoryPhoto} 
+                onChange={e => setNewCategoryPhoto(e.target.value)} 
+                onKeyDown={e => e.key === 'Enter' && handleAddCategory()}
+                className="flex-1 px-4 py-2.5 rounded-2xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 outline-none transition-all" 
+                placeholder="Photo URL (Cloudinary)" 
+              />
+              <ImageUpload onUpload={(url) => setNewCategoryPhoto(url)} buttonText="Upload" className="px-4 py-2.5 rounded-2xl" />
+              <button 
+                onClick={handleAddCategory}
+                className="bg-indigo-600 text-white px-5 py-2.5 rounded-2xl font-medium hover:bg-indigo-700 transition-colors flex items-center gap-2"
+              >
+                <Plus className="w-4 h-4" />
+                Add
+              </button>
+            </div>
           </div>
 
           <div className="flex-1 overflow-y-auto max-h-[400px] pr-2 space-y-2">
             {categories.map((cat) => (
-              <div key={cat} className="flex items-center justify-between p-3 rounded-xl bg-gray-50 border border-transparent hover:border-purple-100 transition-all group">
-                <span className="font-medium text-gray-700">{cat}</span>
+              <div key={cat.id} className="flex items-center justify-between p-3 rounded-xl bg-gray-50 border border-transparent hover:border-purple-100 transition-all group">
+                <div className="flex items-center gap-3">
+                  <div className="relative w-10 h-10 rounded-lg overflow-hidden bg-gray-200 shrink-0">
+                    {cat.photo ? (
+                      <Image src={cat.photo} alt={cat.name} fill className="object-cover" referrerPolicy="no-referrer" />
+                    ) : (
+                      <ImageIcon className="w-5 h-5 text-gray-400 m-auto mt-2.5" />
+                    )}
+                  </div>
+                  <div>
+                    <span className="font-medium text-gray-700 block">{cat.name}</span>
+                    <span className="text-xs text-gray-400 block">/{cat.slug}</span>
+                  </div>
+                </div>
                 <button 
-                  onClick={() => handleDeleteCategory(cat)}
+                  onClick={() => handleDeleteCategory(cat.id)}
                   className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all opacity-0 group-hover:opacity-100"
                 >
                   <Trash2 className="w-4 h-4" />
@@ -116,30 +164,52 @@ export default function AdminCatalog() {
             </div>
           </div>
 
-          <div className="flex gap-2 mb-6">
+          <div className="flex flex-col gap-2 mb-6">
             <input 
               type="text" 
-              value={newBrand} 
-              onChange={e => setNewBrand(e.target.value)} 
-              onKeyDown={e => e.key === 'Enter' && handleAddBrand()}
-              className="flex-1 px-4 py-2.5 rounded-2xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 outline-none transition-all" 
-              placeholder="Add new brand..." 
+              value={newBrandName} 
+              onChange={e => setNewBrandName(e.target.value)} 
+              className="w-full px-4 py-2.5 rounded-2xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 outline-none transition-all" 
+              placeholder="Brand Name" 
             />
-            <button 
-              onClick={handleAddBrand}
-              className="bg-indigo-600 text-white px-5 py-2.5 rounded-2xl font-medium hover:bg-indigo-700 transition-colors flex items-center gap-2"
-            >
-              <Plus className="w-4 h-4" />
-              Add
-            </button>
+            <div className="flex gap-2">
+              <input 
+                type="url" 
+                value={newBrandPhoto} 
+                onChange={e => setNewBrandPhoto(e.target.value)} 
+                onKeyDown={e => e.key === 'Enter' && handleAddBrand()}
+                className="flex-1 px-4 py-2.5 rounded-2xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 outline-none transition-all" 
+                placeholder="Photo URL (Cloudinary)" 
+              />
+              <ImageUpload onUpload={(url) => setNewBrandPhoto(url)} buttonText="Upload" className="px-4 py-2.5 rounded-2xl" />
+              <button 
+                onClick={handleAddBrand}
+                className="bg-indigo-600 text-white px-5 py-2.5 rounded-2xl font-medium hover:bg-indigo-700 transition-colors flex items-center gap-2"
+              >
+                <Plus className="w-4 h-4" />
+                Add
+              </button>
+            </div>
           </div>
 
           <div className="flex-1 overflow-y-auto max-h-[400px] pr-2 space-y-2">
             {brands.map((brand) => (
-              <div key={brand} className="flex items-center justify-between p-3 rounded-xl bg-gray-50 border border-transparent hover:border-orange-100 transition-all group">
-                <span className="font-medium text-gray-700">{brand}</span>
+              <div key={brand.id} className="flex items-center justify-between p-3 rounded-xl bg-gray-50 border border-transparent hover:border-orange-100 transition-all group">
+                <div className="flex items-center gap-3">
+                  <div className="relative w-10 h-10 rounded-lg overflow-hidden bg-gray-200 shrink-0">
+                    {brand.photo ? (
+                      <Image src={brand.photo} alt={brand.name} fill className="object-cover" referrerPolicy="no-referrer" />
+                    ) : (
+                      <ImageIcon className="w-5 h-5 text-gray-400 m-auto mt-2.5" />
+                    )}
+                  </div>
+                  <div>
+                    <span className="font-medium text-gray-700 block">{brand.name}</span>
+                    <span className="text-xs text-gray-400 block">/{brand.slug}</span>
+                  </div>
+                </div>
                 <button 
-                  onClick={() => handleDeleteBrand(brand)}
+                  onClick={() => handleDeleteBrand(brand.id)}
                   className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all opacity-0 group-hover:opacity-100"
                 >
                   <Trash2 className="w-4 h-4" />

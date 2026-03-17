@@ -8,6 +8,7 @@ import { DistrictDropdown } from '@/components/DistrictDropdown';
 import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
+import { AddUserIcon } from '@/components/icons';
 
 export default function OnboardingPage() {
   const router = useRouter();
@@ -24,6 +25,15 @@ export default function OnboardingPage() {
     address: '',
     district: ''
   });
+
+  const [ipAddress, setIpAddress] = useState('');
+
+  useEffect(() => {
+    fetch('https://api.ipify.org?format=json')
+      .then(res => res.json())
+      .then(data => setIpAddress(data.ip))
+      .catch(() => console.error('Failed to fetch IP'));
+  }, []);
 
   // Step 1: Name & Email Signup
   const handleSignup = async () => {
@@ -127,7 +137,9 @@ export default function OnboardingPage() {
         role: 'user',
         isProfileCompleted: true,
         isEmailVerified: true,
-        isPhoneVerified: true
+        isPhoneVerified: true,
+        registrationDate: new Date().toISOString(),
+        ipAddress: ipAddress
       });
       
       router.push('/account');
@@ -143,6 +155,11 @@ export default function OnboardingPage() {
         animate={{ opacity: 1, y: 0 }}
         className="w-full max-w-md bg-white p-8 rounded-3xl shadow-xl border border-gray-100"
       >
+        <div className="flex justify-center mb-6">
+          <div className="w-16 h-16 bg-[#8B183A]/10 rounded-2xl flex items-center justify-center">
+            <AddUserIcon className="w-8 h-8 text-[#8B183A]" />
+          </div>
+        </div>
         <h1 className="text-2xl font-bold text-gray-900 mb-6 text-center">
           {step === 1 && 'Create Account'}
           {step === 2 && 'Verify Your Email'}

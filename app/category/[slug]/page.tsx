@@ -13,13 +13,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function CategoryPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const allProducts = await getProducts();
-  const categoryProducts = allProducts.filter(p => p.category.toLowerCase() === slug.toLowerCase());
 
   return (
     <div className="min-h-screen bg-gray-50/50 pb-20">
       <Navbar />
-      <CategoryClient slug={slug} categoryProducts={categoryProducts} />
+      <CategoryClient slug={slug} />
     </div>
   );
 }

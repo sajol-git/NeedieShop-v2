@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { Image as ImageIcon, Clock, LayoutGrid, Save, Plus, Trash2, Edit2, Settings } from 'lucide-react';
 import { toast } from 'sonner';
 import { useStore } from '@/store/useStore';
+import { ImageUpload } from '@/components/ImageUpload';
 
 export default function AdminCMS() {
   const { 
@@ -15,6 +16,7 @@ export default function AdminCMS() {
 
   const [isBannerModalOpen, setIsBannerModalOpen] = useState(false);
   const [editingBanner, setEditingBanner] = useState<any>(null);
+  const [bannerImageUrl, setBannerImageUrl] = useState('');
 
   const handleSaveBanner = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -22,7 +24,7 @@ export default function AdminCMS() {
     const bannerData = {
       id: editingBanner?.id || Date.now(),
       title: formData.get('title') as string,
-      image: formData.get('image') as string,
+      image: bannerImageUrl || (formData.get('image') as string),
       link: formData.get('link') as string,
       status: formData.get('status') as 'Active' | 'Inactive',
     };
@@ -73,7 +75,7 @@ export default function AdminCMS() {
             </div>
           </div>
           <button 
-            onClick={() => { setEditingBanner(null); setIsBannerModalOpen(true); }}
+            onClick={() => { setEditingBanner(null); setBannerImageUrl(''); setIsBannerModalOpen(true); }}
             className="flex items-center gap-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded-lg transition-colors shadow-sm shadow-indigo-200"
           >
             <Plus className="w-4 h-4" />
@@ -94,7 +96,7 @@ export default function AdminCMS() {
                 />
                 <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                   <button 
-                    onClick={() => { setEditingBanner(banner); setIsBannerModalOpen(true); }}
+                    onClick={() => { setEditingBanner(banner); setBannerImageUrl(banner.image); setIsBannerModalOpen(true); }}
                     className="p-2 bg-white text-gray-900 rounded-full hover:bg-indigo-600 hover:text-white transition-all transform scale-90 group-hover:scale-100"
                   >
                     <Edit2 className="w-4 h-4" />
@@ -222,7 +224,10 @@ export default function AdminCMS() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Image URL</label>
-                <input name="image" defaultValue={editingBanner?.image} required className="w-full px-4 py-2 rounded-2xl border border-gray-200 outline-none focus:ring-2 focus:ring-indigo-500" />
+                <div className="flex gap-2">
+                  <input name="image" value={bannerImageUrl} onChange={(e) => setBannerImageUrl(e.target.value)} required className="flex-1 px-4 py-2 rounded-2xl border border-gray-200 outline-none focus:ring-2 focus:ring-indigo-500" />
+                  <ImageUpload onUpload={setBannerImageUrl} buttonText="Upload" className="px-4 py-2 rounded-2xl" />
+                </div>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Target Link</label>

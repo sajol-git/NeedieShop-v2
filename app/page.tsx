@@ -13,19 +13,11 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function Home() {
-  const products = await getProducts();
-  
-  const featuredProducts = products.filter(p => p.isFeatured);
-  const flashSaleProducts = products.filter(p => p.isFlashSale);
-
+export default function Home() {
   return (
     <div className="min-h-screen bg-white">
       <Navbar />
-      <HomeClient 
-        featuredProducts={featuredProducts} 
-        flashSaleProducts={flashSaleProducts} 
-      />
+      <HomeClient />
     </div>
   );
 }

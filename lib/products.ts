@@ -1,12 +1,29 @@
+export type Category = {
+  id: string;
+  name: string;
+  slug: string;
+  photo: string;
+};
+
+export type Brand = {
+  id: string;
+  name: string;
+  slug: string;
+  photo: string;
+};
+
 export type Product = {
   id: string;
   name: string;
+  slug: string;
+  status: 'draft' | 'published';
   description: string;
   metaTitle?: string;
   metaDescription?: string;
   price: number;
   compareAtPrice?: number;
-  images: string[];
+  featureImage: string;
+  gallery: string[];
   category: string;
   brand: string;
   stock: number;
@@ -28,4 +45,8 @@ export async function getProducts() {
 
 export async function getProductById(id: string) {
   return initialProducts.find(p => p.id === id);
+}
+
+export async function getProductBySlug(slug: string) {
+  return initialProducts.find(p => p.slug === slug);
 }

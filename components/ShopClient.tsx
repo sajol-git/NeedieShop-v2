@@ -7,11 +7,10 @@ import { useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { ProductCard } from '@/components/ProductCard';
 
-interface ShopClientProps {
-  allProducts: Product[];
-}
+import { useStore } from '@/store/useStore';
 
-export default function ShopClient({ allProducts }: ShopClientProps) {
+export default function ShopClient() {
+  const { products: allProducts } = useStore();
   const searchParams = useSearchParams();
   const searchQuery = searchParams.get('search')?.toLowerCase() || '';
   const [currentPage, setCurrentPage] = useState(1);

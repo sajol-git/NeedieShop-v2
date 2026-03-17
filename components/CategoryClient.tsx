@@ -8,19 +8,20 @@ import { Star, Filter } from 'lucide-react';
 import { useStore } from '@/store/useStore';
 import { ProductCard } from '@/components/ProductCard';
 
-interface CategoryClientProps {
-  slug: string;
-  categoryProducts: Product[];
-}
-
-export default function CategoryClient({ slug, categoryProducts }: CategoryClientProps) {
+export default function CategoryClient({ slug }: { slug: string }) {
   const addToCart = useStore((state) => state.addToCart);
+  const { products, categories } = useStore();
+  
+  const category = categories.find(c => c.slug === slug);
+  const categoryName = category ? category.name : slug;
+  
+  const categoryProducts = products.filter(p => p.category === categoryName && p.status === 'published');
 
   return (
     <main className="pt-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="mb-12">
-        <h1 className="text-4xl font-bold text-gray-900 capitalize mb-4">{slug}</h1>
-        <p className="text-gray-600">Explore our premium collection of {slug} products.</p>
+        <h1 className="text-4xl font-bold text-gray-900 capitalize mb-4">{categoryName}</h1>
+        <p className="text-gray-600">Explore our premium collection of {categoryName} products.</p>
       </div>
 
       <div className="flex flex-col md:flex-row gap-8">

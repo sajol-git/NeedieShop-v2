@@ -53,7 +53,7 @@ export default function OrderSuccessPage({ params }: { params: Promise<{ id: str
               {order.items.map((item, index) => (
                 <div key={index} className="flex items-center gap-4">
                   <div className="relative w-16 h-16 bg-gray-50 rounded-2xl overflow-hidden shrink-0 border border-gray-100">
-                    <Image src={item.product.images[0]} alt={item.product.name} fill className="object-cover" referrerPolicy="no-referrer" />
+                    <Image src={item.product.featureImage} alt={item.product.name} fill className="object-cover" referrerPolicy="no-referrer" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <h4 className="font-bold text-sm text-gray-900 line-clamp-1">{item.product.name}</h4>

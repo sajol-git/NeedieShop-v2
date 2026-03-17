@@ -9,14 +9,12 @@ export const metadata: Metadata = {
   description: 'Browse our full collection of premium gadgets, audio gear, and wearables. Authentic products with fast delivery in Bangladesh.',
 };
 
-export default async function ShopPage() {
-  const allProducts = await getProducts();
-
+export default function ShopPage() {
   return (
     <div className="min-h-screen bg-white pb-20">
       <Navbar />
       <Suspense fallback={<div className="pt-24 text-center">Loading products...</div>}>
-        <ShopClient allProducts={allProducts} />
+        <ShopClient />
       </Suspense>
     </div>
   );

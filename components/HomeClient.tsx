@@ -3,29 +3,16 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'motion/react';
-import { Zap, ArrowRight } from 'lucide-react';
+import { Zap, ArrowRight, Image as ImageIcon } from 'lucide-react';
 import Link from 'next/link';
 import { ProductCard } from '@/components/ProductCard';
 import { Product } from '@/lib/products';
 import { useStore } from '@/store/useStore';
 
-const CATEGORIES = [
-  { id: 'light', name: 'Light', image: 'https://picsum.photos/seed/light/200/200' },
-  { id: 'fan', name: 'Fan', image: 'https://picsum.photos/seed/fan/200/200' },
-  { id: 'power-bank', name: 'Power Bank', image: 'https://picsum.photos/seed/powerbank/200/200' },
-  { id: 'tracker', name: 'Tracker Device', image: 'https://picsum.photos/seed/tracker/200/200' },
-  { id: 'headphone', name: 'Headphone', image: 'https://picsum.photos/seed/headphone/200/200' },
-  { id: 'smartwatch', name: 'Smartwatch', image: 'https://picsum.photos/seed/smartwatch/200/200' },
-  { id: 'tws', name: 'TWS', image: 'https://picsum.photos/seed/tws/200/200' },
-];
-
-interface HomeClientProps {
-  featuredProducts: Product[];
-  flashSaleProducts: Product[];
-}
-
-export default function HomeClient({ featuredProducts, flashSaleProducts }: HomeClientProps) {
-  const { heroBanners } = useStore();
+export default function HomeClient() {
+  const { heroBanners, categories, products } = useStore();
+  const featuredProducts = products.filter(p => p.isFeatured && p.status === 'published');
+  const flashSaleProducts = products.filter(p => p.isFlashSale && p.status === 'published');
   const activeBanners = heroBanners.filter(b => b.status === 'Active');
   const [timeLeft, setTimeLeft] = useState({ hours: 23, minutes: 59, seconds: 59 });
   const [currentBanner, setCurrentBanner] = useState(0);
@@ -54,7 +41,7 @@ export default function HomeClient({ featuredProducts, flashSaleProducts }: Home
     <main className="pt-24 pb-20">
       {/* Hero Banner Slider */}
       <section className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 mb-16">
-        <div className="relative rounded-3xl overflow-hidden h-[300px] md:h-[500px] w-full">
+        <div className="relative rounded-3xl overflow-hidden aspect-[2.6/1] max-h-[500px] min-h-[200px] w-full">
           {activeBanners.length > 0 ? (
             <>
               <AnimatePresence mode="wait">
@@ -109,26 +96,30 @@ export default function HomeClient({ featuredProducts, flashSaleProducts }: Home
         </div>
 
         <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide">
-          {CATEGORIES.map((category) => (
+          {categories.length > 0 ? categories.map((category) => (
             <Link 
               key={category.id} 
-              href={`/category/${category.id}`}
+              href={`/category/${category.slug}`}
               className="flex flex-col items-center gap-4 min-w-[160px] group"
             >
-              <div className="w-40 h-40 rounded-3xl bg-gray-100 flex items-center justify-center p-6 transition-transform group-hover:scale-105">
-                <div className="relative w-full h-full">
+              <div className="w-40 h-40 rounded-3xl bg-gray-100 flex items-center justify-center p-6 transition-transform group-hover:scale-105 overflow-hidden relative">
+                {category.photo ? (
                   <Image 
-                    src={category.image} 
+                    src={category.photo} 
                     alt={category.name} 
                     fill 
-                    className="object-contain mix-blend-multiply opacity-80 group-hover:opacity-100 transition-opacity"
+                    className="object-cover transition-opacity"
                     referrerPolicy="no-referrer"
                   />
-                </div>
+                ) : (
+                  <ImageIcon className="w-12 h-12 text-gray-300" />
+                )}
               </div>
               <span className="text-sm font-semibold text-gray-900">{category.name}</span>
             </Link>
-          ))}
+          )) : (
+            <div className="text-gray-500 text-sm py-8 text-center w-full">No categories available</div>
+          )}
         </div>
       </section>
 

@@ -27,20 +27,34 @@ import { useStore } from '@/store/useStore';
 import { Product } from '@/lib/products';
 
 interface ProductDetailsClientProps {
-  product: Product;
-  relatedProducts: Product[];
+  slug: string;
 }
 
-export default function ProductDetailsClient({ product, relatedProducts }: ProductDetailsClientProps) {
-  const addToCart = useStore((state) => state.addToCart);
+export default function ProductDetailsClient({ slug }: ProductDetailsClientProps) {
+  const { products, categories, addToCart } = useStore();
+  const product = products.find(p => p.slug === slug);
+  const relatedProducts = products.filter(p => p.slug !== slug && p.status === 'published').slice(0, 8);
+  
   const router = useRouter();
   
   const [quantity, setQuantity] = useState(1);
-  const [selectedVariantId, setSelectedVariantId] = useState(product?.variants[0]?.id);
+  const [selectedVariantId, setSelectedVariantId] = useState(product?.variants?.[0]?.id);
   const [activeImage, setActiveImage] = useState(0);
   const [isQuickOrderOpen, setIsQuickOrderOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'details' | 'videos' | 'reviews' | 'shipping'>('details');
   const [showStickyNav, setShowStickyNav] = useState(false);
+
+  if (!product) {
+    return (
+      <div className="pt-32 pb-20 text-center min-h-[60vh] flex flex-col items-center justify-center">
+        <h1 className="text-2xl font-bold mb-4">Product Not Found</h1>
+        <Link href="/shop" className="text-[#8B183A] font-bold">Back to Shop</Link>
+      </div>
+    );
+  }
+
+  const category = categories.find(c => c.name === product.category);
+  const categorySlug = category ? category.slug : product.category.toLowerCase();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -53,6 +67,8 @@ export default function ProductDetailsClient({ product, relatedProducts }: Produ
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  const allImages = [product.featureImage, ...product.gallery];
 
   const handleAddToCart = () => {
     addToCart(product as any, selectedVariantId, quantity);
@@ -76,7 +92,7 @@ export default function ProductDetailsClient({ product, relatedProducts }: Produ
       <nav className="flex items-center gap-2 text-sm text-gray-400 mb-8">
         <Link href="/shop" className="hover:text-gray-900 transition-colors">Shop</Link>
         <span className="text-gray-300">›</span>
-        <Link href={`/category/${product.category.toLowerCase()}`} className="hover:text-gray-900 transition-colors">{product.category}</Link>
+        <Link href={`/category/${categorySlug}`} className="hover:text-gray-900 transition-colors">{product.category}</Link>
         <span className="text-gray-300">›</span>
         <span className="text-gray-900 font-medium">{product.name}</span>
       </nav>
@@ -86,7 +102,7 @@ export default function ProductDetailsClient({ product, relatedProducts }: Produ
         <div className="space-y-6">
           <div className="relative aspect-square rounded-3xl overflow-hidden bg-gray-50 border border-gray-100">
             <Image 
-              src={product.images[activeImage]} 
+              src={allImages[activeImage]} 
               alt={product.name} 
               fill 
               className="object-cover"
@@ -96,7 +112,7 @@ export default function ProductDetailsClient({ product, relatedProducts }: Produ
           </div>
           
           <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
-            {product.images.map((img, index) => (
+            {allImages.map((img, index) => (
               <button 
                 key={index}
                 onClick={() => setActiveImage(index)}
@@ -217,9 +233,10 @@ export default function ProductDetailsClient({ product, relatedProducts }: Produ
           {activeTab === 'details' && (
             <div className="space-y-8">
               <h2 className="text-3xl font-bold text-gray-900">Product Details</h2>
-              <p className="text-gray-600 leading-relaxed text-lg max-w-4xl">
-                {product.description}
-              </p>
+              <div 
+                className="text-gray-600 leading-relaxed text-lg max-w-4xl prose prose-indigo"
+                dangerouslySetInnerHTML={{ __html: product.description }}
+              />
               
               {product.specifications.length > 0 && (
                 <div className="space-y-4">
