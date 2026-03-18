@@ -130,7 +130,7 @@ export function Navbar() {
                 className="p-1 text-gray-900 hover:text-[#8B183A] transition-colors"
               >
                 <div className="w-10 h-10 flex items-center justify-center">
-                  <UserIcon className="w-6 h-6 scale-100" strokeWidth={2.5} />
+                  <UserIcon className="w-6 h-6 scale-100" />
                 </div>
               </Link>
 
@@ -139,7 +139,7 @@ export function Navbar() {
                 onClick={() => setIsCartOpen(true)}
               >
                 <div className="w-10 h-10 flex items-center justify-center">
-                  <CartIcon className="w-6 h-6 scale-110" strokeWidth={2.5} />
+                  <CartIcon className="w-6 h-6 scale-110" />
                 </div>
                 {cartCount > 0 && (
                   <span className="absolute top-1 right-1 bg-[#D31B27] text-white text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-full">
@@ -200,9 +200,9 @@ export function Navbar() {
                       }`}
                     >
                       <div className="w-10 h-10 flex items-center justify-center shrink-0">
-                        {link.name === 'Home' && <HomeIcon className="w-6 h-6" strokeWidth={2.5} />}
-                        {link.name === 'Track Order' && <TrackOrderIcon className="w-6 h-6 scale-110" strokeWidth={2.5} />}
-                        {link.name === 'Shop' && <Search className="w-6 h-6" strokeWidth={2.5} />}
+                        {link.name === 'Home' && <HomeIcon className="w-6 h-6" />}
+                        {link.name === 'Track Order' && <TrackOrderIcon className="w-6 h-6 scale-110" />}
+                        {link.name === 'Shop' && <Search className="w-6 h-6" strokeWidth={1.5} />}
                       </div>
                       {link.name}
                     </Link>
@@ -240,7 +240,7 @@ export function Navbar() {
                       className="flex items-center gap-3 text-gray-600 font-medium"
                     >
                       <div className="w-10 h-10 flex items-center justify-center shrink-0">
-                        <UserIcon className="w-6 h-6 scale-110" strokeWidth={2.5} />
+                        <UserIcon className="w-6 h-6 scale-110" />
                       </div>
                       Login / Register
                     </Link>
@@ -261,7 +261,7 @@ export function Navbar() {
                   }}
                   className="relative w-full"
                 >
-                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" strokeWidth={2.5} />
+                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" strokeWidth={1.5} />
                   <input 
                     name="search"
                     type="text" 
