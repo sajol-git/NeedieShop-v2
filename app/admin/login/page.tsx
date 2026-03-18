@@ -7,7 +7,7 @@ import { Crown, ShieldCheck, KeyRound, Ghost, ArrowRight } from 'lucide-react';
 import { toast } from 'sonner';
 import { motion } from 'motion/react';
 import Link from 'next/link';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '../../../lib/supabase';
 
 export default function AdminLogin() {
   const [email, setEmail] = useState('');
