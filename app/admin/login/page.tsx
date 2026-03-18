@@ -25,7 +25,8 @@ export default function AdminLogin() {
         role: 'admin',
         isProfileCompleted: true,
         isEmailVerified: true,
-        isPhoneVerified: true
+        isPhoneVerified: true,
+        registrationDate: new Date().toISOString(),
       });
       toast.success('Welcome back, Admin!');
       router.push('/admin');

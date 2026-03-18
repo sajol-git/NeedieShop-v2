@@ -6,6 +6,7 @@ import { FooterWrapper } from '@/components/FooterWrapper';
 import { ChatWidget } from '@/components/ChatWidget';
 import { MobileBottomNav } from '@/components/MobileBottomNav';
 import { Urbanist } from 'next/font/google';
+import { StoreInitializer } from '@/components/StoreInitializer';
 
 const urbanist = Urbanist({ subsets: ['latin'] });
 
@@ -18,6 +19,7 @@ export default function RootLayout({children}: {children: React.ReactNode}) {
   return (
     <html lang="en" className={urbanist.className}>
       <body suppressHydrationWarning>
+        <StoreInitializer />
         {children}
         <MobileBottomNav />
         <FooterWrapper />

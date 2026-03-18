@@ -2,17 +2,22 @@
 
 import { CldUploadWidget } from 'next-cloudinary';
 import { UploadCloud } from 'lucide-react';
+import { useMemo, useId } from 'react';
 
 interface ImageUploadProps {
   onUpload: (url: string) => void;
   buttonText?: string;
   className?: string;
+  fileName?: string;
 }
 
-export function ImageUpload({ onUpload, buttonText = "Upload Image", className = "" }: ImageUploadProps) {
+export function ImageUpload({ onUpload, buttonText = "Upload Image", className = "", fileName }: ImageUploadProps) {
+  const id = useId().replace(/:/g, '');
+  const publicId = useMemo(() => fileName ? `${fileName}_${id}` : undefined, [fileName, id]);
+
   return (
     <CldUploadWidget
-      uploadPreset={process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET}
+      uploadPreset="needieshop"
       onSuccess={(result: any) => {
         if (result.info && result.info.secure_url) {
           onUpload(result.info.secure_url);
@@ -21,7 +26,27 @@ export function ImageUpload({ onUpload, buttonText = "Upload Image", className =
       options={{
         maxFiles: 1,
         resourceType: 'image',
-        clientAllowedFormats: ['jpg', 'jpeg', 'png', 'webp', 'gif'],
+        clientAllowedFormats: ['webp', 'jpg', 'png', 'jpeg'],
+        folder: 'needieshop',
+        publicId,
+        sources: ['local', 'url', 'camera'],
+        styles: {
+          palette: {
+            window: '#FFFFFF',
+            windowBorder: '#90A0B3',
+            tabIcon: '#8B183A',
+            menuIcons: '#5A616A',
+            textDark: '#000000',
+            textLight: '#FFFFFF',
+            link: '#8B183A',
+            action: '#8B183A',
+            inactiveTabIcon: '#0E2F5A',
+            error: '#F44235',
+            inProgress: '#0078FF',
+            complete: '#20B832',
+            sourceBg: '#E4EBF1'
+          }
+        }
       }}
     >
       {({ open }) => {

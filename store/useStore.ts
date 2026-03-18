@@ -37,10 +37,24 @@ export type Order = {
   createdAt: string;
 };
 
+export type Category = {
+  id: string;
+  name: string;
+  slug: string;
+  photo?: string;
+};
+
+export type Brand = {
+  id: string;
+  name: string;
+  slug: string;
+  photo?: string;
+};
+
 type StoreState = {
   products: Product[];
-  categories: string[];
-  brands: string[];
+  categories: Category[];
+  brands: Brand[];
   cart: CartItem[];
   orders: Order[];
   user: { 
@@ -73,8 +87,8 @@ type StoreState = {
   addProduct: (product: Product) => void;
   updateProduct: (id: string, product: Partial<Product>) => void;
   deleteProduct: (id: string) => void;
-  setCategories: (categories: string[]) => void;
-  setBrands: (brands: string[]) => void;
+  setCategories: (categories: Category[]) => void;
+  setBrands: (brands: Brand[]) => void;
   setOfferBanners: (banners: string[]) => void;
   setCopyrightText: (text: string) => void;
   setHeroBanners: (banners: StoreState['heroBanners']) => void;
@@ -90,6 +104,7 @@ type StoreState = {
   updateOrderStatus: (id: string, status: Order['status']) => void;
   
   setUser: (user: StoreState['user']) => void;
+  init: () => Promise<void>;
 };
 
 export const useStore = create<StoreState>()(
@@ -184,6 +199,41 @@ export const useStore = create<StoreState>()(
       })),
 
       setUser: (user) => set({ user }),
+
+      init: async () => {
+        const { supabase } = await import('@/lib/supabase');
+        
+        // Fetch Categories
+        const { data: categories } = await supabase.from('categories').select('*');
+        if (categories) set({ categories });
+
+        // Fetch Brands
+        const { data: brands } = await supabase.from('brands').select('*');
+        if (brands) set({ brands });
+
+        // Fetch Products
+        const { getProducts } = await import('@/lib/products');
+        const products = await getProducts();
+        set({ products });
+
+        // Fetch Banners
+        const { data: banners } = await supabase.from('banners').select('*').eq('status', 'Active');
+        if (banners) {
+          set({ 
+            heroBanners: banners.filter(b => b.type === 'hero'),
+            offerBanners: banners.filter(b => b.type === 'offer').map(b => b.image)
+          });
+        }
+
+        // Fetch Settings
+        const { data: settings } = await supabase.from('settings').select('*');
+        if (settings) {
+          const footer = settings.find(s => s.key === 'footer_content')?.value;
+          const copyright = settings.find(s => s.key === 'copyright_text')?.value;
+          if (footer) set({ footerContent: footer });
+          if (copyright) set({ copyrightText: copyright });
+        }
+      }
     }),
     {
       name: 'needieshop-storage',

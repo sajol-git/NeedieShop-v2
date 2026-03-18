@@ -16,11 +16,16 @@ interface QuickOrderModalProps {
   quantity: number;
 }
 
-const generateOrderId = () => `ORD-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+const generateOrderId = (orderCount: number) => {
+  const serial = (orderCount + 1).toString().padStart(5, '0');
+  return `ORD-NS-${serial}`;
+};
 
 export function QuickOrderModal({ isOpen, onClose, product, selectedVariantId, quantity }: QuickOrderModalProps) {
   const addOrder = useStore((state) => state.addOrder);
+  const orders = useStore((state) => state.orders);
   const router = useRouter();
+
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
@@ -50,7 +55,7 @@ export function QuickOrderModal({ isOpen, onClose, product, selectedVariantId, q
     }
 
     const newOrder: Order = {
-      id: generateOrderId(),
+      id: generateOrderId(orders.length),
       items: [{ product, variantId: selectedVariantId, quantity }],
       total,
       subtotal,

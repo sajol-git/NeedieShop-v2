@@ -233,7 +233,12 @@ export default function AddProductPage() {
                     placeholder="https://example.com/feature-image.jpg"
                     className="flex-1 px-3 py-2 border border-gray-300 rounded-3xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
                   />
-                  <ImageUpload onUpload={(url) => setFormData({...formData, featureImage: url})} buttonText="Upload" className="px-4 py-2 rounded-3xl" />
+                  <ImageUpload 
+                    onUpload={(url) => setFormData({...formData, featureImage: url})} 
+                    buttonText="Upload" 
+                    className="px-4 py-2 rounded-3xl" 
+                    fileName={formData.name}
+                  />
                 </div>
                 {formData.featureImage && (
                   <div className="mt-3 relative w-32 aspect-square rounded-lg border border-gray-200 overflow-hidden bg-gray-50">
@@ -273,6 +278,7 @@ export default function AddProductPage() {
                         }} 
                         buttonText="Upload" 
                         className="px-4 py-2 rounded-3xl" 
+                        fileName={`${formData.name}_gallery_${index}`}
                       />
                       <button 
                         onClick={() => {

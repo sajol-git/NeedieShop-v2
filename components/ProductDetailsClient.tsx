@@ -27,13 +27,12 @@ import { useStore } from '@/store/useStore';
 import { Product } from '@/lib/products';
 
 interface ProductDetailsClientProps {
-  slug: string;
+  product: Product;
+  relatedProducts: Product[];
 }
 
-export default function ProductDetailsClient({ slug }: ProductDetailsClientProps) {
-  const { products, categories, addToCart } = useStore();
-  const product = products.find(p => p.slug === slug);
-  const relatedProducts = products.filter(p => p.slug !== slug && p.status === 'published').slice(0, 8);
+export default function ProductDetailsClient({ product, relatedProducts }: ProductDetailsClientProps) {
+  const { categories, addToCart } = useStore();
   
   const router = useRouter();
   
@@ -43,18 +42,6 @@ export default function ProductDetailsClient({ slug }: ProductDetailsClientProps
   const [isQuickOrderOpen, setIsQuickOrderOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'details' | 'videos' | 'reviews' | 'shipping'>('details');
   const [showStickyNav, setShowStickyNav] = useState(false);
-
-  if (!product) {
-    return (
-      <div className="pt-32 pb-20 text-center min-h-[60vh] flex flex-col items-center justify-center">
-        <h1 className="text-2xl font-bold mb-4">Product Not Found</h1>
-        <Link href="/shop" className="text-[#8B183A] font-bold">Back to Shop</Link>
-      </div>
-    );
-  }
-
-  const category = categories.find(c => c.name === product.category);
-  const categorySlug = category ? category.slug : product.category.toLowerCase();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -67,6 +54,18 @@ export default function ProductDetailsClient({ slug }: ProductDetailsClientProps
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  if (!product) {
+    return (
+      <div className="pt-32 pb-20 text-center min-h-[60vh] flex flex-col items-center justify-center">
+        <h1 className="text-2xl font-bold mb-4">Product Not Found</h1>
+        <Link href="/shop" className="text-[#8B183A] font-bold">Back to Shop</Link>
+      </div>
+    );
+  }
+
+  const category = categories.find(c => c.name === product.category);
+  const categorySlug = category ? category.slug : product.category.toLowerCase();
 
   const allImages = [product.featureImage, ...product.gallery];
 

@@ -1,3 +1,5 @@
+import { supabase } from './supabase';
+
 export type Category = {
   id: string;
   name: string;
@@ -35,18 +37,76 @@ export type Product = {
   relatedProducts: string[];
 };
 
-export const initialProducts: Product[] = [];
-
 export async function getProducts() {
-  // In a real app, this would fetch from a database.
-  // For now, we return the initial products.
-  return initialProducts;
+  const { data, error } = await supabase
+    .from('products')
+    .select(`
+      *,
+      categories (name),
+      brands (name),
+      product_variants (*),
+      product_specifications (*)
+    `)
+    .eq('status', 'published');
+
+  if (error) {
+    console.error('Error fetching products:', error);
+    return [];
+  }
+
+  return data.map(p => ({
+    ...p,
+    category: p.categories?.name || '',
+    brand: p.brands?.name || '',
+    variants: p.product_variants || [],
+    specifications: p.product_specifications || []
+  })) as Product[];
 }
 
 export async function getProductById(id: string) {
-  return initialProducts.find(p => p.id === id);
+  const { data, error } = await supabase
+    .from('products')
+    .select(`
+      *,
+      categories (name),
+      brands (name),
+      product_variants (*),
+      product_specifications (*)
+    `)
+    .eq('id', id)
+    .single();
+
+  if (error) return null;
+
+  return {
+    ...data,
+    category: data.categories?.name || '',
+    brand: data.brands?.name || '',
+    variants: data.product_variants || [],
+    specifications: data.product_specifications || []
+  } as Product;
 }
 
 export async function getProductBySlug(slug: string) {
-  return initialProducts.find(p => p.slug === slug);
+  const { data, error } = await supabase
+    .from('products')
+    .select(`
+      *,
+      categories (name),
+      brands (name),
+      product_variants (*),
+      product_specifications (*)
+    `)
+    .eq('slug', slug)
+    .single();
+
+  if (error) return null;
+
+  return {
+    ...data,
+    category: data.categories?.name || '',
+    brand: data.brands?.name || '',
+    variants: data.product_variants || [],
+    specifications: data.product_specifications || []
+  } as Product;
 }

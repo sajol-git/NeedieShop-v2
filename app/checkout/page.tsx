@@ -18,11 +18,15 @@ import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 
-const generateOrderId = () => `ORD-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+const generateOrderId = (orderCount: number) => {
+  const serial = (orderCount + 1).toString().padStart(5, '0');
+  return `ORD-NS-${serial}`;
+};
 
 export default function CheckoutPage() {
   const cart = useStore((state) => state.cart);
   const user = useStore((state) => state.user);
+  const orders = useStore((state) => state.orders);
   const removeFromCart = useStore((state) => state.removeFromCart);
   const addOrder = useStore((state) => state.addOrder);
   const clearCart = useStore((state) => state.clearCart);
@@ -63,7 +67,7 @@ export default function CheckoutPage() {
     }
 
     const newOrder: Order = {
-      id: generateOrderId(),
+      id: generateOrderId(orders.length),
       items: cart,
       total,
       subtotal,
