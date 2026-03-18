@@ -166,16 +166,16 @@ export default function AccountPage() {
 
               <nav className="space-y-2">
                 {[
-                  { id: '/', label: 'Home', icon: HomeIcon },
+                  { id: '/', label: 'Home', icon: HomeIcon, strokeWidth: 2 },
                   { id: '/shop', label: 'Shop', icon: ShoppingBag },
-                  { id: '/track-order', label: 'Track Order', icon: TrackOrderIcon },
+                  { id: '/track-order', label: 'Track Order', icon: TrackOrderIcon, strokeWidth: 10 },
                 ].map((item) => (
                   <Link
                     key={item.id}
                     href={item.id}
                     className="flex items-center gap-4 px-6 py-4 rounded-2xl text-sm font-bold text-gray-500 hover:bg-gray-50 hover:text-[#8B183A] transition-all group"
                   >
-                    <item.icon className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                    <item.icon className={`w-5 h-5 group-hover:scale-110 transition-transform`} strokeWidth={item.strokeWidth} />
                     {item.label}
                   </Link>
                 ))}
@@ -196,11 +196,11 @@ export default function AccountPage() {
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
               {[
                 { id: 'dashboard', label: 'Overview', icon: DashboardIcon, color: 'text-gray-600', bg: 'bg-gray-50' },
-                { id: 'orders', label: 'My Orders', icon: TotalOrderIcon, color: 'text-blue-600', bg: 'bg-blue-50' },
+                { id: 'orders', label: 'My Orders', icon: TotalOrderIcon, color: 'text-blue-600', bg: 'bg-blue-50', strokeWidth: 10 },
                 { id: 'rewards', label: 'NeediePrime', icon: NeediePrimeIcon, color: 'text-amber-600', bg: 'bg-amber-50' },
                 { id: 'address', label: 'Address', icon: MapPin, color: 'text-emerald-600', bg: 'bg-emerald-50' },
                 { id: 'notifications', label: 'Notifications', icon: Bell, color: 'text-indigo-600', bg: 'bg-indigo-50' },
-                { id: 'support', label: 'Support', icon: SupportIcon, color: 'text-purple-600', bg: 'bg-purple-50' },
+                { id: 'support', label: 'Support', icon: SupportIcon, color: 'text-purple-600', bg: 'bg-purple-50', strokeWidth: 10 },
               ].map((item) => (
                 <button
                   key={item.id}
@@ -212,7 +212,7 @@ export default function AccountPage() {
                   }`}
                 >
                   <div className={`w-10 h-10 sm:w-12 sm:h-12 ${item.bg} ${item.color} rounded-2xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform`}>
-                    <item.icon className="w-5 h-5 sm:w-6 sm:h-6" />
+                    <item.icon className="w-5 h-5 sm:w-6 sm:h-6" strokeWidth={item.strokeWidth} />
                   </div>
                   <span className={`text-xs sm:text-sm font-bold ${activeTab === item.id ? 'text-[#8B183A]' : 'text-gray-900'}`}>{item.label}</span>
                 </button>
@@ -232,7 +232,7 @@ export default function AccountPage() {
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                     <div className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
                       <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600 mb-4">
-                        <TotalOrderIcon className="w-6 h-6 scale-110" />
+                        <TotalOrderIcon className="w-6 h-6 scale-110" strokeWidth={10} />
                       </div>
                       <p className="text-sm font-bold text-gray-400 uppercase tracking-widest">Total Orders</p>
                       <h3 className="text-3xl font-black text-gray-900 mt-1">{userOrders.length}</h3>
@@ -358,7 +358,7 @@ export default function AccountPage() {
                         >
                           <div className="flex items-center gap-4">
                             <div className="w-12 h-12 bg-gray-50 rounded-xl flex items-center justify-center text-gray-400 group-hover:bg-white transition-colors">
-                              <TotalOrderIcon className="w-6 h-6" />
+                              <TotalOrderIcon className="w-6 h-6" strokeWidth="10" />
                             </div>
                             <div>
                               <h4 className="font-bold text-gray-900">{order.id}</h4>
@@ -449,7 +449,7 @@ export default function AccountPage() {
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                           <div className="flex items-center gap-4">
                             <div className="w-12 h-12 bg-gray-50 rounded-2xl flex items-center justify-center text-gray-400">
-                              <TotalOrderIcon className="w-6 h-6" />
+                              <TotalOrderIcon className="w-6 h-6" strokeWidth="10" />
                             </div>
                             <div>
                               <h4 className="font-bold text-gray-900">{order.id}</h4>
@@ -700,7 +700,7 @@ export default function AccountPage() {
                   <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100">
                     <div className="flex items-center gap-4 mb-8">
                       <div className="w-12 h-12 bg-purple-50 rounded-2xl flex items-center justify-center text-purple-600">
-                        <SupportIcon className="w-6 h-6" />
+                        <SupportIcon className="w-6 h-6" strokeWidth="10" />
                       </div>
                       <h2 className="text-2xl font-black text-gray-900">Support Center</h2>
                     </div>
@@ -722,7 +722,7 @@ export default function AccountPage() {
                       </div>
                       <div className="p-6 bg-gray-50 rounded-3xl border border-gray-100 text-center group hover:bg-white hover:shadow-md transition-all">
                         <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-emerald-600 mx-auto mb-4 shadow-sm group-hover:scale-110 transition-transform">
-                          <SupportIcon className="w-6 h-6" />
+                          <SupportIcon className="w-6 h-6" strokeWidth={10} />
                         </div>
                         <h4 className="font-bold text-gray-900 mb-1">Live Chat</h4>
                         <p className="text-xs text-gray-500">Available 10AM - 10PM</p>

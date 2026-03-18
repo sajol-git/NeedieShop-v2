@@ -200,8 +200,8 @@ export function Navbar() {
                       }`}
                     >
                       <div className="w-10 h-10 flex items-center justify-center shrink-0">
-                        {link.name === 'Home' && <HomeIcon className="w-6 h-6" />}
-                        {link.name === 'Track Order' && <TrackOrderIcon className="w-6 h-6 scale-110" />}
+                        {link.name === 'Home' && <HomeIcon className="w-6 h-6" strokeWidth="2" />}
+                        {link.name === 'Track Order' && <TrackOrderIcon className="w-6 h-6 scale-110" strokeWidth="10" />}
                         {link.name === 'Shop' && <Search className="w-6 h-6" strokeWidth={2} />}
                       </div>
                       {link.name}
