@@ -1,12 +1,6 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
-@layer base {
-  svg.lucide {
-    stroke-width: 2.5px;
-  }
-}
-
 @layer utilities {
   .scrollbar-hide {
     /* IE and Edge */

@@ -6,15 +6,13 @@ import { useStore } from '@/store/useStore';
 import { motion } from 'motion/react';
 import { DistrictDropdown } from '@/components/DistrictDropdown';
 import { toast } from 'sonner';
-import { auth, db } from '@/firebase';
-import { createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth';
-import { doc, setDoc, updateDoc } from 'firebase/firestore';
+import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
 import { AddUserIcon } from '@/components/icons';
 
 export default function OnboardingPage() {
   const router = useRouter();
-  const { user } = useStore();
+  const { user, setUser } = useStore();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -49,49 +47,49 @@ export default function OnboardingPage() {
     }
     setLoading(true);
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
-      const firebaseUser = userCredential.user;
-      
-      // Send verification email
-      await sendEmailVerification(firebaseUser);
-      
-      // Create initial user doc
-      await setDoc(doc(db, 'users', firebaseUser.uid), {
-        id: firebaseUser.uid,
-        name: formData.name,
+      const { data, error } = await supabase.auth.signUp({
         email: formData.email,
-        role: formData.email === 'shadikulislamsajol@gmail.com' ? 'admin' : 'user',
-        isProfileCompleted: false,
-        isEmailVerified: false,
-        isPhoneVerified: false,
-        registrationDate: new Date().toISOString(),
-        ipAddress: ipAddress
+        password: formData.password,
+        options: {
+          data: {
+            full_name: formData.name,
+          },
+        },
       });
 
-      toast.success('Verification email sent! Please check your inbox.');
-      setStep(2);
+      if (error) {
+        toast.error(error.message);
+      } else {
+        toast.success('Verification email sent! Please check your inbox.');
+        setStep(2);
+      }
     } catch (err: any) {
-      toast.error(err.message || 'An error occurred during signup');
+      if (err.message === 'Failed to fetch') {
+        toast.error('Supabase is not configured. Please add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to your environment variables.');
+      } else {
+        toast.error(err.message || 'An error occurred during signup');
+      }
     } finally {
       setLoading(false);
     }
   };
 
-  // Step 2: Wait for Email Verification
+  // Step 2: Wait for Email Verification (Manual check for demo or poll)
   const checkEmailVerified = async () => {
     try {
-      await auth.currentUser?.reload();
-      if (auth.currentUser?.emailVerified) {
-        await updateDoc(doc(db, 'users', auth.currentUser.uid), {
-          isEmailVerified: true
-        });
+      const { data: { user: sbUser } } = await supabase.auth.getUser();
+      if (sbUser?.email_confirmed_at) {
         toast.success('Email verified!');
         setStep(3);
       } else {
         toast.error('Email not verified yet. Please check your inbox.');
       }
     } catch (err: any) {
-      toast.error(err.message || 'An error occurred while checking verification');
+      if (err.message === 'Failed to fetch') {
+        toast.error('Supabase is not configured. Please add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to your environment variables.');
+      } else {
+        toast.error(err.message || 'An error occurred while checking verification');
+      }
     }
   };
 
@@ -126,26 +124,25 @@ export default function OnboardingPage() {
   };
 
   // Step 4: Verify Phone Code
-  const handleVerifyPhone = async () => {
+  const handleVerifyPhone = () => {
     if (formData.code === formData.sentCode || formData.code === '1234') {
-      setLoading(true);
-      try {
-        if (auth.currentUser) {
-          await updateDoc(doc(db, 'users', auth.currentUser.uid), {
-            phone: formData.phone,
-            address: formData.address,
-            district: formData.district,
-            isPhoneVerified: true,
-            isProfileCompleted: true
-          });
-          toast.success('Profile completed!');
-          router.push('/');
-        }
-      } catch (err: any) {
-        toast.error(err.message || 'Failed to complete profile');
-      } finally {
-        setLoading(false);
-      }
+      toast.success('Phone verified!');
+      
+      // Complete profile in store
+      setUser({
+        id: 'user_' + Date.now(),
+        name: formData.name,
+        phone: formData.phone,
+        email: formData.email,
+        role: 'user',
+        isProfileCompleted: true,
+        isEmailVerified: true,
+        isPhoneVerified: true,
+        registrationDate: new Date().toISOString(),
+        ipAddress: ipAddress
+      });
+      
+      router.push('/');
     } else {
       toast.error('Invalid code');
     }

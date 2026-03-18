@@ -1,5 +1,4 @@
-import { db } from '@/firebase';
-import { collection, getDocs, query, where, limit, getDoc, doc } from 'firebase/firestore';
+import { supabase } from './supabase';
 
 export type Category = {
   id: string;
@@ -39,40 +38,75 @@ export type Product = {
 };
 
 export async function getProducts() {
-  try {
-    const q = query(collection(db, 'products'), where('status', '==', 'published'));
-    const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => doc.data() as Product);
-  } catch (error) {
+  const { data, error } = await supabase
+    .from('products')
+    .select(`
+      *,
+      categories (name),
+      brands (name),
+      product_variants (*),
+      product_specifications (*)
+    `)
+    .eq('status', 'published');
+
+  if (error) {
     console.error('Error fetching products:', error);
     return [];
   }
+
+  return data.map(p => ({
+    ...p,
+    category: p.categories?.name || '',
+    brand: p.brands?.name || '',
+    variants: p.product_variants || [],
+    specifications: p.product_specifications || []
+  })) as Product[];
 }
 
 export async function getProductById(id: string) {
-  try {
-    const docRef = doc(db, 'products', id);
-    const docSnap = await getDoc(docRef);
-    if (docSnap.exists()) {
-      return docSnap.data() as Product;
-    }
-    return null;
-  } catch (error) {
-    console.error('Error fetching product by id:', error);
-    return null;
-  }
+  const { data, error } = await supabase
+    .from('products')
+    .select(`
+      *,
+      categories (name),
+      brands (name),
+      product_variants (*),
+      product_specifications (*)
+    `)
+    .eq('id', id)
+    .single();
+
+  if (error) return null;
+
+  return {
+    ...data,
+    category: data.categories?.name || '',
+    brand: data.brands?.name || '',
+    variants: data.product_variants || [],
+    specifications: data.product_specifications || []
+  } as Product;
 }
 
 export async function getProductBySlug(slug: string) {
-  try {
-    const q = query(collection(db, 'products'), where('slug', '==', slug), limit(1));
-    const snapshot = await getDocs(q);
-    if (!snapshot.empty) {
-      return snapshot.docs[0].data() as Product;
-    }
-    return null;
-  } catch (error) {
-    console.error('Error fetching product by slug:', error);
-    return null;
-  }
+  const { data, error } = await supabase
+    .from('products')
+    .select(`
+      *,
+      categories (name),
+      brands (name),
+      product_variants (*),
+      product_specifications (*)
+    `)
+    .eq('slug', slug)
+    .single();
+
+  if (error) return null;
+
+  return {
+    ...data,
+    category: data.categories?.name || '',
+    brand: data.brands?.name || '',
+    variants: data.product_variants || [],
+    specifications: data.product_specifications || []
+  } as Product;
 }
