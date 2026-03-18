@@ -447,20 +447,46 @@ export const useStore = create<StoreState>()(
       init: async () => {
         const { supabase } = await import('@/lib/supabase');
         
-        // Fetch Categories
+        // 1. Check for existing session
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) {
+          const { data: userData } = await supabase
+            .from('users')
+            .select('*')
+            .eq('id', session.user.id)
+            .single();
+          
+          if (userData) {
+            set({
+              user: {
+                id: userData.id,
+                name: userData.name || 'User',
+                phone: userData.phone || '',
+                email: userData.email || '',
+                role: userData.role || 'user',
+                isProfileCompleted: true,
+                isEmailVerified: true,
+                isPhoneVerified: true,
+                registrationDate: userData.created_at,
+              }
+            });
+          }
+        }
+
+        // 2. Fetch Categories
         const { data: categories } = await supabase.from('categories').select('*');
         if (categories) set({ categories });
 
-        // Fetch Brands
+        // 3. Fetch Brands
         const { data: brands } = await supabase.from('brands').select('*');
         if (brands) set({ brands });
 
-        // Fetch Products
+        // 4. Fetch Products
         const { getAllProducts } = await import('@/lib/products');
         const products = await getAllProducts();
         set({ products });
 
-        // Fetch Orders
+        // 5. Fetch Orders
         const { data: ordersData } = await supabase
           .from('orders')
           .select(`
@@ -505,7 +531,7 @@ export const useStore = create<StoreState>()(
           set({ orders: formattedOrders });
         }
 
-        // Fetch Banners
+        // 6. Fetch Banners
         const { data: banners } = await supabase.from('banners').select('*').eq('status', 'Active');
         if (banners) {
           set({ 
@@ -514,7 +540,7 @@ export const useStore = create<StoreState>()(
           });
         }
 
-        // Fetch Settings
+        // 7. Fetch Settings
         const { data: settings } = await supabase.from('settings').select('*');
         if (settings) {
           const footer = settings.find(s => s.key === 'footer_content')?.value;
