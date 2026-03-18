@@ -11,14 +11,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const pathname = usePathname();
   const router = useRouter();
   const user = useStore((state) => state.user);
-  const setUser = useStore((state) => state.setUser);
+  const initialized = useStore((state) => state.initialized);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
-    if (pathname !== '/admin/login' && user?.role !== 'admin') {
+    if (initialized && pathname !== '/admin/login' && user?.role !== 'admin') {
       router.push('/admin/login');
     }
-  }, [user, pathname, router]);
+  }, [user, initialized, pathname, router]);
 
   // Close mobile menu on route change
   useEffect(() => {
@@ -30,14 +30,21 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     return <>{children}</>;
   }
 
+  if (!initialized) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+      </div>
+    );
+  }
+
   if (user?.role !== 'admin') {
-    return null; // or a loading spinner
+    return null;
   }
 
   const handleLogout = async () => {
-    const { supabase } = await import('../../lib/supabase');
-    await supabase.auth.signOut();
-    setUser(null);
+    const { auth } = await import('@/firebase');
+    await auth.signOut();
     router.push('/admin/login');
   };
 

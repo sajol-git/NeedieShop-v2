@@ -81,21 +81,7 @@ type StoreState = {
     instagram: string;
     youtube: string;
   };
-  storeSettings: {
-    name: string;
-    email: string;
-    phone: string;
-    address: string;
-    currency: string;
-  };
-  paymentSettings: {
-    codEnabled: boolean;
-    bkashEnabled: boolean;
-    nagadEnabled: boolean;
-    advanceAmount: number;
-  };
-  shippingZones: { id: number; name: string; fee: number; estimatedDays: string }[];
-  coupons: { id: number; code: string; discount: string; usageLimit: number; used: number; status: 'Active' | 'Expired' }[];
+  initialized: boolean;
   
   // Actions
   setProducts: (products: Product[]) => void;
@@ -106,19 +92,11 @@ type StoreState = {
   updateProduct: (id: string, product: Partial<Product>) => Promise<void>;
   deleteProduct: (id: string) => Promise<void>;
   setCategories: (categories: Category[]) => void;
-  addCategory: (category: Category) => Promise<void>;
-  deleteCategory: (id: string) => Promise<void>;
   setBrands: (brands: Brand[]) => void;
-  addBrand: (brand: Brand) => Promise<void>;
-  deleteBrand: (id: string) => Promise<void>;
   setOfferBanners: (banners: string[]) => void;
   setCopyrightText: (text: string) => Promise<void>;
-  setHeroBanners: (banners: StoreState['heroBanners']) => Promise<void>;
+  setHeroBanners: (banners: StoreState['heroBanners']) => void;
   setFooterContent: (content: StoreState['footerContent']) => Promise<void>;
-  setStoreSettings: (settings: StoreState['storeSettings']) => Promise<void>;
-  setPaymentSettings: (settings: StoreState['paymentSettings']) => Promise<void>;
-  setShippingZones: (zones: StoreState['shippingZones']) => Promise<void>;
-  setCoupons: (coupons: StoreState['coupons']) => Promise<void>;
   
   addToCart: (product: Product, variantId?: string, quantity?: number) => void;
   removeFromCart: (productId: string, variantId?: string) => void;
@@ -132,7 +110,7 @@ type StoreState = {
 
 export const useStore = create<StoreState>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       products: [],
       categories: [],
       brands: [],
@@ -151,100 +129,29 @@ export const useStore = create<StoreState>()(
         instagram: '',
         youtube: '',
       },
-      storeSettings: {
-        name: 'NeedieShop',
-        email: 'support@needieshop.bd',
-        phone: '+880 1700 000000',
-        address: 'Dhaka, Bangladesh',
-        currency: 'BDT (৳)',
-      },
-      paymentSettings: {
-        codEnabled: true,
-        bkashEnabled: true,
-        nagadEnabled: true,
-        advanceAmount: 200,
-      },
-      shippingZones: [
-        { id: 1, name: 'Inside Dhaka', fee: 60, estimatedDays: '1-2' },
-        { id: 2, name: 'Outside Dhaka', fee: 120, estimatedDays: '3-5' },
-      ],
-      coupons: [],
+      initialized: false,
 
       setProducts: (products) => set({ products }),
       addProduct: async (product) => {
-        const { supabase } = await import('@/lib/supabase');
-        
-        const state = get();
-        const categoryId = state.categories.find(c => c.name === product.category)?.id || product.category;
-        const brandId = state.brands.find(b => b.name === product.brand)?.id || product.brand;
-
-        const { error } = await supabase.from('products').insert({
-          id: product.id,
-          name: product.name,
-          slug: product.slug,
-          description: product.description,
-          meta_title: product.metaTitle,
-          meta_description: product.metaDescription,
-          price: product.price,
-          compare_at_price: product.compareAtPrice,
-          feature_image: product.featureImage,
-          gallery: product.gallery,
-          category: categoryId,
-          brand: brandId,
-          stock: product.stock,
-          status: product.status,
-          is_featured: product.isFeatured,
-          is_flash_sale: product.isFlashSale,
+        const { db } = await import('@/firebase');
+        const { doc, setDoc } = await import('firebase/firestore');
+        await setDoc(doc(db, 'products', product.id), {
+          ...product,
+          createdAt: new Date().toISOString()
         });
-        if (error) throw error;
-        set((state) => ({ products: [...state.products, product] }));
       },
       setOrders: (orders) => set({ orders }),
       addOrder: async (order) => {
-        const { supabase } = await import('@/lib/supabase');
-        
-        // 1. Insert Order
-        const { error: orderError } = await supabase.from('orders').insert({
-          id: order.id,
-          total: order.total,
-          subtotal: order.subtotal,
-          shipping_fee: order.shippingFee,
-          advance_payment: order.advancePayment,
-          due_amount: order.dueAmount,
-          status: order.status,
-          customer_name: order.customerInfo.name,
-          customer_phone: order.customerInfo.phone,
-          customer_address: order.customerInfo.address,
-          customer_zone: order.customerInfo.zone,
-          ip_address: order.customerInfo.ipAddress,
+        const { db } = await import('@/firebase');
+        const { doc, setDoc } = await import('firebase/firestore');
+        await setDoc(doc(db, 'orders', order.id), {
+          ...order,
+          createdAt: new Date().toISOString()
         });
-
-        if (orderError) throw orderError;
-
-        // 2. Insert Order Items
-        const orderItems = order.items.map(item => ({
-          order_id: order.id,
-          product_id: item.product.id,
-          variant_id: item.variantId,
-          quantity: item.quantity,
-          price: item.product.price
-        }));
-
-        const { error: itemsError } = await supabase.from('order_items').insert(orderItems);
-        if (itemsError) throw itemsError;
-
-        // 3. Insert Initial Tracking History
-        const { error: trackingError } = await supabase.from('order_tracking_history').insert({
-          order_id: order.id,
-          status: order.status,
-          message: order.trackingHistory[0].message
-        });
-        if (trackingError) throw trackingError;
-
-        set((state) => ({ orders: [order, ...state.orders] }));
       },
       updateOrderStatus: async (id, status) => {
-        const { supabase } = await import('@/lib/supabase');
+        const { db } = await import('@/firebase');
+        const { doc, updateDoc, arrayUnion } = await import('firebase/firestore');
         
         const messages = {
           Pending: 'Order placed successfully.',
@@ -254,166 +161,38 @@ export const useStore = create<StoreState>()(
           Cancelled: 'Order has been cancelled.',
         };
 
-        // 1. Update Order Status
-        const { error: orderError } = await supabase
-          .from('orders')
-          .update({ status })
-          .eq('id', id);
-        
-        if (orderError) throw orderError;
-
-        // 2. Add Tracking History
-        const { error: trackingError } = await supabase
-          .from('order_tracking_history')
-          .insert({
-            order_id: id,
+        await updateDoc(doc(db, 'orders', id), {
+          status,
+          trackingHistory: arrayUnion({
             status,
-            message: messages[status]
-          });
-        
-        if (trackingError) throw trackingError;
-
-        set((state) => ({
-          orders: state.orders.map((o) => {
-            if (o.id === id) {
-              return {
-                ...o,
-                status,
-                trackingHistory: [
-                  ...o.trackingHistory,
-                  {
-                    status,
-                    date: new Date().toISOString(),
-                    message: messages[status],
-                  },
-                ],
-              };
-            }
-            return o;
-          }),
-        }));
+            date: new Date().toISOString(),
+            message: messages[status],
+          })
+        });
       },
       updateProduct: async (id, updates) => {
-        const { supabase } = await import('@/lib/supabase');
-        
-        const state = get();
-        const dbUpdates: any = {};
-        if (updates.name !== undefined) dbUpdates.name = updates.name;
-        if (updates.slug !== undefined) dbUpdates.slug = updates.slug;
-        if (updates.description !== undefined) dbUpdates.description = updates.description;
-        if (updates.metaTitle !== undefined) dbUpdates.meta_title = updates.metaTitle;
-        if (updates.metaDescription !== undefined) dbUpdates.meta_description = updates.metaDescription;
-        if (updates.price !== undefined) dbUpdates.price = updates.price;
-        if (updates.compareAtPrice !== undefined) dbUpdates.compare_at_price = updates.compareAtPrice;
-        if (updates.featureImage !== undefined) dbUpdates.feature_image = updates.featureImage;
-        if (updates.gallery !== undefined) dbUpdates.gallery = updates.gallery;
-        if (updates.category !== undefined) {
-          dbUpdates.category = state.categories.find(c => c.name === updates.category)?.id || updates.category;
-        }
-        if (updates.brand !== undefined) {
-          dbUpdates.brand = state.brands.find(b => b.name === updates.brand)?.id || updates.brand;
-        }
-        if (updates.stock !== undefined) dbUpdates.stock = updates.stock;
-        if (updates.status !== undefined) dbUpdates.status = updates.status;
-        if (updates.isFeatured !== undefined) dbUpdates.is_featured = updates.isFeatured;
-        if (updates.isFlashSale !== undefined) dbUpdates.is_flash_sale = updates.isFlashSale;
-
-        const { error } = await supabase.from('products').update(dbUpdates).eq('id', id);
-        if (error) throw error;
-        set((state) => ({
-          products: state.products.map((p) => (p.id === id ? { ...p, ...updates } : p)),
-        }));
+        const { db } = await import('@/firebase');
+        const { doc, updateDoc } = await import('firebase/firestore');
+        await updateDoc(doc(db, 'products', id), updates);
       },
       deleteProduct: async (id) => {
-        const { supabase } = await import('@/lib/supabase');
-        const { error } = await supabase.from('products').delete().eq('id', id);
-        if (error) throw error;
-        set((state) => ({
-          products: state.products.filter((p) => p.id !== id),
-        }));
+        const { db } = await import('@/firebase');
+        const { doc, deleteDoc } = await import('firebase/firestore');
+        await deleteDoc(doc(db, 'products', id));
       },
       setCategories: (categories) => set({ categories }),
-      addCategory: async (category) => {
-        const { supabase } = await import('@/lib/supabase');
-        const { error } = await supabase.from('categories').insert(category);
-        if (error) throw error;
-        set((state) => ({ categories: [...state.categories, category] }));
-      },
-      deleteCategory: async (id) => {
-        const { supabase } = await import('@/lib/supabase');
-        const { error } = await supabase.from('categories').delete().eq('id', id);
-        if (error) throw error;
-        set((state) => ({ categories: state.categories.filter(c => c.id !== id) }));
-      },
       setBrands: (brands) => set({ brands }),
-      addBrand: async (brand) => {
-        const { supabase } = await import('@/lib/supabase');
-        const { error } = await supabase.from('brands').insert(brand);
-        if (error) throw error;
-        set((state) => ({ brands: [...state.brands, brand] }));
-      },
-      deleteBrand: async (id) => {
-        const { supabase } = await import('@/lib/supabase');
-        const { error } = await supabase.from('brands').delete().eq('id', id);
-        if (error) throw error;
-        set((state) => ({ brands: state.brands.filter(b => b.id !== id) }));
-      },
       setOfferBanners: (offerBanners) => set({ offerBanners }),
       setCopyrightText: async (copyrightText) => {
-        const { supabase } = await import('@/lib/supabase');
-        const { error } = await supabase
-          .from('settings')
-          .upsert({ key: 'copyright_text', value: copyrightText }, { onConflict: 'key' });
-        if (error) throw error;
-        set({ copyrightText });
+        const { db } = await import('@/firebase');
+        const { doc, setDoc } = await import('firebase/firestore');
+        await setDoc(doc(db, 'settings', 'copyright_text'), { key: 'copyright_text', value: copyrightText }, { merge: true });
       },
-      setHeroBanners: async (heroBanners) => {
-        const { supabase } = await import('@/lib/supabase');
-        const { error } = await supabase
-          .from('settings')
-          .upsert({ key: 'hero_banners', value: heroBanners }, { onConflict: 'key' });
-        if (error) throw error;
-        set({ heroBanners });
-      },
+      setHeroBanners: (heroBanners) => set({ heroBanners }),
       setFooterContent: async (footerContent) => {
-        const { supabase } = await import('@/lib/supabase');
-        const { error } = await supabase
-          .from('settings')
-          .upsert({ key: 'footer_content', value: footerContent }, { onConflict: 'key' });
-        if (error) throw error;
-        set({ footerContent });
-      },
-      setStoreSettings: async (storeSettings) => {
-        const { supabase } = await import('@/lib/supabase');
-        const { error } = await supabase
-          .from('settings')
-          .upsert({ key: 'store_settings', value: storeSettings }, { onConflict: 'key' });
-        if (error) throw error;
-        set({ storeSettings });
-      },
-      setPaymentSettings: async (paymentSettings) => {
-        const { supabase } = await import('@/lib/supabase');
-        const { error } = await supabase
-          .from('settings')
-          .upsert({ key: 'payment_settings', value: paymentSettings }, { onConflict: 'key' });
-        if (error) throw error;
-        set({ paymentSettings });
-      },
-      setShippingZones: async (shippingZones) => {
-        const { supabase } = await import('@/lib/supabase');
-        const { error } = await supabase
-          .from('settings')
-          .upsert({ key: 'shipping_zones', value: shippingZones }, { onConflict: 'key' });
-        if (error) throw error;
-        set({ shippingZones });
-      },
-      setCoupons: async (coupons) => {
-        const { supabase } = await import('@/lib/supabase');
-        const { error } = await supabase
-          .from('settings')
-          .upsert({ key: 'coupons', value: coupons }, { onConflict: 'key' });
-        if (error) throw error;
-        set({ coupons });
+        const { db } = await import('@/firebase');
+        const { doc, setDoc } = await import('firebase/firestore');
+        await setDoc(doc(db, 'settings', 'footer_content'), { key: 'footer_content', value: footerContent }, { merge: true });
       },
 
       addToCart: (product, variantId, quantity = 1) => set((state) => {
@@ -445,118 +224,77 @@ export const useStore = create<StoreState>()(
       setUser: (user) => set({ user }),
 
       init: async () => {
-        const { supabase } = await import('@/lib/supabase');
-        
-        // 1. Check for existing session
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session?.user) {
-          const { data: userData } = await supabase
-            .from('users')
-            .select('*')
-            .eq('id', session.user.id)
-            .single();
-          
-          if (userData) {
-            set({
-              user: {
-                id: userData.id,
-                name: userData.name || 'User',
-                phone: userData.phone || '',
-                email: userData.email || '',
-                role: userData.role || 'user',
-                isProfileCompleted: true,
-                isEmailVerified: true,
-                isPhoneVerified: true,
-                registrationDate: userData.created_at,
-              }
-            });
+        const { initialized } = useStore.getState();
+        if (initialized) return;
+        set({ initialized: true });
+
+        const { db, auth } = await import('@/firebase');
+        const { onSnapshot, collection, query, orderBy, doc, getDoc, setDoc } = await import('firebase/firestore');
+        const { onAuthStateChanged } = await import('firebase/auth');
+
+        // Auth Listener
+        onAuthStateChanged(auth, async (user) => {
+          if (user) {
+            const userDoc = await getDoc(doc(db, 'users', user.uid));
+            if (userDoc.exists()) {
+              set({ user: userDoc.data() as StoreState['user'] });
+            } else {
+              // Create user doc if it doesn't exist
+              const newUser: StoreState['user'] = {
+                id: user.uid,
+                name: user.displayName || '',
+                phone: '',
+                email: user.email || '',
+                role: user.email === 'shadikulislamsajol@gmail.com' ? 'admin' : 'user',
+                isProfileCompleted: false,
+                isEmailVerified: user.emailVerified,
+                isPhoneVerified: false,
+                registrationDate: new Date().toISOString(),
+              };
+              await setDoc(doc(db, 'users', user.uid), newUser);
+              set({ user: newUser });
+            }
+          } else {
+            set({ user: null });
           }
-        }
+        });
 
-        // 2. Fetch Categories
-        const { data: categories } = await supabase.from('categories').select('*');
-        if (categories) set({ categories });
+        // Products Listener
+        onSnapshot(collection(db, 'products'), (snapshot) => {
+          const products = snapshot.docs.map(doc => doc.data() as Product);
+          set({ products });
+        });
 
-        // 3. Fetch Brands
-        const { data: brands } = await supabase.from('brands').select('*');
-        if (brands) set({ brands });
+        // Categories Listener
+        onSnapshot(collection(db, 'categories'), (snapshot) => {
+          const categories = snapshot.docs.map(doc => doc.data() as Category);
+          set({ categories });
+        });
 
-        // 4. Fetch Products
-        const { getAllProducts } = await import('@/lib/products');
-        const products = await getAllProducts();
-        set({ products });
+        // Brands Listener
+        onSnapshot(collection(db, 'brands'), (snapshot) => {
+          const brands = snapshot.docs.map(doc => doc.data() as Brand);
+          set({ brands });
+        });
 
-        // 5. Fetch Orders
-        const { data: ordersData } = await supabase
-          .from('orders')
-          .select(`
-            *,
-            items:order_items(
-              *,
-              product:products(*)
-            ),
-            trackingHistory:order_tracking_history(*)
-          `)
-          .order('created_at', { ascending: false });
+        // Orders Listener
+        onSnapshot(query(collection(db, 'orders'), orderBy('createdAt', 'desc')), (snapshot) => {
+          const orders = snapshot.docs.map(doc => doc.data() as Order);
+          set({ orders });
+        });
 
-        if (ordersData) {
-          const formattedOrders: Order[] = ordersData.map(o => ({
-            id: o.id,
-            total: Number(o.total),
-            subtotal: Number(o.subtotal),
-            shippingFee: Number(o.shipping_fee),
-            advancePayment: Number(o.advance_payment),
-            dueAmount: Number(o.due_amount),
-            status: o.status,
-            customerInfo: {
-              name: o.customer_name,
-              phone: o.customer_phone,
-              address: o.customer_address,
-              zone: o.customer_zone,
-              ipAddress: o.ip_address,
-            },
-            trackingNumber: o.tracking_number,
-            trackingHistory: o.trackingHistory.map((th: any) => ({
-              status: th.status,
-              date: th.created_at,
-              message: th.message
-            })),
-            items: o.items.map((item: any) => ({
-              product: item.product,
-              variantId: item.variant_id,
-              quantity: item.quantity
-            })),
-            createdAt: o.created_at
-          }));
-          set({ orders: formattedOrders });
-        }
-
-        // 6. Fetch Banners
-        const { data: banners } = await supabase.from('banners').select('*').eq('status', 'Active');
-        if (banners) {
-          set({ 
-            heroBanners: banners.filter(b => b.type === 'hero'),
-            offerBanners: banners.filter(b => b.type === 'offer').map(b => b.image)
-          });
-        }
-
-        // 7. Fetch Settings
-        const { data: settings } = await supabase.from('settings').select('*');
-        if (settings) {
+        // Settings Listener
+        onSnapshot(collection(db, 'settings'), (snapshot) => {
+          const settings = snapshot.docs.map(doc => doc.data());
           const footer = settings.find(s => s.key === 'footer_content')?.value;
           const copyright = settings.find(s => s.key === 'copyright_text')?.value;
-          const storeSettings = settings.find(s => s.key === 'store_settings')?.value;
-          const paymentSettings = settings.find(s => s.key === 'payment_settings')?.value;
-          const shippingZones = settings.find(s => s.key === 'shipping_zones')?.value;
-          const coupons = settings.find(s => s.key === 'coupons')?.value;
-          
+          const hero = settings.find(s => s.key === 'hero_banners')?.value;
+          const offer = settings.find(s => s.key === 'offer_banners')?.value;
           if (footer) set({ footerContent: footer });
           if (copyright) set({ copyrightText: copyright });
-          if (storeSettings) set({ storeSettings });
-          if (paymentSettings) set({ paymentSettings });
-          if (shippingZones) set({ shippingZones });
-          if (coupons) set({ coupons });
-        }
+          if (hero) set({ heroBanners: hero });
+          if (offer) set({ offerBanners: offer });
+        });
       }
     }),
     {

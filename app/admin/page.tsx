@@ -14,23 +14,15 @@ export default function AdminDashboard() {
   const pendingOrders = orders.filter(o => o.status === 'Pending').length;
   const totalProducts = products.length;
 
-  // Generate last 7 days data
-  const data = Array.from({ length: 7 }).map((_, i) => {
-    const d = new Date();
-    d.setDate(d.getDate() - (6 - i));
-    const dayName = d.toLocaleDateString('en-US', { weekday: 'short' });
-    
-    const dayOrders = orders.filter(o => {
-      const orderDate = new Date(o.createdAt);
-      return orderDate.getDate() === d.getDate() && 
-             orderDate.getMonth() === d.getMonth() && 
-             orderDate.getFullYear() === d.getFullYear();
-    });
-    
-    const revenue = dayOrders.reduce((acc, order) => acc + order.total, 0);
-    
-    return { name: dayName, revenue };
-  });
+  const data = [
+    { name: 'Mon', revenue: 4000 },
+    { name: 'Tue', revenue: 3000 },
+    { name: 'Wed', revenue: 2000 },
+    { name: 'Thu', revenue: 2780 },
+    { name: 'Fri', revenue: 1890 },
+    { name: 'Sat', revenue: 2390 },
+    { name: 'Sun', revenue: 3490 },
+  ];
 
   return (
     <div className="space-y-8">

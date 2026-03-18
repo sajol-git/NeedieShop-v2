@@ -12,8 +12,7 @@ import { useStore } from '@/store/useStore';
 const ITEMS_PER_PAGE = 12;
 
 export default function ShopClient() {
-  const { products: storeProducts } = useStore();
-  const allProducts = useMemo(() => storeProducts.filter(p => p.status === 'published'), [storeProducts]);
+  const { products: allProducts } = useStore();
   const searchParams = useSearchParams();
   const searchQuery = searchParams.get('search')?.toLowerCase() || '';
   
