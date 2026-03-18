@@ -45,8 +45,11 @@ export default function AdminCMS() {
     toast.success('Banner deleted');
   };
 
-  const handleUpdateFooter = (e: React.FormEvent<HTMLFormElement>) => {
+  const [loading, setLoading] = useState(false);
+
+  const handleUpdateFooter = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setLoading(true);
     const formData = new FormData(e.currentTarget);
     const content = {
       address: formData.get('address') as string,
@@ -56,8 +59,26 @@ export default function AdminCMS() {
       instagram: formData.get('instagram') as string,
       youtube: formData.get('youtube') as string,
     };
-    setFooterContent(content);
-    toast.success('Footer content updated');
+    try {
+      await setFooterContent(content);
+      toast.success('Footer content updated');
+    } catch (error) {
+      toast.error('Failed to update footer content');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSaveCopyright = async () => {
+    setLoading(true);
+    try {
+      await setCopyrightText(copyrightText);
+      toast.success('Copyright updated');
+    } catch (error) {
+      toast.error('Failed to update copyright');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -176,9 +197,9 @@ export default function AdminCMS() {
                 <input name="youtube" defaultValue={footerContent.youtube} placeholder="Youtube URL" className="w-full px-4 py-2 rounded-2xl border border-gray-200 text-sm outline-none" />
               </div>
             </div>
-            <button type="submit" className="w-full bg-indigo-600 text-white py-2.5 rounded-2xl font-medium hover:bg-indigo-700 transition-colors flex items-center justify-center gap-2">
+            <button type="submit" disabled={loading} className="w-full bg-indigo-600 text-white py-2.5 rounded-2xl font-medium hover:bg-indigo-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-50">
               <Save className="w-4 h-4" />
-              Save Footer Content
+              {loading ? 'Saving...' : 'Save Footer Content'}
             </button>
           </form>
         </div>
@@ -198,10 +219,11 @@ export default function AdminCMS() {
                     className="flex-1 px-4 py-2 rounded-2xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 outline-none text-sm" 
                   />
                   <button 
-                    onClick={() => toast.success('Copyright updated')}
-                    className="bg-gray-900 text-white px-4 py-2 rounded-2xl text-sm font-medium hover:bg-gray-800"
+                    onClick={handleSaveCopyright}
+                    disabled={loading}
+                    className="bg-gray-900 text-white px-4 py-2 rounded-2xl text-sm font-medium hover:bg-gray-800 disabled:opacity-50"
                   >
-                    Save
+                    {loading ? 'Saving...' : 'Save'}
                   </button>
                 </div>
               </div>

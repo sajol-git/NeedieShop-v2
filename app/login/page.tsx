@@ -2,9 +2,9 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ScanFace, Sparkles, Phone, ArrowRight, KeyRound } from 'lucide-react';
+import { ScanFace, Sparkles, Phone, ArrowRight, KeyRound, Mail, Lock, User } from 'lucide-react';
 import { toast } from 'sonner';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Navbar } from '@/components/Navbar';
@@ -12,6 +12,10 @@ import { supabase } from '@/lib/supabase';
 
 export default function CustomerLogin() {
   const router = useRouter();
+  const [showEmailForm, setShowEmailForm] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleGoogleLogin = async () => {
     try {
@@ -31,8 +35,26 @@ export default function CustomerLogin() {
     }
   };
 
-  const handlePhoneLogin = () => {
-    toast.info('Phone sign-in flow coming soon.');
+  const handleEmailLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        toast.error(error.message);
+      } else {
+        toast.success('Signed in successfully!');
+        router.push('/account');
+      }
+    } catch (err: any) {
+      toast.error(err.message || 'An error occurred during sign in');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -62,30 +84,96 @@ export default function CustomerLogin() {
                 <p className="text-gray-500 text-sm">Sign in to track orders and save favorites</p>
               </div>
 
-              <div className="space-y-4">
-                <button 
-                  onClick={handleGoogleLogin}
-                  className="w-full bg-white border border-gray-300 text-gray-700 py-3.5 rounded-full font-semibold hover:bg-gray-50 transition-colors flex items-center justify-center gap-2"
-                >
-                  <Image 
-                    src="https://www.google.com/favicon.ico" 
-                    alt="Google" 
-                    width={16} 
-                    height={16} 
-                    className="w-4 h-4" 
-                    referrerPolicy="no-referrer"
-                  />
-                  Sign in with Google
-                </button>
+              <AnimatePresence mode="wait">
+                {!showEmailForm ? (
+                  <motion.div 
+                    key="social"
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: 20 }}
+                    className="space-y-4"
+                  >
+                    <button 
+                      onClick={handleGoogleLogin}
+                      className="w-full bg-white border border-gray-300 text-gray-700 py-3.5 rounded-full font-semibold hover:bg-gray-50 transition-colors flex items-center justify-center gap-2"
+                    >
+                      <Image 
+                        src="https://www.google.com/favicon.ico" 
+                        alt="Google" 
+                        width={16} 
+                        height={16} 
+                        className="w-4 h-4" 
+                        referrerPolicy="no-referrer"
+                      />
+                      Sign in with Google
+                    </button>
 
-                <button 
-                  onClick={handlePhoneLogin}
-                  className="w-full bg-white border border-gray-300 text-gray-700 py-3.5 rounded-full font-semibold hover:bg-gray-50 transition-colors flex items-center justify-center gap-2"
-                >
-                  <Phone className="w-4 h-4" />
-                  Sign in with Phone
-                </button>
-              </div>
+                    <button 
+                      onClick={() => setShowEmailForm(true)}
+                      className="w-full bg-white border border-gray-300 text-gray-700 py-3.5 rounded-full font-semibold hover:bg-gray-50 transition-colors flex items-center justify-center gap-2"
+                    >
+                      <Phone className="w-4 h-4" />
+                      Sign in with Phone / Email
+                    </button>
+                  </motion.div>
+                ) : (
+                  <motion.form 
+                    key="email"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    onSubmit={handleEmailLogin}
+                    className="space-y-4"
+                  >
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-gray-700 ml-1">Email or Phone</label>
+                      <div className="relative">
+                        <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                        <input 
+                          type="text" 
+                          placeholder="Enter your email or phone" 
+                          required
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          className="w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-2xl text-sm focus:ring-2 focus:ring-[#8B183A]/20 focus:border-[#8B183A] outline-none transition-all"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-gray-700 ml-1">Password</label>
+                      <div className="relative">
+                        <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                        <input 
+                          type="password" 
+                          placeholder="Enter your password" 
+                          required
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          className="w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-2xl text-sm focus:ring-2 focus:ring-[#8B183A]/20 focus:border-[#8B183A] outline-none transition-all"
+                        />
+                      </div>
+                    </div>
+
+                    <button 
+                      type="submit"
+                      disabled={loading}
+                      className="w-full bg-[#8B183A] text-white py-3.5 rounded-full font-semibold hover:bg-[#721430] transition-all shadow-lg shadow-red-100 disabled:opacity-50 flex items-center justify-center gap-2"
+                    >
+                      {loading ? 'Signing in...' : 'Sign In'}
+                      {!loading && <ArrowRight className="w-4 h-4" />}
+                    </button>
+
+                    <button 
+                      type="button"
+                      onClick={() => setShowEmailForm(false)}
+                      className="w-full text-sm text-gray-500 hover:text-gray-700 transition-colors"
+                    >
+                      Back to social login
+                    </button>
+                  </motion.form>
+                )}
+              </AnimatePresence>
 
               <div className="mt-6 text-center text-sm text-gray-500">
                 Don&apos;t have an account?{' '}

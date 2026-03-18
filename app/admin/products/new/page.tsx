@@ -76,7 +76,7 @@ export default function AddProductPage() {
     }
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!formData.name || !formData.price) {
       toast.error('Name and price are required');
       return;
@@ -104,9 +104,14 @@ export default function AddProductPage() {
       relatedProducts: [],
     };
 
-    addProduct(newProduct);
-    toast.success('Product added successfully');
-    router.push('/admin/products');
+    try {
+      await addProduct(newProduct);
+      toast.success('Product added successfully');
+      router.push('/admin/products');
+    } catch (error) {
+      console.error('Error adding product:', error);
+      toast.error('Failed to add product');
+    }
   };
 
   return (

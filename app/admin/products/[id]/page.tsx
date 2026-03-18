@@ -91,7 +91,7 @@ export default function EditProductPage() {
     }
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!formData.name || !formData.price) {
       toast.error('Name and price are required');
       return;
@@ -113,9 +113,14 @@ export default function EditProductPage() {
       isFlashSale: formData.isFlashSale,
     };
 
-    updateProduct(productId, updatedProduct);
-    toast.success('Product updated successfully');
-    router.push('/admin/products');
+    try {
+      await updateProduct(productId, updatedProduct);
+      toast.success('Product updated successfully');
+      router.push('/admin/products');
+    } catch (error) {
+      console.error('Error updating product:', error);
+      toast.error('Failed to update product');
+    }
   };
 
   return (

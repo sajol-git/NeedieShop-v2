@@ -130,7 +130,7 @@ export function Navbar() {
                 className="p-1 text-gray-900 hover:text-[#8B183A] transition-colors"
               >
                 <div className="w-10 h-10 flex items-center justify-center">
-                  <UserIcon className="w-6 h-6 scale-110" />
+                  <UserIcon className="w-6 h-6 scale-100" />
                 </div>
               </Link>
 

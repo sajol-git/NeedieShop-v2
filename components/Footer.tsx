@@ -32,7 +32,7 @@ export function Footer() {
                 placeholder="Your email address" 
                 className="flex-1 bg-white/5 border border-white/10 rounded-3xl px-4 py-3 text-sm focus:outline-none focus:border-[#8B183A] transition-colors"
               />
-              <button className="bg-[#D31B27] text-white px-6 py-3 rounded-full font-bold text-sm hover:bg-[#b51721] transition-colors">
+              <button className="bg-[#8B183A] text-white px-6 py-3 rounded-full font-bold text-sm hover:bg-[#721430] transition-colors">
                 Join
               </button>
             </div>
