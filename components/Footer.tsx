@@ -65,27 +65,27 @@ export function Footer() {
             <h3 className="text-lg font-bold mb-6">Contact</h3>
             <ul className="space-y-4">
               <li className="flex items-start gap-3 text-gray-400">
-                <MapPin className="w-5 h-5 shrink-0 text-[#8B183A]" strokeWidth={1.5} />
+                <MapPin className="w-5 h-5 shrink-0 text-[#8B183A]" strokeWidth={2} />
                 <span className="text-sm">{footerContent.address}</span>
               </li>
               <li className="flex items-center gap-3 text-gray-400">
-                <Mail className="w-5 h-5 shrink-0 text-[#8B183A]" strokeWidth={1.5} />
+                <Mail className="w-5 h-5 shrink-0 text-[#8B183A]" strokeWidth={2} />
                 <span className="text-sm">{footerContent.email}</span>
               </li>
               <li className="flex items-center gap-3 text-gray-400">
-                <Phone className="w-5 h-5 shrink-0 text-[#8B183A]" strokeWidth={1.5} />
+                <Phone className="w-5 h-5 shrink-0 text-[#8B183A]" strokeWidth={2} />
                 <span className="text-sm">{footerContent.phone}</span>
               </li>
             </ul>
             <div className="mt-6 flex gap-4">
               <Link href={footerContent.facebook} className="w-10 h-10 bg-white/5 rounded-full flex items-center justify-center hover:bg-[#8B183A] transition-colors">
-                <Facebook className="w-5 h-5" strokeWidth={1.5} />
+                <Facebook className="w-5 h-5" strokeWidth={2} />
               </Link>
               <Link href={footerContent.instagram} className="w-10 h-10 bg-white/5 rounded-full flex items-center justify-center hover:bg-[#8B183A] transition-colors">
-                <Instagram className="w-5 h-5" strokeWidth={1.5} />
+                <Instagram className="w-5 h-5" strokeWidth={2} />
               </Link>
               <Link href={footerContent.youtube} className="w-10 h-10 bg-white/5 rounded-full flex items-center justify-center hover:bg-[#8B183A] transition-colors">
-                <Youtube className="w-5 h-5" strokeWidth={1.5} />
+                <Youtube className="w-5 h-5" strokeWidth={2} />
               </Link>
             </div>
             <div className="mt-6 flex flex-wrap gap-4">
