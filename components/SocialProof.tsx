@@ -10,7 +10,8 @@ const names = ['Rahim', 'Karim', 'Sadia', 'Nusrat', 'Fahim', 'Ayesha', 'Hasan', 
 const locations = ['Dhaka', 'Chittagong', 'Sylhet', 'Rajshahi', 'Khulna', 'Barisal'];
 
 export function SocialProof() {
-  const products = useStore((state) => state.products);
+  const storeProducts = useStore((state) => state.products);
+  const products = storeProducts.filter(p => p.status === 'published');
 
   useEffect(() => {
     if (products.length === 0) return;

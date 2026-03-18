@@ -8,7 +8,8 @@ import { motion, AnimatePresence } from 'motion/react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Navbar } from '@/components/Navbar';
-import { supabase } from '@/lib/supabase';
+import { auth } from '@/firebase';
+import { signInWithPopup, GoogleAuthProvider, signInWithEmailAndPassword } from 'firebase/auth';
 
 export default function CustomerLogin() {
   const router = useRouter();
@@ -18,20 +19,16 @@ export default function CustomerLogin() {
   const [loading, setLoading] = useState(false);
 
   const handleGoogleLogin = async () => {
+    setLoading(true);
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
-        },
-      });
-      if (error) toast.error(error.message);
+      const provider = new GoogleAuthProvider();
+      await signInWithPopup(auth, provider);
+      toast.success('Signed in successfully!');
+      router.back();
     } catch (err: any) {
-      if (err.message === 'Failed to fetch') {
-        toast.error('Supabase is not configured. Please add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to your environment variables.');
-      } else {
-        toast.error(err.message || 'An error occurred during login');
-      }
+      toast.error(err.message || 'An error occurred during login');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -39,17 +36,9 @@ export default function CustomerLogin() {
     e.preventDefault();
     setLoading(true);
     try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (error) {
-        toast.error(error.message);
-      } else {
-        toast.success('Signed in successfully!');
-        router.back();
-      }
+      await signInWithEmailAndPassword(auth, email, password);
+      toast.success('Signed in successfully!');
+      router.back();
     } catch (err: any) {
       toast.error(err.message || 'An error occurred during sign in');
     } finally {

@@ -7,31 +7,57 @@ import { Crown, ShieldCheck, KeyRound, Ghost, ArrowRight } from 'lucide-react';
 import { toast } from 'sonner';
 import { motion } from 'motion/react';
 import Link from 'next/link';
+import { supabase } from '@/lib/supabase';
 
 export default function AdminLogin() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
   const setUser = useStore((state) => state.setUser);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (email === 'admin@needieshop.bd' && password === 'admin123') {
-      setUser({
-        id: 'admin_1',
-        name: 'Super Admin',
-        phone: '+880 1700 000000',
-        email: 'admin@needieshop.bd',
-        role: 'admin',
-        isProfileCompleted: true,
-        isEmailVerified: true,
-        isPhoneVerified: true,
-        registrationDate: new Date().toISOString(),
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
       });
-      toast.success('Welcome back, Admin!');
-      router.push('/admin');
-    } else {
-      toast.error('Invalid admin credentials');
+
+      if (error) throw error;
+
+      if (data.user) {
+        // Check if user is admin in users table
+        const { data: userData, error: userError } = await supabase
+          .from('users')
+          .select('*')
+          .eq('id', data.user.id)
+          .single();
+
+        if (userError || userData?.role !== 'admin') {
+          await supabase.auth.signOut();
+          throw new Error('Unauthorized access. Admin privileges required.');
+        }
+
+        setUser({
+          id: userData.id,
+          name: userData.name || 'Admin',
+          phone: userData.phone || '',
+          email: userData.email || '',
+          role: 'admin',
+          isProfileCompleted: true,
+          isEmailVerified: true,
+          isPhoneVerified: true,
+          registrationDate: userData.created_at,
+        });
+        toast.success('Welcome back, Admin!');
+        router.push('/admin');
+      }
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to login');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -93,10 +119,11 @@ export default function AdminLogin() {
 
             <button 
               type="submit"
-              className="w-full bg-indigo-600 text-white py-3.5 rounded-xl font-semibold hover:bg-indigo-500 transition-colors flex items-center justify-center gap-2 group mt-4 shadow-lg shadow-indigo-600/20"
+              disabled={loading}
+              className="w-full bg-indigo-600 text-white py-3.5 rounded-xl font-semibold hover:bg-indigo-500 transition-colors flex items-center justify-center gap-2 group mt-4 shadow-lg shadow-indigo-600/20 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Authenticate
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              {loading ? 'Authenticating...' : 'Authenticate'}
+              {!loading && <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />}
             </button>
           </form>
 

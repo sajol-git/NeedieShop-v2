@@ -9,8 +9,9 @@ export default function AdminCustomers() {
   const { orders } = useStore();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCustomer, setSelectedCustomer] = useState<any>(null);
+  const [suspectPhones, setSuspectPhones] = useState<string[]>([]);
 
-  // Extract unique customers from orders for demo purposes
+  // Extract unique customers from orders
   const customersMap = new Map();
   orders.forEach(order => {
     if (!customersMap.has(order.customerInfo.phone)) {
@@ -20,7 +21,6 @@ export default function AdminCustomers() {
         address: order.customerInfo.address,
         totalOrders: 1,
         totalSpent: order.total,
-        isSuspect: false // Mock status
       });
     } else {
       const customer = customersMap.get(order.customerInfo.phone);
@@ -29,12 +29,15 @@ export default function AdminCustomers() {
     }
   });
 
-  const [customers, setCustomers] = useState(Array.from(customersMap.values()));
+  const customers = Array.from(customersMap.values()).map(c => ({
+    ...c,
+    isSuspect: suspectPhones.includes(c.phone)
+  }));
 
   const toggleSuspectStatus = (phone: string) => {
-    setCustomers(customers.map(c => 
-      c.phone === phone ? { ...c, isSuspect: !c.isSuspect } : c
-    ));
+    setSuspectPhones(prev => 
+      prev.includes(phone) ? prev.filter(p => p !== phone) : [...prev, phone]
+    );
   };
 
   const getCustomerOrders = (phone: string) => {

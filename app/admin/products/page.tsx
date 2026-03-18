@@ -6,6 +6,7 @@ import { Search, Plus, Edit, Trash2, Image as ImageIcon, Star, Zap, AlertTriangl
 import { motion } from 'motion/react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { toast } from 'sonner';
 
 export default function AdminProducts() {
   const { products, deleteProduct } = useStore();
@@ -165,9 +166,14 @@ export default function AdminProducts() {
                 Cancel
               </button>
               <button 
-                onClick={() => {
-                  deleteProduct(productToDelete);
-                  setProductToDelete(null);
+                onClick={async () => {
+                  try {
+                    await deleteProduct(productToDelete);
+                    toast.success('Product deleted successfully');
+                    setProductToDelete(null);
+                  } catch (error) {
+                    toast.error('Failed to delete product');
+                  }
                 }}
                 className="flex-1 px-6 py-2.5 rounded-2xl font-medium text-white bg-red-600 hover:bg-red-700 transition-colors shadow-lg shadow-red-200"
               >
