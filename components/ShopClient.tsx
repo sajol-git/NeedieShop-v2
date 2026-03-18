@@ -10,16 +10,27 @@ import { ProductCard } from '@/components/ProductCard';
 import { useStore } from '@/store/useStore';
 
 export default function ShopClient() {
-  const { products: allProducts } = useStore();
+  const { products: allProducts, categories, brands } = useStore();
   const searchParams = useSearchParams();
   const searchQuery = searchParams.get('search')?.toLowerCase() || '';
+  const categoryFilter = searchParams.get('category') || '';
+  const brandFilter = searchParams.get('brand') || '';
   const [currentPage, setCurrentPage] = useState(1);
+  const productsPerPage = 8;
 
   const filteredProducts = allProducts.filter(product => 
-    product.name.toLowerCase().includes(searchQuery) || 
-    product.brand.toLowerCase().includes(searchQuery) ||
-    product.category.toLowerCase().includes(searchQuery)
+    (searchQuery === '' || product.name.toLowerCase().includes(searchQuery) || product.brand.toLowerCase().includes(searchQuery) || product.category.toLowerCase().includes(searchQuery)) &&
+    (categoryFilter === '' || product.category === categoryFilter) &&
+    (brandFilter === '' || product.brand === brandFilter)
   );
+
+  const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
+  const paginatedProducts = filteredProducts.slice((currentPage - 1) * productsPerPage, currentPage * productsPerPage);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   return (
     <main className="pt-24 max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
@@ -52,49 +63,46 @@ export default function ShopClient() {
 
       {/* Product Grid */}
       <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-6 sm:gap-x-6 sm:gap-y-8 mb-16">
-        {filteredProducts.length === 0 ? (
+        {paginatedProducts.length === 0 ? (
           <div className="col-span-full py-20 text-center">
             <p className="text-gray-500 text-lg">No products found matching your search.</p>
             <Link href="/shop" className="text-[#8B183A] font-bold mt-4 inline-block">View all products</Link>
           </div>
         ) : (
-          <>
-            {filteredProducts.slice(0, 2).map((product) => (
-              <ProductCard key={product.id} product={product as any} />
-            ))}
-            
-            {/* Help Card */}
-            <div className="bg-[#0B1120] rounded-3xl p-6 sm:p-8 flex flex-col items-center justify-center text-center text-white">
-              <div className="w-12 h-12 sm:w-16 sm:h-16 bg-white/10 rounded-full flex items-center justify-center mb-4 sm:mb-6">
-                <Headphones className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
-              </div>
-              <h3 className="text-lg sm:text-xl font-bold mb-2">Need Help?</h3>
-              <p className="text-xs sm:text-sm text-gray-400 mb-4 sm:mb-6">Our experts are ready to help you find the perfect gadget.</p>
-              <button className="bg-white text-black px-4 py-2 sm:px-6 sm:py-2 rounded-full text-xs sm:text-sm font-bold hover:bg-gray-200 transition-colors">
-                Chat with us
-              </button>
-            </div>
-
-            {filteredProducts.slice(2).map((product) => (
-              <ProductCard key={product.id} product={product as any} />
-            ))}
-          </>
+          paginatedProducts.map((product) => (
+            <ProductCard key={product.id} product={product} />
+          ))
         )}
       </div>
 
       {/* Pagination */}
-      <div className="flex items-center justify-center gap-2 mb-20">
-        <button className="w-10 h-10 rounded-full border border-gray-100 flex items-center justify-center text-gray-400 hover:border-gray-300 transition-colors">
-          <ChevronLeft className="w-5 h-5" />
-        </button>
-        <button className="w-10 h-10 rounded-full bg-black text-white flex items-center justify-center text-sm font-bold">1</button>
-        <button className="w-10 h-10 rounded-full border border-gray-100 flex items-center justify-center text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors">2</button>
-        <button className="w-10 h-10 rounded-full border border-gray-100 flex items-center justify-center text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors">3</button>
-        <button className="w-10 h-10 rounded-full border border-gray-100 flex items-center justify-center text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors">4</button>
-        <button className="w-10 h-10 rounded-full border border-gray-100 flex items-center justify-center text-gray-400 hover:border-gray-300 transition-colors">
-          <ChevronRight className="w-5 h-5" />
-        </button>
-      </div>
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-2 mb-20">
+          <button 
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+            className="w-10 h-10 rounded-full border border-gray-100 flex items-center justify-center text-gray-400 hover:border-gray-300 transition-colors disabled:opacity-50"
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </button>
+          {[...Array(totalPages)].map((_, i) => (
+            <button 
+              key={i} 
+              onClick={() => handlePageChange(i + 1)}
+              className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold ${currentPage === i + 1 ? 'bg-black text-white' : 'border border-gray-100 text-gray-600 hover:bg-gray-50'}`}
+            >
+              {i + 1}
+            </button>
+          ))}
+          <button 
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            className="w-10 h-10 rounded-full border border-gray-100 flex items-center justify-center text-gray-400 hover:border-gray-300 transition-colors disabled:opacity-50"
+          >
+            <ChevronRight className="w-5 h-5" />
+          </button>
+        </div>
+      )}
 
       {/* SEO Section */}
       <section className="bg-gray-50 rounded-3xl p-12 mb-20">

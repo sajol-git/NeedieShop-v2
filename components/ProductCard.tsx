@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { Heart, Star } from 'lucide-react';
+import { Star } from 'lucide-react';
 import { Product, useStore } from '@/store/useStore';
 import { motion } from 'motion/react';
 
@@ -20,9 +20,9 @@ export function ProductCard({ product }: ProductCardProps) {
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      className="group bg-white rounded-[2rem] overflow-hidden border border-gray-100 hover:shadow-xl transition-all duration-500 p-3"
+      className="group bg-white rounded-xl overflow-hidden border border-gray-100 hover:shadow-xl transition-all duration-500 p-1"
     >
-      <Link href={`/products/${product.slug}`} className="block relative aspect-square bg-gray-50 rounded-3xl overflow-hidden">
+      <Link href={`/products/${product.slug}`} className="block relative aspect-square bg-gray-50 rounded-xl overflow-hidden">
         <Image 
           src={product.featureImage} 
           alt={product.name} 
@@ -39,29 +39,18 @@ export function ProductCard({ product }: ProductCardProps) {
             </span>
           )}
         </div>
-
-        {/* Wishlist Button */}
-        <button 
-          onClick={(e) => {
-            e.preventDefault();
-            // Wishlist functionality could be added here
-          }}
-          className="absolute top-3 right-3 w-10 h-10 bg-white/80 backdrop-blur-md text-gray-400 rounded-full flex items-center justify-center hover:text-red-500 transition-all shadow-sm"
-        >
-          <Heart className="w-5 h-5" />
-        </button>
       </Link>
 
       <div className="px-2 py-4">
         <Link href={`/products/${product.slug}`}>
-          <h3 className="text-base font-bold text-gray-900 mb-2 line-clamp-2 leading-tight group-hover:text-[#8B183A] transition-colors">
+          <h3 className="text-sm font-bold text-gray-900 mb-2 line-clamp-2 leading-tight group-hover:text-[#8B183A] transition-colors">
             {product.name}
           </h3>
         </Link>
 
         <div className="flex items-center gap-1 mb-3">
           {[...Array(5)].map((_, i) => (
-            <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+            <Star key={i} className="w-3 h-3 fill-yellow-400 text-yellow-400" />
           ))}
         </div>
         

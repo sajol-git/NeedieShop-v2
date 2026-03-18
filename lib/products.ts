@@ -37,6 +37,31 @@ export type Product = {
   relatedProducts: string[];
 };
 
+export async function getAllProducts() {
+  const { data, error } = await supabase
+    .from('products')
+    .select(`
+      *,
+      categories (name),
+      brands (name),
+      product_variants (*),
+      product_specifications (*)
+    `);
+
+  if (error) {
+    console.error('Error fetching all products:', error);
+    return [];
+  }
+
+  return data.map(p => ({
+    ...p,
+    category: p.categories?.name || p.category || '',
+    brand: p.brands?.name || p.brand || '',
+    variants: p.product_variants || [],
+    specifications: p.product_specifications || []
+  })) as Product[];
+}
+
 export async function getProducts() {
   const { data, error } = await supabase
     .from('products')
@@ -98,6 +123,7 @@ export async function getProductBySlug(slug: string) {
       product_specifications (*)
     `)
     .eq('slug', slug)
+    .eq('status', 'published')
     .single();
 
   if (error) return null;

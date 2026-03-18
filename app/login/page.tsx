@@ -48,7 +48,7 @@ export default function CustomerLogin() {
         toast.error(error.message);
       } else {
         toast.success('Signed in successfully!');
-        router.back();
+        router.push('/account');
       }
     } catch (err: any) {
       toast.error(err.message || 'An error occurred during sign in');

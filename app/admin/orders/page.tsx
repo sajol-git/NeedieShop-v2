@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { Search, Filter, MoreVertical, Eye, CheckCircle, XCircle, Truck } from 'lucide-react';
 import { TotalOrderIcon } from '@/components/icons';
 import { motion } from 'motion/react';
+import { toast } from 'sonner';
 
 export default function AdminOrders() {
   const { orders, updateOrderStatus } = useStore();
@@ -121,17 +122,22 @@ export default function AdminOrders() {
                     <td className="px-6 py-4">
                       <select
                         value={order.status}
-                        onChange={(e) => {
+                        onChange={async (e) => {
                           const newStatus = e.target.value as any;
-                          updateOrderStatus(order.id, newStatus);
-                          fetch('/api/sms/send', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                              number: order.customerInfo.phone,
-                              message: `Your order #${order.id} status has been updated to ${newStatus}.`,
-                            }),
-                          }).catch(console.error);
+                          try {
+                            await updateOrderStatus(order.id, newStatus);
+                            toast.success(`Order status updated to ${newStatus}`);
+                            fetch('/api/sms/send', {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({
+                                number: order.customerInfo.phone,
+                                message: `Your order #${order.id} status has been updated to ${newStatus}.`,
+                              }),
+                            }).catch(console.error);
+                          } catch (error) {
+                            toast.error('Failed to update order status');
+                          }
                         }}
                         className={`text-sm font-medium px-3 py-1.5 rounded-full border outline-none cursor-pointer ${getStatusColor(order.status)}`}
                       >
@@ -211,14 +217,14 @@ export default function AdminOrders() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-50">
-                    {selectedOrder.items.map((item: any) => (
-                      <tr key={item.id}>
+                    {selectedOrder.items.map((item: any, index: number) => (
+                      <tr key={index}>
                         <td className="px-4 py-3">
-                          <div className="font-medium text-gray-900">{item.name}</div>
-                          {item.variant && <div className="text-xs text-gray-500">{item.variant}</div>}
+                          <div className="font-medium text-gray-900">{item.product?.name || 'Unknown Product'}</div>
+                          {item.variantId && <div className="text-xs text-gray-500">{item.variantId}</div>}
                         </td>
                         <td className="px-4 py-3 text-center">{item.quantity}</td>
-                        <td className="px-4 py-3 text-right">৳{item.price.toLocaleString()}</td>
+                        <td className="px-4 py-3 text-right">৳{item.product?.price?.toLocaleString() || 0}</td>
                       </tr>
                     ))}
                   </tbody>

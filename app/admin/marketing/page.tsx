@@ -4,19 +4,12 @@ import { useState } from 'react';
 import { Megaphone, MessageCircle, Tag, Clock, Send, Plus, Trash2 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { toast } from 'sonner';
+import { useStore } from '@/store/useStore';
 
 export default function AdminMarketing() {
-  const [coupons, setCoupons] = useState([
-    { id: 1, code: 'NEEDIE15', discount: '15%', usageLimit: 100, used: 45, status: 'Active' },
-    { id: 2, code: 'WELCOME10', discount: '10%', usageLimit: 500, used: 490, status: 'Active' },
-    { id: 3, code: 'FLASHSALE50', discount: '50%', usageLimit: 50, used: 50, status: 'Expired' },
-  ]);
+  const { coupons, setCoupons } = useStore();
 
-  const [abandonedCarts, setAbandonedCarts] = useState([
-    { id: 1, phone: '01711000000', name: 'Rahim', total: 4500, time: '2 hours ago', status: 'Pending' },
-    { id: 2, phone: '01822000000', name: 'Karim', total: 8900, time: '5 hours ago', status: 'Pending' },
-    { id: 3, phone: '01933000000', name: 'Sadia', total: 3200, time: '1 day ago', status: 'Recovered' },
-  ]);
+  const [abandonedCarts, setAbandonedCarts] = useState<any[]>([]);
 
   const handleSendWhatsApp = (id: number, phone: string) => {
     toast.success(`WhatsApp reminder sent to ${phone}`);
@@ -100,7 +93,20 @@ export default function AdminMarketing() {
               <p className="text-sm text-gray-500">Manage usage-limited discount codes.</p>
             </div>
           </div>
-          <button className="flex items-center gap-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded-lg transition-colors shadow-sm shadow-indigo-200">
+          <button 
+            onClick={() => {
+              const newCoupon = {
+                id: Date.now(),
+                code: `NEW${Math.floor(Math.random() * 1000)}`,
+                discount: '10%',
+                usageLimit: 100,
+                used: 0,
+                status: 'Active' as const
+              };
+              setCoupons([...coupons, newCoupon]);
+            }}
+            className="flex items-center gap-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded-lg transition-colors shadow-sm shadow-indigo-200"
+          >
             <Plus className="w-4 h-4" />
             Create Coupon
           </button>
@@ -136,7 +142,10 @@ export default function AdminMarketing() {
                 </div>
               </div>
               <div className="flex justify-end gap-2 pt-4 border-t border-gray-100">
-                <button className="p-1.5 text-gray-400 hover:text-red-600 transition-colors rounded-md hover:bg-red-50">
+                <button 
+                  onClick={() => setCoupons(coupons.filter(c => c.id !== coupon.id))}
+                  className="p-1.5 text-gray-400 hover:text-red-600 transition-colors rounded-md hover:bg-red-50"
+                >
                   <Trash2 className="w-4 h-4" />
                 </button>
               </div>

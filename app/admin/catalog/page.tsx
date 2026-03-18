@@ -10,7 +10,7 @@ import slugify from 'slugify';
 import { ImageUpload } from '@/components/ImageUpload';
 
 export default function AdminCatalog() {
-  const { categories, setCategories, brands, setBrands } = useStore();
+  const { categories, addCategory, deleteCategory, brands, addBrand, deleteBrand } = useStore();
   
   const [newCategoryName, setNewCategoryName] = useState('');
   const [newCategoryPhoto, setNewCategoryPhoto] = useState('');
@@ -18,7 +18,10 @@ export default function AdminCatalog() {
   const [newBrandName, setNewBrandName] = useState('');
   const [newBrandPhoto, setNewBrandPhoto] = useState('');
 
-  const handleAddCategory = () => {
+  const [isAddingCategory, setIsAddingCategory] = useState(false);
+  const [isAddingBrand, setIsAddingBrand] = useState(false);
+
+  const handleAddCategory = async () => {
     if (!newCategoryName.trim()) return;
     const slug = slugify(newCategoryName, { lower: true, strict: true });
     
@@ -27,24 +30,34 @@ export default function AdminCatalog() {
       return;
     }
     
-    setCategories([...categories, {
-      id: Date.now().toString(),
-      name: newCategoryName.trim(),
-      slug,
-      photo: newCategoryPhoto.trim()
-    }]);
-    
-    setNewCategoryName('');
-    setNewCategoryPhoto('');
-    toast.success('Category added successfully');
+    setIsAddingCategory(true);
+    try {
+      await addCategory({
+        id: crypto.randomUUID(),
+        name: newCategoryName.trim(),
+        slug,
+        photo: newCategoryPhoto.trim()
+      });
+      setNewCategoryName('');
+      setNewCategoryPhoto('');
+      toast.success('Category added successfully');
+    } catch (error) {
+      toast.error('Failed to add category');
+    } finally {
+      setIsAddingCategory(false);
+    }
   };
 
-  const handleDeleteCategory = (id: string) => {
-    setCategories(categories.filter(c => c.id !== id));
-    toast.success('Category removed');
+  const handleDeleteCategory = async (id: string) => {
+    try {
+      await deleteCategory(id);
+      toast.success('Category removed');
+    } catch (error) {
+      toast.error('Failed to remove category');
+    }
   };
 
-  const handleAddBrand = () => {
+  const handleAddBrand = async () => {
     if (!newBrandName.trim()) return;
     const slug = slugify(newBrandName, { lower: true, strict: true });
     
@@ -53,21 +66,31 @@ export default function AdminCatalog() {
       return;
     }
     
-    setBrands([...brands, {
-      id: Date.now().toString(),
-      name: newBrandName.trim(),
-      slug,
-      photo: newBrandPhoto.trim()
-    }]);
-    
-    setNewBrandName('');
-    setNewBrandPhoto('');
-    toast.success('Brand added successfully');
+    setIsAddingBrand(true);
+    try {
+      await addBrand({
+        id: crypto.randomUUID(),
+        name: newBrandName.trim(),
+        slug,
+        photo: newBrandPhoto.trim()
+      });
+      setNewBrandName('');
+      setNewBrandPhoto('');
+      toast.success('Brand added successfully');
+    } catch (error) {
+      toast.error('Failed to add brand');
+    } finally {
+      setIsAddingBrand(false);
+    }
   };
 
-  const handleDeleteBrand = (id: string) => {
-    setBrands(brands.filter(b => b.id !== id));
-    toast.success('Brand removed');
+  const handleDeleteBrand = async (id: string) => {
+    try {
+      await deleteBrand(id);
+      toast.success('Brand removed');
+    } catch (error) {
+      toast.error('Failed to remove brand');
+    }
   };
 
   return (

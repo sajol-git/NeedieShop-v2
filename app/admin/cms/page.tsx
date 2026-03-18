@@ -18,7 +18,7 @@ export default function AdminCMS() {
   const [editingBanner, setEditingBanner] = useState<any>(null);
   const [bannerImageUrl, setBannerImageUrl] = useState('');
 
-  const handleSaveBanner = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSaveBanner = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const bannerData = {
@@ -29,20 +29,28 @@ export default function AdminCMS() {
       status: formData.get('status') as 'Active' | 'Inactive',
     };
 
-    if (editingBanner) {
-      setHeroBanners(heroBanners.map(b => b.id === editingBanner.id ? bannerData : b));
-      toast.success('Banner updated');
-    } else {
-      setHeroBanners([...heroBanners, bannerData]);
-      toast.success('Banner added');
+    try {
+      if (editingBanner) {
+        await setHeroBanners(heroBanners.map(b => b.id === editingBanner.id ? bannerData : b));
+        toast.success('Banner updated');
+      } else {
+        await setHeroBanners([...heroBanners, bannerData]);
+        toast.success('Banner added');
+      }
+      setIsBannerModalOpen(false);
+      setEditingBanner(null);
+    } catch (error) {
+      toast.error('Failed to save banner');
     }
-    setIsBannerModalOpen(false);
-    setEditingBanner(null);
   };
 
-  const handleDeleteBanner = (id: number) => {
-    setHeroBanners(heroBanners.filter(b => b.id !== id));
-    toast.success('Banner deleted');
+  const handleDeleteBanner = async (id: number) => {
+    try {
+      await setHeroBanners(heroBanners.filter(b => b.id !== id));
+      toast.success('Banner deleted');
+    } catch (error) {
+      toast.error('Failed to delete banner');
+    }
   };
 
   const [loading, setLoading] = useState(false);

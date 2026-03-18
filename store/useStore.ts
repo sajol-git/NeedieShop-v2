@@ -81,6 +81,21 @@ type StoreState = {
     instagram: string;
     youtube: string;
   };
+  storeSettings: {
+    name: string;
+    email: string;
+    phone: string;
+    address: string;
+    currency: string;
+  };
+  paymentSettings: {
+    codEnabled: boolean;
+    bkashEnabled: boolean;
+    nagadEnabled: boolean;
+    advanceAmount: number;
+  };
+  shippingZones: { id: number; name: string; fee: number; estimatedDays: string }[];
+  coupons: { id: number; code: string; discount: string; usageLimit: number; used: number; status: 'Active' | 'Expired' }[];
   
   // Actions
   setProducts: (products: Product[]) => void;
@@ -91,11 +106,19 @@ type StoreState = {
   updateProduct: (id: string, product: Partial<Product>) => Promise<void>;
   deleteProduct: (id: string) => Promise<void>;
   setCategories: (categories: Category[]) => void;
+  addCategory: (category: Category) => Promise<void>;
+  deleteCategory: (id: string) => Promise<void>;
   setBrands: (brands: Brand[]) => void;
+  addBrand: (brand: Brand) => Promise<void>;
+  deleteBrand: (id: string) => Promise<void>;
   setOfferBanners: (banners: string[]) => void;
   setCopyrightText: (text: string) => Promise<void>;
-  setHeroBanners: (banners: StoreState['heroBanners']) => void;
+  setHeroBanners: (banners: StoreState['heroBanners']) => Promise<void>;
   setFooterContent: (content: StoreState['footerContent']) => Promise<void>;
+  setStoreSettings: (settings: StoreState['storeSettings']) => Promise<void>;
+  setPaymentSettings: (settings: StoreState['paymentSettings']) => Promise<void>;
+  setShippingZones: (zones: StoreState['shippingZones']) => Promise<void>;
+  setCoupons: (coupons: StoreState['coupons']) => Promise<void>;
   
   addToCart: (product: Product, variantId?: string, quantity?: number) => void;
   removeFromCart: (productId: string, variantId?: string) => void;
@@ -109,7 +132,7 @@ type StoreState = {
 
 export const useStore = create<StoreState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       products: [],
       categories: [],
       brands: [],
@@ -128,10 +151,33 @@ export const useStore = create<StoreState>()(
         instagram: '',
         youtube: '',
       },
+      storeSettings: {
+        name: 'NeedieShop',
+        email: 'support@needieshop.bd',
+        phone: '+880 1700 000000',
+        address: 'Dhaka, Bangladesh',
+        currency: 'BDT (৳)',
+      },
+      paymentSettings: {
+        codEnabled: true,
+        bkashEnabled: true,
+        nagadEnabled: true,
+        advanceAmount: 200,
+      },
+      shippingZones: [
+        { id: 1, name: 'Inside Dhaka', fee: 60, estimatedDays: '1-2' },
+        { id: 2, name: 'Outside Dhaka', fee: 120, estimatedDays: '3-5' },
+      ],
+      coupons: [],
 
       setProducts: (products) => set({ products }),
       addProduct: async (product) => {
         const { supabase } = await import('@/lib/supabase');
+        
+        const state = get();
+        const categoryId = state.categories.find(c => c.name === product.category)?.id || product.category;
+        const brandId = state.brands.find(b => b.name === product.brand)?.id || product.brand;
+
         const { error } = await supabase.from('products').insert({
           id: product.id,
           name: product.name,
@@ -143,8 +189,8 @@ export const useStore = create<StoreState>()(
           compare_at_price: product.compareAtPrice,
           feature_image: product.featureImage,
           gallery: product.gallery,
-          category: product.category,
-          brand: product.brand,
+          category: categoryId,
+          brand: brandId,
           stock: product.stock,
           status: product.status,
           is_featured: product.isFeatured,
@@ -249,7 +295,30 @@ export const useStore = create<StoreState>()(
       },
       updateProduct: async (id, updates) => {
         const { supabase } = await import('@/lib/supabase');
-        const { error } = await supabase.from('products').update(updates).eq('id', id);
+        
+        const state = get();
+        const dbUpdates: any = {};
+        if (updates.name !== undefined) dbUpdates.name = updates.name;
+        if (updates.slug !== undefined) dbUpdates.slug = updates.slug;
+        if (updates.description !== undefined) dbUpdates.description = updates.description;
+        if (updates.metaTitle !== undefined) dbUpdates.meta_title = updates.metaTitle;
+        if (updates.metaDescription !== undefined) dbUpdates.meta_description = updates.metaDescription;
+        if (updates.price !== undefined) dbUpdates.price = updates.price;
+        if (updates.compareAtPrice !== undefined) dbUpdates.compare_at_price = updates.compareAtPrice;
+        if (updates.featureImage !== undefined) dbUpdates.feature_image = updates.featureImage;
+        if (updates.gallery !== undefined) dbUpdates.gallery = updates.gallery;
+        if (updates.category !== undefined) {
+          dbUpdates.category = state.categories.find(c => c.name === updates.category)?.id || updates.category;
+        }
+        if (updates.brand !== undefined) {
+          dbUpdates.brand = state.brands.find(b => b.name === updates.brand)?.id || updates.brand;
+        }
+        if (updates.stock !== undefined) dbUpdates.stock = updates.stock;
+        if (updates.status !== undefined) dbUpdates.status = updates.status;
+        if (updates.isFeatured !== undefined) dbUpdates.is_featured = updates.isFeatured;
+        if (updates.isFlashSale !== undefined) dbUpdates.is_flash_sale = updates.isFlashSale;
+
+        const { error } = await supabase.from('products').update(dbUpdates).eq('id', id);
         if (error) throw error;
         set((state) => ({
           products: state.products.map((p) => (p.id === id ? { ...p, ...updates } : p)),
@@ -264,7 +333,31 @@ export const useStore = create<StoreState>()(
         }));
       },
       setCategories: (categories) => set({ categories }),
+      addCategory: async (category) => {
+        const { supabase } = await import('@/lib/supabase');
+        const { error } = await supabase.from('categories').insert(category);
+        if (error) throw error;
+        set((state) => ({ categories: [...state.categories, category] }));
+      },
+      deleteCategory: async (id) => {
+        const { supabase } = await import('@/lib/supabase');
+        const { error } = await supabase.from('categories').delete().eq('id', id);
+        if (error) throw error;
+        set((state) => ({ categories: state.categories.filter(c => c.id !== id) }));
+      },
       setBrands: (brands) => set({ brands }),
+      addBrand: async (brand) => {
+        const { supabase } = await import('@/lib/supabase');
+        const { error } = await supabase.from('brands').insert(brand);
+        if (error) throw error;
+        set((state) => ({ brands: [...state.brands, brand] }));
+      },
+      deleteBrand: async (id) => {
+        const { supabase } = await import('@/lib/supabase');
+        const { error } = await supabase.from('brands').delete().eq('id', id);
+        if (error) throw error;
+        set((state) => ({ brands: state.brands.filter(b => b.id !== id) }));
+      },
       setOfferBanners: (offerBanners) => set({ offerBanners }),
       setCopyrightText: async (copyrightText) => {
         const { supabase } = await import('@/lib/supabase');
@@ -274,7 +367,14 @@ export const useStore = create<StoreState>()(
         if (error) throw error;
         set({ copyrightText });
       },
-      setHeroBanners: (heroBanners) => set({ heroBanners }),
+      setHeroBanners: async (heroBanners) => {
+        const { supabase } = await import('@/lib/supabase');
+        const { error } = await supabase
+          .from('settings')
+          .upsert({ key: 'hero_banners', value: heroBanners }, { onConflict: 'key' });
+        if (error) throw error;
+        set({ heroBanners });
+      },
       setFooterContent: async (footerContent) => {
         const { supabase } = await import('@/lib/supabase');
         const { error } = await supabase
@@ -282,6 +382,38 @@ export const useStore = create<StoreState>()(
           .upsert({ key: 'footer_content', value: footerContent }, { onConflict: 'key' });
         if (error) throw error;
         set({ footerContent });
+      },
+      setStoreSettings: async (storeSettings) => {
+        const { supabase } = await import('@/lib/supabase');
+        const { error } = await supabase
+          .from('settings')
+          .upsert({ key: 'store_settings', value: storeSettings }, { onConflict: 'key' });
+        if (error) throw error;
+        set({ storeSettings });
+      },
+      setPaymentSettings: async (paymentSettings) => {
+        const { supabase } = await import('@/lib/supabase');
+        const { error } = await supabase
+          .from('settings')
+          .upsert({ key: 'payment_settings', value: paymentSettings }, { onConflict: 'key' });
+        if (error) throw error;
+        set({ paymentSettings });
+      },
+      setShippingZones: async (shippingZones) => {
+        const { supabase } = await import('@/lib/supabase');
+        const { error } = await supabase
+          .from('settings')
+          .upsert({ key: 'shipping_zones', value: shippingZones }, { onConflict: 'key' });
+        if (error) throw error;
+        set({ shippingZones });
+      },
+      setCoupons: async (coupons) => {
+        const { supabase } = await import('@/lib/supabase');
+        const { error } = await supabase
+          .from('settings')
+          .upsert({ key: 'coupons', value: coupons }, { onConflict: 'key' });
+        if (error) throw error;
+        set({ coupons });
       },
 
       addToCart: (product, variantId, quantity = 1) => set((state) => {
@@ -315,20 +447,46 @@ export const useStore = create<StoreState>()(
       init: async () => {
         const { supabase } = await import('@/lib/supabase');
         
-        // Fetch Categories
+        // 1. Check for existing session
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) {
+          const { data: userData } = await supabase
+            .from('users')
+            .select('*')
+            .eq('id', session.user.id)
+            .single();
+          
+          if (userData) {
+            set({
+              user: {
+                id: userData.id,
+                name: userData.name || 'User',
+                phone: userData.phone || '',
+                email: userData.email || '',
+                role: userData.role || 'user',
+                isProfileCompleted: true,
+                isEmailVerified: true,
+                isPhoneVerified: true,
+                registrationDate: userData.created_at,
+              }
+            });
+          }
+        }
+
+        // 2. Fetch Categories
         const { data: categories } = await supabase.from('categories').select('*');
         if (categories) set({ categories });
 
-        // Fetch Brands
+        // 3. Fetch Brands
         const { data: brands } = await supabase.from('brands').select('*');
         if (brands) set({ brands });
 
-        // Fetch Products
-        const { getProducts } = await import('@/lib/products');
-        const products = await getProducts();
+        // 4. Fetch Products
+        const { getAllProducts } = await import('@/lib/products');
+        const products = await getAllProducts();
         set({ products });
 
-        // Fetch Orders
+        // 5. Fetch Orders
         const { data: ordersData } = await supabase
           .from('orders')
           .select(`
@@ -373,7 +531,7 @@ export const useStore = create<StoreState>()(
           set({ orders: formattedOrders });
         }
 
-        // Fetch Banners
+        // 6. Fetch Banners
         const { data: banners } = await supabase.from('banners').select('*').eq('status', 'Active');
         if (banners) {
           set({ 
@@ -382,13 +540,22 @@ export const useStore = create<StoreState>()(
           });
         }
 
-        // Fetch Settings
+        // 7. Fetch Settings
         const { data: settings } = await supabase.from('settings').select('*');
         if (settings) {
           const footer = settings.find(s => s.key === 'footer_content')?.value;
           const copyright = settings.find(s => s.key === 'copyright_text')?.value;
+          const storeSettings = settings.find(s => s.key === 'store_settings')?.value;
+          const paymentSettings = settings.find(s => s.key === 'payment_settings')?.value;
+          const shippingZones = settings.find(s => s.key === 'shipping_zones')?.value;
+          const coupons = settings.find(s => s.key === 'coupons')?.value;
+          
           if (footer) set({ footerContent: footer });
           if (copyright) set({ copyrightText: copyright });
+          if (storeSettings) set({ storeSettings });
+          if (paymentSettings) set({ paymentSettings });
+          if (shippingZones) set({ shippingZones });
+          if (coupons) set({ coupons });
         }
       }
     }),
