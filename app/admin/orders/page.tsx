@@ -47,7 +47,7 @@ export default function AdminOrders() {
 
       <div className="flex flex-col lg:flex-row justify-between items-stretch lg:items-center gap-4 bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
         <div className="relative flex-1">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" strokeWidth={2} />
           <input 
             type="text" 
             placeholder="Search orders by ID, name, or phone..." 
@@ -58,7 +58,7 @@ export default function AdminOrders() {
         </div>
         <div className="flex flex-col sm:flex-row items-center gap-4">
           <div className="relative w-full sm:w-48">
-            <Filter className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <Filter className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" strokeWidth={2} />
             <select 
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
@@ -153,7 +153,7 @@ export default function AdminOrders() {
                         onClick={() => setSelectedOrder(order)}
                         className="p-2 text-gray-400 hover:text-indigo-600 transition-colors rounded-lg hover:bg-indigo-50"
                       >
-                        <Eye className="w-5 h-5" />
+                        <Eye className="w-5 h-5" strokeWidth={2} />
                       </button>
                     </td>
                   </motion.tr>
@@ -178,7 +178,7 @@ export default function AdminOrders() {
                 onClick={() => setSelectedOrder(null)} 
                 className="p-2 hover:bg-gray-100 rounded-full transition-colors"
               >
-                <XCircle className="w-6 h-6 text-gray-400" />
+                <XCircle className="w-6 h-6 text-gray-400" strokeWidth={2} />
               </button>
             </div>
 

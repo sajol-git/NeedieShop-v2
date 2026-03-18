@@ -73,7 +73,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             className="lg:hidden p-2 text-gray-500 hover:text-gray-700"
             onClick={() => setIsMobileMenuOpen(false)}
           >
-            <X className="w-5 h-5" />
+            <X className="w-5 h-5" strokeWidth={2} />
           </button>
         </div>
         <nav className="p-4 space-y-1 flex-1 overflow-y-auto">
@@ -89,7 +89,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                 }`}
               >
-                <item.icon className={`w-6 h-6 ${isActive ? 'text-indigo-600' : 'text-gray-400'}`} />
+                <item.icon className={`w-6 h-6 ${isActive ? 'text-indigo-600' : 'text-gray-400'}`} strokeWidth={2} />
                 {item.name}
               </Link>
             );
@@ -100,7 +100,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             onClick={handleLogout}
             className="flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors text-red-600 hover:bg-red-50 w-full"
           >
-            <LogOut className="w-6 h-6" />
+            <LogOut className="w-6 h-6" strokeWidth={2} />
             Logout
           </button>
         </div>
@@ -114,7 +114,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               className="lg:hidden p-2 -ml-2 text-gray-600 hover:text-indigo-600 transition-colors"
               onClick={() => setIsMobileMenuOpen(true)}
             >
-              <Menu className="w-6 h-6" />
+              <Menu className="w-6 h-6" strokeWidth={2} />
             </button>
             <h1 className="text-xl font-semibold text-gray-900 truncate">
               {navigation.find(n => n.href === pathname)?.name || 'Admin'}

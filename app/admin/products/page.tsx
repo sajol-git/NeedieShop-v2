@@ -22,7 +22,7 @@ export default function AdminProducts() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
         <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" strokeWidth={2} />
           <input 
             type="text" 
             placeholder="Search products by name or brand..." 
@@ -35,7 +35,7 @@ export default function AdminProducts() {
           href="/admin/products/new"
           className="bg-[#8B183A] text-white px-6 py-3 rounded-full font-semibold hover:bg-[#6d122d] transition-colors flex items-center gap-2 shadow-lg shadow-[#8B183A]/20 w-full sm:w-auto justify-center"
         >
-          <Plus className="w-5 h-5" />
+          <Plus className="w-5 h-5" strokeWidth={2} />
           Add Product
         </Link>
       </div>
@@ -74,7 +74,7 @@ export default function AdminProducts() {
                           {product.featureImage ? (
                             <Image src={product.featureImage} alt={product.name} fill className="object-cover" referrerPolicy="no-referrer" />
                           ) : (
-                            <ImageIcon className="w-6 h-6 text-gray-400 m-auto mt-3" />
+                            <ImageIcon className="w-6 h-6 text-gray-400 m-auto mt-3" strokeWidth={2} />
                           )}
                         </div>
                         <div>
@@ -127,13 +127,13 @@ export default function AdminProducts() {
                           href={`/admin/products/${product.id}`}
                           className="p-2 text-gray-400 hover:text-indigo-600 transition-colors rounded-lg hover:bg-indigo-50"
                         >
-                          <Edit className="w-5 h-5" />
+                          <Edit className="w-5 h-5" strokeWidth={2} />
                         </Link>
                         <button 
                           onClick={() => setProductToDelete(product.id)}
                           className="p-2 text-gray-400 hover:text-red-600 transition-colors rounded-lg hover:bg-red-50"
                         >
-                          <Trash2 className="w-5 h-5" />
+                          <Trash2 className="w-5 h-5" strokeWidth={2} />
                         </button>
                       </div>
                     </td>
@@ -151,7 +151,7 @@ export default function AdminProducts() {
           <div className="bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl">
             <div className="flex items-center gap-4 mb-6">
               <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center shrink-0">
-                <AlertTriangle className="w-6 h-6 text-red-600" />
+                <AlertTriangle className="w-6 h-6 text-red-600" strokeWidth={2} />
               </div>
               <div>
                 <h3 className="text-xl font-bold text-gray-900">Delete Product</h3>
