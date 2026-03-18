@@ -11,6 +11,8 @@ export default function AdminOrders() {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
 
+  const [selectedOrder, setSelectedOrder] = useState<any>(null);
+
   const filteredOrders = orders.filter(order => {
     const matchesSearch = order.id.toLowerCase().includes(searchTerm.toLowerCase()) || 
                           order.customerInfo.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -42,8 +44,8 @@ export default function AdminOrders() {
         </div>
       </div>
 
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
-        <div className="relative flex-1 max-w-md">
+      <div className="flex flex-col lg:flex-row justify-between items-stretch lg:items-center gap-4 bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
+        <div className="relative flex-1">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
           <input 
             type="text" 
@@ -53,8 +55,8 @@ export default function AdminOrders() {
             className="w-full pl-12 pr-4 py-3 rounded-3xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none"
           />
         </div>
-        <div className="flex items-center gap-4 w-full sm:w-auto">
-          <div className="relative flex-1 sm:flex-none">
+        <div className="flex flex-col sm:flex-row items-center gap-4">
+          <div className="relative w-full sm:w-48">
             <Filter className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
             <select 
               value={statusFilter}
@@ -77,12 +79,12 @@ export default function AdminOrders() {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-gray-50 border-b border-gray-200">
-                <th className="px-6 py-4 text-sm font-semibold text-gray-900">Order ID</th>
-                <th className="px-6 py-4 text-sm font-semibold text-gray-900">Customer</th>
-                <th className="px-6 py-4 text-sm font-semibold text-gray-900">Date</th>
-                <th className="px-6 py-4 text-sm font-semibold text-gray-900">Total</th>
-                <th className="px-6 py-4 text-sm font-semibold text-gray-900">Status</th>
-                <th className="px-6 py-4 text-sm font-semibold text-gray-900 text-right">Actions</th>
+                <th className="px-6 py-4 text-sm font-semibold text-gray-900 whitespace-nowrap">Order ID</th>
+                <th className="px-6 py-4 text-sm font-semibold text-gray-900 whitespace-nowrap">Customer</th>
+                <th className="px-6 py-4 text-sm font-semibold text-gray-900 whitespace-nowrap">Date</th>
+                <th className="px-6 py-4 text-sm font-semibold text-gray-900 whitespace-nowrap">Total</th>
+                <th className="px-6 py-4 text-sm font-semibold text-gray-900 whitespace-nowrap">Status</th>
+                <th className="px-6 py-4 text-sm font-semibold text-gray-900 text-right whitespace-nowrap">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
@@ -141,7 +143,10 @@ export default function AdminOrders() {
                       </select>
                     </td>
                     <td className="px-6 py-4 text-right">
-                      <button className="p-2 text-gray-400 hover:text-indigo-600 transition-colors rounded-lg hover:bg-indigo-50">
+                      <button 
+                        onClick={() => setSelectedOrder(order)}
+                        className="p-2 text-gray-400 hover:text-indigo-600 transition-colors rounded-lg hover:bg-indigo-50"
+                      >
                         <Eye className="w-5 h-5" />
                       </button>
                     </td>
@@ -152,6 +157,100 @@ export default function AdminOrders() {
           </table>
         </div>
       </div>
+
+      {/* Order Details Modal */}
+      {selectedOrder && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white rounded-3xl p-6 sm:p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl"
+          >
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-xl font-bold text-gray-900">Order Details: {selectedOrder.id}</h3>
+              <button 
+                onClick={() => setSelectedOrder(null)} 
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <XCircle className="w-6 h-6 text-gray-400" />
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+              <div>
+                <h4 className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-3">Customer Information</h4>
+                <div className="space-y-2 text-sm">
+                  <p><span className="text-gray-500">Name:</span> <span className="font-medium">{selectedOrder.customerInfo.name}</span></p>
+                  <p><span className="text-gray-500">Phone:</span> <span className="font-medium">{selectedOrder.customerInfo.phone}</span></p>
+                  <p><span className="text-gray-500">Address:</span> <span className="font-medium">{selectedOrder.customerInfo.address}</span></p>
+                  {selectedOrder.customerInfo.note && (
+                    <p><span className="text-gray-500">Note:</span> <span className="font-medium italic text-gray-600">{selectedOrder.customerInfo.note}</span></p>
+                  )}
+                </div>
+              </div>
+              <div>
+                <h4 className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-3">Order Summary</h4>
+                <div className="space-y-2 text-sm">
+                  <p><span className="text-gray-500">Status:</span> <span className={`font-bold px-2 py-0.5 rounded-full ${getStatusColor(selectedOrder.status)}`}>{selectedOrder.status}</span></p>
+                  <p><span className="text-gray-500">Date:</span> <span className="font-medium">{new Date(selectedOrder.createdAt).toLocaleString()}</span></p>
+                  <p><span className="text-gray-500">Payment:</span> <span className="font-medium">{selectedOrder.paymentMethod}</span></p>
+                  <p><span className="text-gray-500">Advance:</span> <span className="font-medium">৳{selectedOrder.advancePayment}</span></p>
+                </div>
+              </div>
+            </div>
+
+            <div className="mb-8">
+              <h4 className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-3">Items</h4>
+              <div className="border border-gray-100 rounded-2xl overflow-hidden">
+                <table className="w-full text-left text-sm">
+                  <thead className="bg-gray-50 border-b border-gray-100">
+                    <tr>
+                      <th className="px-4 py-3 font-semibold">Product</th>
+                      <th className="px-4 py-3 font-semibold text-center">Qty</th>
+                      <th className="px-4 py-3 font-semibold text-right">Price</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-50">
+                    {selectedOrder.items.map((item: any) => (
+                      <tr key={item.id}>
+                        <td className="px-4 py-3">
+                          <div className="font-medium text-gray-900">{item.name}</div>
+                          {item.variant && <div className="text-xs text-gray-500">{item.variant}</div>}
+                        </td>
+                        <td className="px-4 py-3 text-center">{item.quantity}</td>
+                        <td className="px-4 py-3 text-right">৳{item.price.toLocaleString()}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                  <tfoot className="bg-gray-50 font-bold">
+                    <tr>
+                      <td colSpan={2} className="px-4 py-3 text-right">Subtotal</td>
+                      <td className="px-4 py-3 text-right">৳{selectedOrder.subtotal.toLocaleString()}</td>
+                    </tr>
+                    <tr>
+                      <td colSpan={2} className="px-4 py-3 text-right">Shipping</td>
+                      <td className="px-4 py-3 text-right">৳{selectedOrder.shippingFee.toLocaleString()}</td>
+                    </tr>
+                    <tr className="text-indigo-600 text-lg">
+                      <td colSpan={2} className="px-4 py-3 text-right">Total</td>
+                      <td className="px-4 py-3 text-right">৳{selectedOrder.total.toLocaleString()}</td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            </div>
+
+            <div className="flex justify-end">
+              <button 
+                onClick={() => setSelectedOrder(null)}
+                className="px-8 py-3 bg-gray-900 text-white rounded-2xl font-bold hover:bg-gray-800 transition-colors shadow-lg shadow-gray-200"
+              >
+                Close
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 }

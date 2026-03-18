@@ -8,7 +8,7 @@ export const NeediePrimeIcon = ({ className = "w-6 h-6" }: { className?: string 
     viewBox="0 0 48 48"
     fill="currentColor"
     stroke="currentColor"
-    strokeWidth="1"
+    strokeWidth="3"
     className={className}
     id="credit-card"
   >

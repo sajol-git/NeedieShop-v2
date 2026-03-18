@@ -48,8 +48,8 @@ export default function AdminCustomers() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
-        <div className="relative flex-1 max-w-md">
+      <div className="flex flex-col lg:flex-row justify-between items-stretch lg:items-center gap-4 bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
+        <div className="relative flex-1">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
           <input 
             type="text" 
@@ -66,12 +66,12 @@ export default function AdminCustomers() {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-gray-50 border-b border-gray-200">
-                <th className="px-6 py-4 text-sm font-semibold text-gray-900">Customer</th>
-                <th className="px-6 py-4 text-sm font-semibold text-gray-900">Contact</th>
-                <th className="px-6 py-4 text-sm font-semibold text-gray-900">Orders</th>
-                <th className="px-6 py-4 text-sm font-semibold text-gray-900">Total Spent</th>
-                <th className="px-6 py-4 text-sm font-semibold text-gray-900">Status</th>
-                <th className="px-6 py-4 text-sm font-semibold text-gray-900 text-right">Actions</th>
+                <th className="px-6 py-4 text-sm font-semibold text-gray-900 whitespace-nowrap">Customer</th>
+                <th className="px-6 py-4 text-sm font-semibold text-gray-900 whitespace-nowrap">Contact</th>
+                <th className="px-6 py-4 text-sm font-semibold text-gray-900 whitespace-nowrap text-center">Orders</th>
+                <th className="px-6 py-4 text-sm font-semibold text-gray-900 whitespace-nowrap">Total Spent</th>
+                <th className="px-6 py-4 text-sm font-semibold text-gray-900 whitespace-nowrap">Status</th>
+                <th className="px-6 py-4 text-sm font-semibold text-gray-900 text-right whitespace-nowrap">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
@@ -90,49 +90,50 @@ export default function AdminCustomers() {
                     className={`transition-colors ${customer.isSuspect ? 'bg-red-50/50' : 'hover:bg-gray-50/50'}`}
                   >
                     <td className="px-6 py-4">
-                      <div className="font-medium text-gray-900">{customer.name}</div>
+                      <div className="font-medium text-gray-900 whitespace-nowrap">{customer.name}</div>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="text-sm text-gray-900">{customer.phone}</div>
+                      <div className="text-sm text-gray-900 whitespace-nowrap">{customer.phone}</div>
                       <div className="text-xs text-gray-500 truncate max-w-[200px]">{customer.address}</div>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-6 py-4 text-center">
                       <div className="font-medium text-gray-900">{customer.totalOrders}</div>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="font-medium text-gray-900">৳{customer.totalSpent.toLocaleString()}</div>
+                      <div className="font-medium text-gray-900 whitespace-nowrap">৳{customer.totalSpent.toLocaleString()}</div>
                     </td>
                     <td className="px-6 py-4">
                       {customer.isSuspect ? (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-red-100 text-red-800 text-xs font-medium border border-red-200">
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-red-100 text-red-800 text-xs font-medium border border-red-200 whitespace-nowrap">
                           <ShieldAlert className="w-3 h-3" /> Blocked
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-medium border border-emerald-200">
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-medium border border-emerald-200 whitespace-nowrap">
                           <ShieldCheck className="w-3 h-3" /> Active
                         </span>
                       )}
                     </td>
-                    <td className="px-6 py-4 text-right flex items-center justify-end gap-2">
-                      <button 
-                        onClick={() => setSelectedCustomer(customer)}
-                        className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
-                        title="View Activity"
-                      >
-                        Activity
-                      </button>
-                      <button 
-                        onClick={() => toggleSuspectStatus(customer.phone)}
-                        className={`p-2 transition-colors rounded-lg flex items-center gap-2 ${
-                          customer.isSuspect 
-                            ? 'text-emerald-600 hover:bg-emerald-50' 
-                            : 'text-red-600 hover:bg-red-50'
-                        }`}
-                        title={customer.isSuspect ? "Unblock User" : "Block User"}
-                      >
-                        {customer.isSuspect ? <UserCheck className="w-5 h-5" /> : <UserX className="w-5 h-5" />}
-                        <span className="text-sm font-medium">{customer.isSuspect ? 'Unblock' : 'Block'}</span>
-                      </button>
+                    <td className="px-6 py-4 text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        <button 
+                          onClick={() => setSelectedCustomer(customer)}
+                          className="px-3 py-1.5 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors text-sm font-medium whitespace-nowrap"
+                        >
+                          Activity
+                        </button>
+                        <button 
+                          onClick={() => toggleSuspectStatus(customer.phone)}
+                          className={`p-2 transition-colors rounded-lg flex items-center gap-2 whitespace-nowrap ${
+                            customer.isSuspect 
+                              ? 'text-emerald-600 hover:bg-emerald-50' 
+                              : 'text-red-600 hover:bg-red-50'
+                          }`}
+                          title={customer.isSuspect ? "Unblock User" : "Block User"}
+                        >
+                          {customer.isSuspect ? <UserCheck className="w-5 h-5" /> : <UserX className="w-5 h-5" />}
+                          <span className="text-sm font-medium hidden sm:inline">{customer.isSuspect ? 'Unblock' : 'Block'}</span>
+                        </button>
+                      </div>
                     </td>
                   </motion.tr>
                 ))

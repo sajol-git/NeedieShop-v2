@@ -62,8 +62,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       )}
 
       {/* Sidebar */}
-      <div className={`w-64 bg-white border-r border-gray-200 fixed inset-y-0 left-0 z-50 transform transition-transform duration-200 ease-in-out lg:translate-x-0 ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-        <div className="flex items-center justify-between h-16 border-b border-gray-200 px-4">
+      <div className={`w-64 bg-white border-r border-gray-200 fixed inset-y-0 left-0 z-50 transform transition-transform duration-200 ease-in-out lg:translate-x-0 flex flex-col ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+        <div className="flex items-center justify-between h-16 border-b border-gray-200 px-4 shrink-0">
           <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-violet-600">
             NeedieShop Admin
           </span>
@@ -74,7 +74,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <X className="w-5 h-5" />
           </button>
         </div>
-        <nav className="p-4 space-y-1 flex-1">
+        <nav className="p-4 space-y-1 flex-1 overflow-y-auto">
           {navigation.map((item) => {
             const isActive = pathname === item.href;
             return (
@@ -93,7 +93,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             );
           })}
         </nav>
-        <div className="p-4 border-t border-gray-200 absolute bottom-0 w-full">
+        <div className="p-4 border-t border-gray-200 shrink-0">
           <button 
             onClick={handleLogout}
             className="flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors text-red-600 hover:bg-red-50 w-full"

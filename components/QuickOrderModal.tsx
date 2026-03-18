@@ -110,14 +110,14 @@ export function QuickOrderModal({ isOpen, onClose, product, selectedVariantId, q
                   <h2 className="text-2xl font-bold text-gray-900">Quick Order</h2>
                 </div>
                 <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-full transition-colors">
-                  <X className="w-6 h-6 text-gray-400" />
+                  <X className="w-6 h-6 text-gray-400" strokeWidth={1.5} />
                 </button>
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="space-y-4">
                   <div className="relative">
-                    <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" strokeWidth={1.5} />
                     <input
                       type="text"
                       placeholder="Full Name"
@@ -129,7 +129,7 @@ export function QuickOrderModal({ isOpen, onClose, product, selectedVariantId, q
                   </div>
                   
                   <div className="relative">
-                    <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" strokeWidth={1.5} />
                     <input
                       type="tel"
                       placeholder="Phone Number"
@@ -141,7 +141,7 @@ export function QuickOrderModal({ isOpen, onClose, product, selectedVariantId, q
                   </div>
 
                   <div className="relative">
-                    <MapPin className="absolute left-4 top-4 w-5 h-5 text-gray-400" />
+                    <MapPin className="absolute left-4 top-4 w-5 h-5 text-gray-400" strokeWidth={1.5} />
                     <textarea
                       placeholder="Delivery Address"
                       required
@@ -161,7 +161,7 @@ export function QuickOrderModal({ isOpen, onClose, product, selectedVariantId, q
                       formData.zone === 'Inside Dhaka' ? 'border-[#8B183A] bg-[#8B183A]/5 text-[#8B183A]' : 'border-gray-100 text-gray-500'
                     }`}
                   >
-                    <Truck className="w-6 h-6" />
+                    <Truck className="w-6 h-6" strokeWidth={1.5} />
                     <span className="text-xs font-bold uppercase">Inside Dhaka</span>
                     <span className="text-sm font-bold">৳60</span>
                   </button>
@@ -172,7 +172,7 @@ export function QuickOrderModal({ isOpen, onClose, product, selectedVariantId, q
                       formData.zone === 'Outside Dhaka' ? 'border-[#8B183A] bg-[#8B183A]/5 text-[#8B183A]' : 'border-gray-100 text-gray-500'
                     }`}
                   >
-                    <Truck className="w-6 h-6" />
+                    <Truck className="w-6 h-6" strokeWidth={1.5} />
                     <span className="text-xs font-bold uppercase">Outside Dhaka</span>
                     <span className="text-sm font-bold">৳120</span>
                   </button>

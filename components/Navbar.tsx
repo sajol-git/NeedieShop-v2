@@ -65,7 +65,7 @@ export function Navbar() {
                 className="lg:hidden p-2 text-gray-900 hover:text-[#8B183A] transition-colors"
                 onClick={() => setIsMenuOpen(true)}
               >
-                <Menu className="w-6 h-6" />
+                <Menu className="w-6 h-6" strokeWidth={1.5} />
               </button>
 
               <Link href="/" className="flex items-center shrink-0">
@@ -109,7 +109,7 @@ export function Navbar() {
                 }}
                 className="relative w-full"
               >
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" strokeWidth={1.5} />
                 <input 
                   name="search"
                   type="text" 
@@ -122,7 +122,7 @@ export function Navbar() {
             {/* Right: Icons */}
             <div className="flex items-center gap-1 sm:gap-2 shrink-0">
               <button className="lg:hidden p-2 text-gray-900 hover:text-[#8B183A] transition-colors">
-                <Search className="w-6 h-6" />
+                <Search className="w-6 h-6" strokeWidth={1.5} />
               </button>
               
               <Link 
@@ -184,7 +184,7 @@ export function Navbar() {
                   onClick={() => setIsMenuOpen(false)}
                   className="p-2 hover:bg-gray-100 rounded-full transition-colors"
                 >
-                  <X className="w-5 h-5 text-gray-500" />
+                  <X className="w-5 h-5 text-gray-500" strokeWidth={1.5} />
                 </button>
               </div>
 
@@ -202,7 +202,7 @@ export function Navbar() {
                       <div className="w-10 h-10 flex items-center justify-center shrink-0">
                         {link.name === 'Home' && <HomeIcon className="w-6 h-6" />}
                         {link.name === 'Track Order' && <TrackOrderIcon className="w-6 h-6 scale-110" />}
-                        {link.name === 'Shop' && <Search className="w-6 h-6" />}
+                        {link.name === 'Shop' && <Search className="w-6 h-6" strokeWidth={1.5} />}
                       </div>
                       {link.name}
                     </Link>
@@ -261,7 +261,7 @@ export function Navbar() {
                   }}
                   className="relative w-full"
                 >
-                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" strokeWidth={1.5} />
                   <input 
                     name="search"
                     type="text" 

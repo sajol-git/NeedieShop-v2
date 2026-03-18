@@ -48,7 +48,7 @@ export default function CustomerLogin() {
         toast.error(error.message);
       } else {
         toast.success('Signed in successfully!');
-        router.push('/account');
+        router.back();
       }
     } catch (err: any) {
       toast.error(err.message || 'An error occurred during sign in');
@@ -128,7 +128,7 @@ export default function CustomerLogin() {
                     <div className="space-y-2">
                       <label className="text-sm font-medium text-gray-700 ml-1">Email or Phone</label>
                       <div className="relative">
-                        <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                        <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" strokeWidth={1.5} />
                         <input 
                           type="text" 
                           placeholder="Enter your email or phone" 
@@ -143,7 +143,7 @@ export default function CustomerLogin() {
                     <div className="space-y-2">
                       <label className="text-sm font-medium text-gray-700 ml-1">Password</label>
                       <div className="relative">
-                        <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                        <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" strokeWidth={1.5} />
                         <input 
                           type="password" 
                           placeholder="Enter your password" 

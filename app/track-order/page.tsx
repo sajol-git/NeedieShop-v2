@@ -54,7 +54,7 @@ function TrackOrderContent() {
       <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 mb-12">
         <form onSubmit={handleTrack} className="flex flex-col md:flex-row gap-4">
           <div className="relative flex-1">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" strokeWidth={1.5} />
             <input
               type="text"
               placeholder="Order ID (e.g. ORD-123...) or Phone Number"
@@ -81,7 +81,7 @@ function TrackOrderContent() {
             className="bg-white rounded-3xl p-12 text-center border border-gray-100"
           >
             <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-6">
-              <Search className="w-10 h-10 text-red-500" />
+              <Search className="w-10 h-10 text-red-500" strokeWidth={1.5} />
             </div>
             <h2 className="text-2xl font-bold text-gray-900 mb-2">Order Not Found</h2>
             <p className="text-gray-500">We couldn&apos;t find any order with that ID or phone number. Please check and try again.</p>
@@ -178,7 +178,7 @@ function TrackOrderContent() {
                 <div className="space-y-6">
                   <div className="flex items-start gap-4">
                     <div className="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center shrink-0">
-                      <User className="w-5 h-5 text-gray-400" />
+                      <User className="w-5 h-5 text-gray-400" strokeWidth={1.5} />
                     </div>
                     <div>
                       <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Customer</p>
@@ -187,7 +187,7 @@ function TrackOrderContent() {
                   </div>
                   <div className="flex items-start gap-4">
                     <div className="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center shrink-0">
-                      <Phone className="w-5 h-5 text-gray-400" />
+                      <Phone className="w-5 h-5 text-gray-400" strokeWidth={1.5} />
                     </div>
                     <div>
                       <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Phone</p>
@@ -196,7 +196,7 @@ function TrackOrderContent() {
                   </div>
                   <div className="flex items-start gap-4">
                     <div className="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center shrink-0">
-                      <MapPin className="w-5 h-5 text-gray-400" />
+                      <MapPin className="w-5 h-5 text-gray-400" strokeWidth={1.5} />
                     </div>
                     <div>
                       <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Address</p>

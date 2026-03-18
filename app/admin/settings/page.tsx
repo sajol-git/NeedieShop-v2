@@ -147,24 +147,24 @@ export default function AdminSettings() {
 
         <div className="space-y-4">
           {shippingZones.map((zone) => (
-            <div key={zone.id} className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 border border-gray-100 rounded-2xl items-center">
-              <div>
+            <div key={zone.id} className="flex flex-col sm:flex-row gap-4 p-4 border border-gray-100 rounded-2xl items-end">
+              <div className="flex-1 w-full">
                 <label className="block text-xs font-medium text-gray-500 mb-1">Zone Name</label>
-                <input type="text" value={zone.name} readOnly className="w-full px-3 py-1.5 rounded-3xl border border-gray-200 bg-gray-50 outline-none text-sm" />
+                <input type="text" value={zone.name} readOnly className="w-full px-4 py-2 rounded-3xl border border-gray-200 bg-gray-50 outline-none text-sm" />
               </div>
-              <div>
-                <label className="block text-xs font-medium text-gray-500 mb-1">Delivery Fee (৳)</label>
+              <div className="w-full sm:w-32">
+                <label className="block text-xs font-medium text-gray-500 mb-1">Fee (৳)</label>
                 <input type="number" value={zone.fee} onChange={(e) => {
                   const newZones = shippingZones.map(z => z.id === zone.id ? {...z, fee: Number(e.target.value)} : z);
                   setShippingZones(newZones);
-                }} className="w-full px-3 py-1.5 rounded-lg border border-gray-200 focus:ring-2 focus:ring-indigo-500 outline-none text-sm" />
+                }} className="w-full px-4 py-2 rounded-3xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 outline-none text-sm" />
               </div>
-              <div>
+              <div className="w-full sm:w-32">
                 <label className="block text-xs font-medium text-gray-500 mb-1">Est. Days</label>
                 <input type="text" value={zone.estimatedDays} onChange={(e) => {
                   const newZones = shippingZones.map(z => z.id === zone.id ? {...z, estimatedDays: e.target.value} : z);
                   setShippingZones(newZones);
-                }} className="w-full px-3 py-1.5 rounded-3xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 outline-none text-sm" />
+                }} className="w-full px-4 py-2 rounded-3xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 outline-none text-sm" />
               </div>
             </div>
           ))}

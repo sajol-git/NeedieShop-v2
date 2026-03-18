@@ -92,7 +92,7 @@ export default function AdminCatalog() {
             </div>
           </div>
 
-          <div className="flex flex-col gap-2 mb-6">
+          <div className="flex flex-col gap-3 mb-6">
             <input 
               type="text" 
               value={newCategoryName} 
@@ -100,7 +100,7 @@ export default function AdminCatalog() {
               className="w-full px-4 py-2.5 rounded-2xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 outline-none transition-all" 
               placeholder="Category Name" 
             />
-            <div className="flex gap-2">
+            <div className="flex flex-col sm:flex-row gap-2">
               <input 
                 type="url" 
                 value={newCategoryPhoto} 
@@ -109,14 +109,16 @@ export default function AdminCatalog() {
                 className="flex-1 px-4 py-2.5 rounded-2xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 outline-none transition-all" 
                 placeholder="Photo URL (Cloudinary)" 
               />
-              <ImageUpload onUpload={(url) => setNewCategoryPhoto(url)} buttonText="Upload" className="px-4 py-2.5 rounded-2xl" />
-              <button 
-                onClick={handleAddCategory}
-                className="bg-indigo-600 text-white px-5 py-2.5 rounded-2xl font-medium hover:bg-indigo-700 transition-colors flex items-center gap-2"
-              >
-                <Plus className="w-4 h-4" />
-                Add
-              </button>
+              <div className="flex gap-2 w-full sm:w-auto">
+                <ImageUpload onUpload={(url) => setNewCategoryPhoto(url)} buttonText="Upload" className="flex-1 sm:flex-none px-4 py-2.5 rounded-2xl" />
+                <button 
+                  onClick={handleAddCategory}
+                  className="flex-1 sm:flex-none bg-indigo-600 text-white px-5 py-2.5 rounded-2xl font-medium hover:bg-indigo-700 transition-colors flex items-center justify-center gap-2"
+                >
+                  <Plus className="w-4 h-4" />
+                  Add
+                </button>
+              </div>
             </div>
           </div>
 
@@ -164,7 +166,7 @@ export default function AdminCatalog() {
             </div>
           </div>
 
-          <div className="flex flex-col gap-2 mb-6">
+          <div className="flex flex-col gap-3 mb-6">
             <input 
               type="text" 
               value={newBrandName} 
@@ -172,7 +174,7 @@ export default function AdminCatalog() {
               className="w-full px-4 py-2.5 rounded-2xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 outline-none transition-all" 
               placeholder="Brand Name" 
             />
-            <div className="flex gap-2">
+            <div className="flex flex-col sm:flex-row gap-2">
               <input 
                 type="url" 
                 value={newBrandPhoto} 
@@ -181,14 +183,16 @@ export default function AdminCatalog() {
                 className="flex-1 px-4 py-2.5 rounded-2xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 outline-none transition-all" 
                 placeholder="Photo URL (Cloudinary)" 
               />
-              <ImageUpload onUpload={(url) => setNewBrandPhoto(url)} buttonText="Upload" className="px-4 py-2.5 rounded-2xl" />
-              <button 
-                onClick={handleAddBrand}
-                className="bg-indigo-600 text-white px-5 py-2.5 rounded-2xl font-medium hover:bg-indigo-700 transition-colors flex items-center gap-2"
-              >
-                <Plus className="w-4 h-4" />
-                Add
-              </button>
+              <div className="flex gap-2 w-full sm:w-auto">
+                <ImageUpload onUpload={(url) => setNewBrandPhoto(url)} buttonText="Upload" className="flex-1 sm:flex-none px-4 py-2.5 rounded-2xl" />
+                <button 
+                  onClick={handleAddBrand}
+                  className="flex-1 sm:flex-none bg-indigo-600 text-white px-5 py-2.5 rounded-2xl font-medium hover:bg-indigo-700 transition-colors flex items-center justify-center gap-2"
+                >
+                  <Plus className="w-4 h-4" />
+                  Add
+                </button>
+              </div>
             </div>
           </div>
 

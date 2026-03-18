@@ -142,7 +142,7 @@ export default function OnboardingPage() {
         ipAddress: ipAddress
       });
       
-      router.push('/account');
+      router.push('/');
     } else {
       toast.error('Invalid code');
     }

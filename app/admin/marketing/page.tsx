@@ -46,24 +46,24 @@ export default function AdminMarketing() {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-gray-50 border-b border-gray-200">
-                <th className="px-6 py-4 text-sm font-semibold text-gray-900">Customer</th>
-                <th className="px-6 py-4 text-sm font-semibold text-gray-900">Cart Value</th>
-                <th className="px-6 py-4 text-sm font-semibold text-gray-900">Abandoned</th>
-                <th className="px-6 py-4 text-sm font-semibold text-gray-900">Status</th>
-                <th className="px-6 py-4 text-sm font-semibold text-gray-900 text-right">Action</th>
+                <th className="px-6 py-4 text-sm font-semibold text-gray-900 whitespace-nowrap">Customer</th>
+                <th className="px-6 py-4 text-sm font-semibold text-gray-900 whitespace-nowrap">Cart Value</th>
+                <th className="px-6 py-4 text-sm font-semibold text-gray-900 whitespace-nowrap">Abandoned</th>
+                <th className="px-6 py-4 text-sm font-semibold text-gray-900 whitespace-nowrap">Status</th>
+                <th className="px-6 py-4 text-sm font-semibold text-gray-900 text-right whitespace-nowrap">Action</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
               {abandonedCarts.map((cart) => (
                 <tr key={cart.id} className="hover:bg-gray-50/50 transition-colors">
                   <td className="px-6 py-4">
-                    <div className="font-medium text-gray-900">{cart.name}</div>
-                    <div className="text-sm text-gray-500">{cart.phone}</div>
+                    <div className="font-medium text-gray-900 whitespace-nowrap">{cart.name}</div>
+                    <div className="text-sm text-gray-500 whitespace-nowrap">{cart.phone}</div>
                   </td>
-                  <td className="px-6 py-4 font-medium text-gray-900">৳{cart.total.toLocaleString()}</td>
-                  <td className="px-6 py-4 text-sm text-gray-500">{cart.time}</td>
+                  <td className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">৳{cart.total.toLocaleString()}</td>
+                  <td className="px-6 py-4 text-sm text-gray-500 whitespace-nowrap">{cart.time}</td>
                   <td className="px-6 py-4">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium whitespace-nowrap ${
                       cart.status === 'Recovered' ? 'bg-emerald-100 text-emerald-800' :
                       cart.status === 'Sent' ? 'bg-blue-100 text-blue-800' : 'bg-amber-100 text-amber-800'
                     }`}>
@@ -74,10 +74,11 @@ export default function AdminMarketing() {
                     <button 
                       onClick={() => handleSendWhatsApp(cart.id, cart.phone)}
                       disabled={cart.status !== 'Pending'}
-                      className="inline-flex items-center gap-2 px-3 py-1.5 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="inline-flex items-center gap-2 px-3 py-1.5 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
                     >
                       <Send className="w-4 h-4" />
-                      Send Reminder
+                      <span className="hidden sm:inline">Send Reminder</span>
+                      <span className="sm:hidden">Send</span>
                     </button>
                   </td>
                 </tr>
