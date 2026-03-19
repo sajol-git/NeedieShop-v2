@@ -11,7 +11,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { CartDrawer } from './CartDrawer';
 import { useRouter, usePathname } from 'next/navigation';
 import Image from 'next/image';
-import { UserIcon, AddUserIcon, AddToBagIcon, CartIcon, HomeIcon, DashboardIcon, TrackOrderIcon, ShopIcon } from './icons';
+import { UserIcon, AddUserIcon, AddIcon, AddToBagIcon, CartIcon, HomeIcon, DashboardIcon, TrackOrderIcon } from './icons';
 
 export function Navbar() {
   const isCartOpen = useStore((state) => state.isCartOpen);
@@ -130,7 +130,7 @@ export function Navbar() {
                 className="p-1 text-gray-900 hover:text-[#8B183A] transition-colors"
               >
                 <div className="w-10 h-10 flex items-center justify-center">
-                  <UserIcon className="w-6 h-6 scale-100" strokeWidth={48} />
+                  <UserIcon className="w-6 h-6 scale-100" />
                 </div>
               </Link>
 
@@ -202,7 +202,7 @@ export function Navbar() {
                       <div className="w-10 h-10 flex items-center justify-center shrink-0">
                         {link.name === 'Home' && <HomeIcon className="w-6 h-6" strokeWidth={2} />}
                         {link.name === 'Track Order' && <TrackOrderIcon className="w-6 h-6 scale-110" strokeWidth={10} />}
-                        {link.name === 'Shop' && <ShopIcon className="w-8 h-8" strokeWidth={10} />}
+                        {link.name === 'Shop' && <AddIcon className="w-6 h-6" />}
                       </div>
                       {link.name}
                     </Link>
@@ -240,7 +240,7 @@ export function Navbar() {
                       className="flex items-center gap-3 text-gray-600 font-medium"
                     >
                       <div className="w-10 h-10 flex items-center justify-center shrink-0">
-                        <UserIcon className="w-6 h-6 scale-110" strokeWidth={48} />
+                        <UserIcon className="w-6 h-6 scale-110" />
                       </div>
                       Login / Register
                     </Link>

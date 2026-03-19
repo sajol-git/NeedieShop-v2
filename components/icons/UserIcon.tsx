@@ -1,12 +1,19 @@
-export const UserIcon = ({ className, strokeWidth = 24 }: { className?: string; strokeWidth?: number | string }) => (
+export const UserIcon = ({ className }: { className?: string }) => (
   <svg 
     xmlns="http://www.w3.org/2000/svg" 
-    viewBox="0 0 256 256" 
-    className={className} 
-    fill="none"
+    width="24" 
+    height="24" 
+    fill="none" 
+    id="user"
+    className={className}
   >
-    <rect width="256" height="256" fill="none"></rect>
-    <circle cx="128" cy="96" r="64" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={strokeWidth}></circle>
-    <path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={strokeWidth} d="M30.989,215.99064a112.03731,112.03731,0,0,1,194.02311.002"></path>
+    <defs>
+      <clipPath id="a">
+        <rect width="24" height="24" rx="0"></rect>
+      </clipPath>
+    </defs>
+    <g clipPath="url(#a)">
+      <path fill="currentColor" fillRule="evenodd" d="M16.243 12.243Q18 10.485 18 8t-1.757-4.243Q14.485 2 12 2T7.757 3.757Q6 5.515 6 8t1.757 4.243T12 14t4.243-1.757m-1.415-7.071Q16 6.343 16 8t-1.172 2.828T12 12t-2.828-1.172Q8 9.657 8 8t1.172-2.828Q10.343 4 12 4t2.828 1.172M5.813 16.617Q3 18.375 3 21q0 .099.02.195.018.097.056.188.038.09.093.173.054.081.124.151t.151.124q.082.055.173.093t.188.057T4 22t.195-.02.188-.056.173-.093q.081-.054.151-.124t.124-.151q.055-.082.093-.173t.057-.188T5 21q0-1.517 1.873-2.687Q8.973 17 12 17t5.127 1.313Q19 19.483 19 21q0 .099.02.195.018.097.056.188.038.09.093.173.054.081.124.151t.151.124q.082.055.173.093t.188.057T20 22t.195-.02.188-.056.173-.093q.081-.054.151-.124t.124-.151q.055-.082.093-.173t.057-.188T21 21q0-2.625-2.813-4.383Q15.6 15 12 15t-6.187 1.617"></path>
+    </g>
   </svg>
 );

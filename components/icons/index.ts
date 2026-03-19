@@ -4,6 +4,7 @@ export * from './CartIcon';
 export * from './TrackOrderIcon';
 export * from './UserIcon';
 export * from './AddUserIcon';
+export * from './AddIcon';
 export * from './DashboardIcon';
 export * from './TotalOrderIcon';
 export * from './NeediePrimeIcon';
