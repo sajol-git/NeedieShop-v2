@@ -1,4 +1,4 @@
-export const UserIcon = ({ className, strokeWidth = 20 }: { className?: string; strokeWidth?: number | string }) => (
+export const UserIcon = ({ className, strokeWidth = 24 }: { className?: string; strokeWidth?: number | string }) => (
   <svg 
     xmlns="http://www.w3.org/2000/svg" 
     viewBox="0 0 256 256" 

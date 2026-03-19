@@ -6,9 +6,7 @@ import { useStore } from '@/store/useStore';
 import { motion } from 'motion/react';
 import { DistrictDropdown } from '@/components/DistrictDropdown';
 import { toast } from 'sonner';
-import { auth, db } from '@/firebase';
-import { createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth';
-import { doc, setDoc, updateDoc } from 'firebase/firestore';
+import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
 import { AddUserIcon } from '@/components/icons';
 
@@ -49,24 +47,38 @@ export default function OnboardingPage() {
     }
     setLoading(true);
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
-      const firebaseUser = userCredential.user;
-      
-      // Send verification email
-      await sendEmailVerification(firebaseUser);
-      
-      // Create initial user doc
-      await setDoc(doc(db, 'users', firebaseUser.uid), {
-        id: firebaseUser.uid,
-        name: formData.name,
+      const { data, error } = await supabase.auth.signUp({
         email: formData.email,
-        role: formData.email === 'shadikulislamsajol@gmail.com' ? 'admin' : 'user',
-        isProfileCompleted: false,
-        isEmailVerified: false,
-        isPhoneVerified: false,
-        registrationDate: new Date().toISOString(),
-        ipAddress: ipAddress
+        password: formData.password,
+        options: {
+          data: {
+            name: formData.name,
+          }
+        }
       });
+      
+      if (error) throw error;
+      
+      const supabaseUser = data.user;
+      
+      if (supabaseUser) {
+        // Create initial user doc
+        const { error: dbError } = await supabase.from('users').insert({
+          id: supabaseUser.id,
+          name: formData.name,
+          email: formData.email,
+          role: formData.email === 'shadikulislamsajol@gmail.com' ? 'admin' : 'user',
+          isProfileCompleted: false,
+          isEmailVerified: false,
+          isPhoneVerified: false,
+          registrationDate: new Date().toISOString(),
+          ipAddress: ipAddress
+        });
+        
+        if (dbError) {
+          console.error('Error creating user profile:', dbError);
+        }
+      }
 
       toast.success('Verification email sent! Please check your inbox.');
       setStep(2);
@@ -80,11 +92,18 @@ export default function OnboardingPage() {
   // Step 2: Wait for Email Verification
   const checkEmailVerified = async () => {
     try {
-      await auth.currentUser?.reload();
-      if (auth.currentUser?.emailVerified) {
-        await updateDoc(doc(db, 'users', auth.currentUser.uid), {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        toast.error('Please check your email and click the verification link first.');
+        return;
+      }
+
+      if (session.user?.email_confirmed_at) {
+        await supabase.from('users').update({
           isEmailVerified: true
-        });
+        }).eq('id', session.user.id);
+        
         toast.success('Email verified!');
         setStep(3);
       } else {
@@ -130,16 +149,20 @@ export default function OnboardingPage() {
     if (formData.code === formData.sentCode || formData.code === '1234') {
       setLoading(true);
       try {
-        if (auth.currentUser) {
-          await updateDoc(doc(db, 'users', auth.currentUser.uid), {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) {
+          await supabase.from('users').update({
             phone: formData.phone,
             address: formData.address,
             district: formData.district,
             isPhoneVerified: true,
             isProfileCompleted: true
-          });
+          }).eq('id', session.user.id);
+          
           toast.success('Profile completed!');
           router.push('/');
+        } else {
+          toast.error('Session expired. Please log in again.');
         }
       } catch (err: any) {
         toast.error(err.message || 'Failed to complete profile');

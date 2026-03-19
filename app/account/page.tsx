@@ -244,7 +244,7 @@ export default function AccountPage() {
               {[
                 { id: 'dashboard', label: 'Overview', icon: DashboardIcon, color: 'text-gray-600', bg: 'bg-gray-50', strokeWidth: 1.5 },
                 { id: 'orders', label: 'My Orders', icon: TotalOrderIcon, color: 'text-blue-600', bg: 'bg-blue-50', strokeWidth: 14 },
-                { id: 'rewards', label: 'NeediePrime', icon: NeediePrimeIcon, color: 'text-amber-600', bg: 'bg-amber-50', strokeWidth: 3 },
+                { id: 'rewards', label: 'NeediePrime', icon: NeediePrimeIcon, color: 'text-amber-600', bg: 'bg-amber-50', strokeWidth: 10 },
                 { id: 'address', label: 'Address', icon: MapPin, color: 'text-emerald-600', bg: 'bg-emerald-50', strokeWidth: 2.5 },
                 { id: 'notifications', label: 'Notifications', icon: Bell, color: 'text-indigo-600', bg: 'bg-indigo-50', strokeWidth: 2.5 },
                 { id: 'support', label: 'Support', icon: SupportIcon, color: 'text-purple-600', bg: 'bg-purple-50', strokeWidth: 14 },
@@ -451,7 +451,7 @@ export default function AccountPage() {
                     </div>
                     <div className="bg-[#8B183A] rounded-3xl p-8 text-white relative overflow-hidden group">
                       <div className="relative z-10">
-                        <NeediePrimeIcon className="w-8 h-8 text-red-300 mb-4" strokeWidth={3} />
+                        <NeediePrimeIcon className="w-8 h-8 text-red-300 mb-4" strokeWidth={10} />
                         <h3 className="text-xl font-bold mb-2">NeediePrime</h3>
                         <p className="text-sm text-red-100/60 mb-6">You have 250 points available. Use them to get discounts on your next purchase.</p>
                         <button 
@@ -864,7 +864,7 @@ export default function AccountPage() {
                       <div className="space-y-2">
                         <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">Full Name</label>
                         <div className="relative">
-                          <UserIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" strokeWidth={28} />
+                          <UserIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" strokeWidth={48} />
                           <input 
                             type="text" 
                             disabled={!isEditingProfile}

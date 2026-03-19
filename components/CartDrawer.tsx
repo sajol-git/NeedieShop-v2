@@ -69,7 +69,7 @@ export function CartDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () =
                         onClick={onClose}
                         className="relative w-20 h-20 rounded-xl overflow-hidden bg-gray-100 shrink-0 hover:opacity-80 transition-opacity"
                       >
-                        <Image src={item.product.featureImage} alt={item.product.name} fill className="object-cover" referrerPolicy="no-referrer" />
+                        <Image src={item.product.featureImage || '/placeholder.png'} alt={item.product.name} fill className="object-cover" referrerPolicy="no-referrer" />
                       </Link>
                       <div className="flex-1 flex flex-col justify-between">
                         <div>

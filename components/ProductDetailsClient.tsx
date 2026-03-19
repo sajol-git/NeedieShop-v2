@@ -101,7 +101,7 @@ export default function ProductDetailsClient({ product, relatedProducts }: Produ
         <div className="space-y-6">
           <div className="relative aspect-square rounded-3xl overflow-hidden bg-gray-50 border border-gray-100">
             <Image 
-              src={allImages[activeImage]} 
+              src={allImages[activeImage] || '/placeholder.png'} 
               alt={product.name} 
               fill 
               className="object-cover"
@@ -119,7 +119,7 @@ export default function ProductDetailsClient({ product, relatedProducts }: Produ
                   activeImage === index ? 'border-[#8B183A]' : 'border-transparent bg-gray-50'
                 }`}
               >
-                <Image src={img} alt={`${product.name} ${index}`} fill className="object-cover" referrerPolicy="no-referrer" />
+                <Image src={img || '/placeholder.png'} alt={`${product.name} ${index}`} fill className="object-cover" referrerPolicy="no-referrer" />
               </button>
             ))}
           </div>

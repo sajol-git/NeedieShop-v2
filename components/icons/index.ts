@@ -8,3 +8,5 @@ export * from './DashboardIcon';
 export * from './TotalOrderIcon';
 export * from './NeediePrimeIcon';
 export * from './SupportIcon';
+export * from './ShopIcon';
+export * from './NotificationIcon';

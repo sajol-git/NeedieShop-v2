@@ -25,7 +25,7 @@ export function SocialProof() {
       toast.custom((t) => (
         <div className="bg-white/95 backdrop-blur-md p-4 rounded-3xl shadow-xl border border-gray-100 flex items-center gap-4 w-80 animate-in slide-in-from-bottom-5">
           <div className="relative w-14 h-14 rounded-2xl overflow-hidden bg-gray-100 shrink-0">
-            <Image src={randomProduct.featureImage} alt={randomProduct.name} fill className="object-cover" referrerPolicy="no-referrer" />
+            <Image src={randomProduct.featureImage || '/placeholder.png'} alt={randomProduct.name} fill className="object-cover" referrerPolicy="no-referrer" />
           </div>
           <div className="flex-1">
             <div className="flex items-center gap-1 mb-1">

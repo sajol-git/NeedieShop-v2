@@ -1,19 +1,48 @@
 'use client';
 
-import { useStore } from '@/store/useStore';
+import { useStore, type Order } from '@/store/useStore';
 import { Navbar } from '@/components/Navbar';
 import { CheckCircle2, Truck, ArrowRight } from 'lucide-react';
 import { HomeIcon, TotalOrderIcon } from '@/components/icons';
 import Link from 'next/link';
-import { use } from 'react';
+import { use, useEffect, useState } from 'react';
 import { motion } from 'motion/react';
 import Image from 'next/image';
 import { toast } from 'sonner';
+import { supabase } from '@/lib/supabase';
 
 export default function OrderSuccessPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const orders = useStore((state) => state.orders);
-  const order = orders.find(o => o.id === id);
+  const [order, setOrder] = useState<Order | null>(orders.find(o => o.id === id) || null);
+  const [loading, setLoading] = useState(!order);
+
+  useEffect(() => {
+    if (!order) {
+      const fetchOrder = async () => {
+        const { data, error } = await supabase
+          .from('orders')
+          .select('*')
+          .eq('id', id)
+          .single();
+        
+        if (data) {
+          setOrder(data as Order);
+        }
+        setLoading(false);
+      };
+      fetchOrder();
+    }
+  }, [order, id]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center">
+        <Navbar />
+        <h1 className="text-2xl font-bold mb-4">Loading Order...</h1>
+      </div>
+    );
+  }
 
   if (!order) {
     return (
@@ -53,7 +82,7 @@ export default function OrderSuccessPage({ params }: { params: Promise<{ id: str
               {order.items.map((item, index) => (
                 <div key={index} className="flex items-center gap-4">
                   <div className="relative w-16 h-16 bg-gray-50 rounded-2xl overflow-hidden shrink-0 border border-gray-100">
-                    <Image src={item.product.featureImage} alt={item.product.name} fill className="object-cover" referrerPolicy="no-referrer" />
+                    <Image src={item.product.featureImage || '/placeholder.png'} alt={item.product.name} fill className="object-cover" referrerPolicy="no-referrer" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <h4 className="font-bold text-sm text-gray-900 line-clamp-1">{item.product.name}</h4>

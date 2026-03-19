@@ -117,7 +117,7 @@ export default function AdminCMS() {
             <div key={banner.id} className="group relative border border-gray-100 rounded-2xl overflow-hidden hover:border-indigo-100 transition-all">
               <div className="aspect-[3/1] relative bg-gray-100">
                 <Image 
-                  src={banner.image} 
+                  src={banner.image || '/placeholder.png'} 
                   alt={banner.title} 
                   fill 
                   className="object-cover"

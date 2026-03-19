@@ -37,7 +37,7 @@ export default function AdminLogin() {
 
         if (userError || userData?.role !== 'admin') {
           await supabase.auth.signOut();
-          throw new Error('Unauthorized access. Admin privileges required.');
+          throw new Error(`Unauthorized access. Admin privileges required. Error: ${userError?.message || 'Role is not admin'}`);
         }
 
         setUser({
