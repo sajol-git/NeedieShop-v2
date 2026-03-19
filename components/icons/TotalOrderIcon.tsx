@@ -1,6 +1,6 @@
 import React from 'react';
 
-export const TotalOrderIcon = ({ className = "w-6 h-6", strokeWidth = 10 }: { className?: string; strokeWidth?: number | string }) => (
+export const TotalOrderIcon = ({ className = "w-6 h-6", strokeWidth = 14 }: { className?: string; strokeWidth?: number | string }) => (
   <svg 
     xmlns="http://www.w3.org/2000/svg" 
     viewBox="0 0 128 128" 

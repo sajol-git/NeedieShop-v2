@@ -68,6 +68,8 @@ type StoreState = {
     isPhoneVerified: boolean;
     registrationDate: string;
     ipAddress?: string;
+    addresses?: { id: string; label: string; address: string; isDefault: boolean }[];
+    points?: number;
   } | null;
   isCartOpen: boolean;
   offerBanners: string[];

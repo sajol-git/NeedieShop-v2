@@ -22,9 +22,9 @@ export function ProductCard({ product }: ProductCardProps) {
       viewport={{ once: true }}
       className="group bg-white rounded-xl overflow-hidden border border-gray-100 hover:shadow-xl transition-all duration-500 p-1"
     >
-      <Link href={`/products/${product.slug}`} className="block relative aspect-square bg-gray-50 rounded-xl overflow-hidden">
+      <Link href={`/products/${product.slug || product.id}`} className="block relative aspect-square bg-gray-50 rounded-xl overflow-hidden">
         <Image 
-          src={product.featureImage} 
+          src={product.featureImage || '/placeholder.png'} 
           alt={product.name} 
           fill 
           className="object-cover group-hover:scale-105 transition-transform duration-700"
@@ -42,7 +42,7 @@ export function ProductCard({ product }: ProductCardProps) {
       </Link>
 
       <div className="px-2 py-4">
-        <Link href={`/products/${product.slug}`}>
+        <Link href={`/products/${product.slug || product.id}`}>
           <h3 className="text-sm font-bold text-gray-900 mb-2 line-clamp-2 leading-tight group-hover:text-[#8B183A] transition-colors">
             {product.name}
           </h3>

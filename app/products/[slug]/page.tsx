@@ -6,10 +6,17 @@ import Link from 'next/link';
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
+  const product = await getProductBySlug(slug);
   
+  if (!product) {
+    return {
+      title: 'Product Not Found - NeedieShop',
+    };
+  }
+
   return {
-    title: `${slug.charAt(0).toUpperCase() + slug.slice(1)} - NeedieShop`,
-    description: `Buy ${slug} at NeedieShop. Premium quality gadgets and accessories.`,
+    title: `${product.name} - NeedieShop`,
+    description: product.metaDescription || `Buy ${product.name} at NeedieShop. Premium quality gadgets and accessories.`,
   };
 }
 
@@ -28,7 +35,7 @@ export default async function ProductDetailsPage({ params }: { params: Promise<{
     );
   }
 
-  const relatedProducts = allProducts.filter(p => p.slug !== slug).slice(0, 8);
+  const relatedProducts = allProducts.filter(p => p.slug !== slug && p.id !== slug).slice(0, 8);
 
   return (
     <div className="min-h-screen bg-white">

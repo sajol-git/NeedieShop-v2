@@ -44,7 +44,7 @@ export function MobileBottomNav() {
                 className="flex items-center gap-2 bg-[#0B1120] text-white px-4 py-2 rounded-full transition-all duration-300 shadow-lg shadow-gray-200"
               >
                 <div className="w-8 h-8 flex items-center justify-center">
-                  <Icon className={`w-6 h-6 ${['Checkout', 'Track'].includes(item.name) ? 'scale-110' : item.name === 'Account' ? 'scale-100' : ''}`} strokeWidth={item.name === 'Home' ? '2' : item.name === 'Track' ? '10' : undefined} />
+                  <Icon className={`w-6 h-6 ${['Checkout', 'Track'].includes(item.name) ? 'scale-110' : item.name === 'Account' ? 'scale-100' : ''}`} strokeWidth={item.name === 'Home' ? 2 : item.name === 'Track' ? 10 : item.name === 'Shop' ? 2 : item.name === 'Checkout' ? 10 : item.name === 'Account' ? 20 : undefined} />
                 </div>
                 <span className="text-xs font-bold tracking-tight">
                   {item.name}
@@ -64,7 +64,7 @@ export function MobileBottomNav() {
                 {item.name === 'Bag' ? (
                   <Image src="/cart-icon.png" alt="Bag" width={24} height={24} className="w-6 h-6" />
                 ) : (
-                  <Icon className={`w-6 h-6 text-gray-400 group-hover:text-gray-600 transition-colors ${['Checkout', 'Track'].includes(item.name) ? 'scale-110' : item.name === 'Account' ? 'scale-100' : ''}`} strokeWidth={item.name === 'Home' ? '2' : item.name === 'Track' ? '10' : undefined} />
+                  <Icon className={`w-6 h-6 text-gray-400 group-hover:text-gray-600 transition-colors ${['Checkout', 'Track'].includes(item.name) ? 'scale-110' : item.name === 'Account' ? 'scale-100' : ''}`} strokeWidth={item.name === 'Home' ? 2 : item.name === 'Track' ? 10 : item.name === 'Shop' ? 2 : item.name === 'Checkout' ? 10 : item.name === 'Account' ? 20 : undefined} />
                 )}
               </div>
               {item.count !== undefined && item.count > 0 && (

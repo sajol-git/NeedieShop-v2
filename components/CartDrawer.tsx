@@ -53,7 +53,7 @@ export function CartDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () =
               {cart.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-full text-gray-500">
                 <div className="w-16 h-16 mb-4 flex items-center justify-center">
-                  <CartIcon className="w-16 h-16 scale-110 text-gray-300" />
+                  <CartIcon className="w-16 h-16 scale-110 text-gray-300" strokeWidth={10} />
                 </div>
                   <p>Your cart is empty.</p>
                 </div>
@@ -64,12 +64,22 @@ export function CartDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () =
                   
                   return (
                     <div key={`${item.product.id}-${item.variantId}`} className="flex gap-4 bg-white/50 p-3 rounded-2xl border border-gray-100 shadow-sm">
-                      <div className="relative w-20 h-20 rounded-xl overflow-hidden bg-gray-100 shrink-0">
+                      <Link 
+                        href={`/products/${item.product.slug || item.product.id}`}
+                        onClick={onClose}
+                        className="relative w-20 h-20 rounded-xl overflow-hidden bg-gray-100 shrink-0 hover:opacity-80 transition-opacity"
+                      >
                         <Image src={item.product.featureImage} alt={item.product.name} fill className="object-cover" referrerPolicy="no-referrer" />
-                      </div>
+                      </Link>
                       <div className="flex-1 flex flex-col justify-between">
                         <div>
-                          <h3 className="font-medium text-gray-900 line-clamp-1">{item.product.name}</h3>
+                          <Link 
+                            href={`/products/${item.product.slug || item.product.id}`}
+                            onClick={onClose}
+                            className="font-medium text-gray-900 line-clamp-1 hover:text-[#8B183A] transition-colors"
+                          >
+                            {item.product.name}
+                          </Link>
                           {variant && <p className="text-sm text-gray-500">{variant.name}</p>}
                           <p className="font-semibold text-indigo-600 mt-1">৳{price.toLocaleString()}</p>
                         </div>

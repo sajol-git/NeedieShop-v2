@@ -1,11 +1,11 @@
-export const AddUserIcon = ({ className }: { className?: string }) => (
+export const AddUserIcon = ({ className, strokeWidth = 4 }: { className?: string; strokeWidth?: number | string }) => (
   <svg 
     xmlns="http://www.w3.org/2000/svg" 
     viewBox="0 0 64 64" 
     className={className} 
     fill="currentColor"
     stroke="currentColor"
-    strokeWidth="4"
+    strokeWidth={strokeWidth}
   >
     <g>
       <path d="M26.66 31.86a11.52 11.52 0 1 1 11.52-11.52 11.53 11.53 0 0 1-11.52 11.52zm0-20a8.52 8.52 0 1 0 8.52 8.51 8.52 8.52 0 0 0-8.52-8.54zm0 43.31a24.55 24.55 0 0 1-16.12-5.59 1.49 1.49 0 0 1-.43-1.4c2-9.58 7.91-14.86 16.55-14.86a1.5 1.5 0 1 1 0 3c-6.91 0-11.54 4-13.42 11.6a22.64 22.64 0 0 0 13.42 4.25 1.5 1.5 0 0 1 0 3z"></path>

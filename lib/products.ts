@@ -113,7 +113,8 @@ export async function getProductById(id: string) {
 }
 
 export async function getProductBySlug(slug: string) {
-  const { data, error } = await supabase
+  // Try by slug first
+  let { data, error } = await supabase
     .from('products')
     .select(`
       *,
@@ -124,9 +125,31 @@ export async function getProductBySlug(slug: string) {
     `)
     .eq('slug', slug)
     .eq('status', 'published')
-    .single();
+    .maybeSingle();
 
-  if (error) return null;
+  // If not found by slug, try by ID if it's a UUID
+  if (!data && !error) {
+    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(slug);
+    if (isUUID) {
+      const { data: idData, error: idError } = await supabase
+        .from('products')
+        .select(`
+          *,
+          categories (name),
+          brands (name),
+          product_variants (*),
+          product_specifications (*)
+        `)
+        .eq('id', slug)
+        .eq('status', 'published')
+        .maybeSingle();
+      
+      data = idData;
+      error = idError;
+    }
+  }
+
+  if (error || !data) return null;
 
   return {
     ...data,

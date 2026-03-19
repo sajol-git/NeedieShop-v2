@@ -55,8 +55,8 @@ export default function HomeClient() {
                 >
                   <Link href={activeBanners[currentBanner].link}>
                     <Image
-                      src={activeBanners[currentBanner].image}
-                      alt={activeBanners[currentBanner].title}
+                      src={activeBanners[currentBanner].image || '/placeholder.png'}
+                      alt={activeBanners[currentBanner].title || 'Banner'}
                       fill
                       className="object-cover"
                       referrerPolicy="no-referrer"
@@ -68,9 +68,9 @@ export default function HomeClient() {
               {/* Carousel Dots */}
               {activeBanners.length > 1 && (
                 <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-20">
-                  {activeBanners.map((_, index) => (
+                  {activeBanners.map((banner, index) => (
                     <button
-                      key={index}
+                      key={banner.id || `banner-${index}`}
                       onClick={() => setCurrentBanner(index)}
                       className={`w-8 h-2 rounded-full transition-all ${currentBanner === index ? 'bg-white' : 'bg-white/50'}`}
                     />
@@ -95,17 +95,17 @@ export default function HomeClient() {
           </button>
         </div>
 
-        <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide">
-          {categories.length > 0 ? categories.map((category) => (
+            <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide">
+          {categories.length > 0 ? categories.map((category, index) => (
             <Link 
-              key={category.id} 
+              key={category.id || `cat-${index}`} 
               href={`/category/${category.slug}`}
               className="flex flex-col items-center gap-4 min-w-[160px] group"
             >
               <div className="w-40 h-40 rounded-3xl bg-gray-100 flex items-center justify-center p-6 transition-transform group-hover:scale-105 overflow-hidden relative">
                 {category.photo ? (
                   <Image 
-                    src={category.photo} 
+                    src={category.photo || '/placeholder.png'} 
                     alt={category.name} 
                     fill 
                     className="object-cover transition-opacity"
@@ -137,17 +137,26 @@ export default function HomeClient() {
               </div>
               <div className="flex items-center gap-4 bg-red-50 px-6 py-3 rounded-full border border-red-100">
                 <span className="text-red-900 font-medium">Ends in:</span>
-                <div className="flex gap-2 text-red-600 font-mono font-bold text-lg">
-                  <span className="bg-white px-2 py-1 rounded-xl shadow-sm">{String(timeLeft.hours).padStart(2, '0')}</span>:
-                  <span className="bg-white px-2 py-1 rounded-xl shadow-sm">{String(timeLeft.minutes).padStart(2, '0')}</span>:
-                  <span className="bg-white px-2 py-1 rounded-xl shadow-sm">{String(timeLeft.seconds).padStart(2, '0')}</span>
+            <div className="flex gap-2 text-red-600 font-mono font-bold text-lg">
+              {[
+                { label: 'hours', value: timeLeft.hours },
+                { label: 'minutes', value: timeLeft.minutes },
+                { label: 'seconds', value: timeLeft.seconds }
+              ].map((item, index) => (
+                <div key={item.label} className="flex items-center gap-2">
+                  <span className="bg-white px-2 py-1 rounded-xl shadow-sm">
+                    {String(item.value).padStart(2, '0')}
+                  </span>
+                  {index < 2 && <span>:</span>}
                 </div>
+              ))}
+            </div>
               </div>
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-              {flashSaleProducts.map((product) => (
-                <ProductCard key={product.id} product={product as any} />
+              {flashSaleProducts.map((product, index) => (
+                <ProductCard key={product.id || `flash-${index}`} product={product as any} />
               ))}
             </div>
           </div>
@@ -163,8 +172,8 @@ export default function HomeClient() {
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-            {featuredProducts.map((product) => (
-              <ProductCard key={product.id} product={product as any} />
+            {featuredProducts.map((product, index) => (
+              <ProductCard key={product.id || `feat-${index}`} product={product as any} />
             ))}
           </div>
         </div>

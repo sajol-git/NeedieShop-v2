@@ -104,7 +104,7 @@ export default function CheckoutPage() {
         <Navbar />
         <div className="text-center space-y-6">
           <div className="w-24 h-24 bg-gray-50 rounded-full flex items-center justify-center mx-auto">
-            <CartIcon className="w-12 h-12 text-gray-300" />
+            <CartIcon className="w-12 h-12 text-gray-300" strokeWidth={10} />
           </div>
           <h1 className="text-3xl font-bold text-gray-900">Your cart is empty</h1>
           <p className="text-gray-500 max-w-xs mx-auto">Looks like you haven&apos;t added anything to your cart yet.</p>
@@ -136,7 +136,7 @@ export default function CheckoutPage() {
             <section className="bg-white rounded-3xl p-8 md:p-10 shadow-sm border border-gray-100">
               <div className="flex items-center gap-3 mb-8">
                 <div className="w-10 h-10 bg-[#8B183A]/10 rounded-xl flex items-center justify-center text-[#8B183A]">
-                  <TrackOrderIcon className="w-5 h-5" />
+                  <TrackOrderIcon className="w-5 h-5" strokeWidth={10} />
                 </div>
                 <h2 className="text-xl font-bold text-gray-900">Shipping Information</h2>
               </div>
@@ -146,7 +146,7 @@ export default function CheckoutPage() {
                   <div className="space-y-2">
                     <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">Full Name</label>
                     <div className="relative">
-                      <UserIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                      <UserIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" strokeWidth={20} />
                       <input
                         type="text"
                         required
@@ -196,7 +196,7 @@ export default function CheckoutPage() {
                       formData.zone === 'Inside Dhaka' ? 'border-[#8B183A] bg-[#8B183A]/5 text-[#8B183A]' : 'border-gray-100 text-gray-500'
                     }`}
                   >
-                    <TrackOrderIcon className="w-6 h-6" />
+                    <TrackOrderIcon className="w-6 h-6" strokeWidth={10} />
                     <span className="text-xs font-bold uppercase">Inside Dhaka</span>
                     <span className="text-sm font-bold">৳60</span>
                   </button>
@@ -207,7 +207,7 @@ export default function CheckoutPage() {
                       formData.zone === 'Outside Dhaka' ? 'border-[#8B183A] bg-[#8B183A]/5 text-[#8B183A]' : 'border-gray-100 text-gray-500'
                     }`}
                   >
-                    <TrackOrderIcon className="w-6 h-6" />
+                    <TrackOrderIcon className="w-6 h-6" strokeWidth={10} />
                     <span className="text-xs font-bold uppercase">Outside Dhaka</span>
                     <span className="text-sm font-bold">৳120</span>
                   </button>
@@ -262,7 +262,7 @@ export default function CheckoutPage() {
             <div className="sticky top-24 space-y-6">
               <section className="bg-white rounded-3xl p-8 md:p-10 shadow-sm border border-gray-100">
                 <h2 className="text-xl font-bold mb-8 flex items-center gap-3 text-gray-900">
-                  <CartIcon className="w-6 h-6 scale-110 text-[#8B183A]" />
+                  <CartIcon className="w-6 h-6 scale-110 text-[#8B183A]" strokeWidth={10} />
                   Order Summary
                 </h2>
 
