@@ -7,12 +7,12 @@ if (!supabaseUrl || !supabaseAnonKey) {
   const missing = [];
   if (!supabaseUrl) missing.push('NEXT_PUBLIC_SUPABASE_URL');
   if (!supabaseAnonKey) missing.push('NEXT_PUBLIC_SUPABASE_ANON_KEY');
-  console.warn(`Supabase credentials are missing: ${missing.join(', ')}. Please check your environment variables in AI Studio Secrets.`);
+  throw new Error(`Supabase credentials are missing: ${missing.join(', ')}. Please check your environment variables in AI Studio Secrets.`);
 }
 
 // Ensure createClient is called with non-empty strings to avoid immediate errors
 // but requests will still fail if keys are invalid.
 export const supabase = createClient(
-  supabaseUrl || 'https://placeholder.supabase.co',
-  supabaseAnonKey || 'placeholder-key'
+  supabaseUrl,
+  supabaseAnonKey
 );

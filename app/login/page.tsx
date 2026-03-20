@@ -43,6 +43,20 @@ export default function CustomerLogin() {
       if (error) {
         toast.error(error.message);
       } else {
+        const { data: userData } = await supabase
+          .from('profile')
+          .select('is_profile_completed, is_email_verified')
+          .eq('id', (await supabase.auth.getUser()).data.user?.id)
+          .single();
+
+        if (userData) {
+          if (!userData.is_email_verified || !userData.is_profile_completed) {
+            toast.success('Please complete your profile');
+            router.push('/onboarding');
+            return;
+          }
+        }
+
         toast.success('Signed in successfully!');
         router.push('/account');
       }

@@ -8,7 +8,7 @@ export function FooterWrapper() {
   
   // Disable footer in admin and account panels
   const isAdminPage = pathname.startsWith('/admin');
-  const isAccountPage = pathname.startsWith('/account');
+  const isAccountPage = pathname.startsWith('/profile');
   
   if (isAdminPage || isAccountPage) return null;
   

@@ -22,7 +22,7 @@ export function ProductCard({ product }: ProductCardProps) {
       viewport={{ once: true }}
       className="group bg-white rounded-xl overflow-hidden border border-gray-100 hover:shadow-xl transition-all duration-500 p-1"
     >
-      <Link href={`/products/${product.slug || product.id}`} className="block relative aspect-square bg-gray-50 rounded-xl overflow-hidden">
+      <div className="block relative aspect-square bg-gray-50 rounded-xl overflow-hidden">
         <Image 
           src={product.image_url || '/placeholder.png'} 
           alt={product.title} 
@@ -39,14 +39,14 @@ export function ProductCard({ product }: ProductCardProps) {
             </span>
           )}
         </div>
-      </Link>
+      </div>
 
       <div className="px-2 py-4">
-        <Link href={`/products/${product.slug || product.id}`}>
-          <h3 className="text-sm font-bold text-gray-900 mb-2 line-clamp-2 leading-tight group-hover:text-[#8B183A] transition-colors">
+        <div>
+          <h3 className="text-sm font-bold text-gray-900 mb-2 line-clamp-2 leading-tight transition-colors">
             {product.title}
           </h3>
-        </Link>
+        </div>
 
         <div className="flex items-center gap-1 mb-3">
           {[...Array(5)].map((_, i) => (

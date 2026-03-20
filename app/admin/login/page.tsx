@@ -28,9 +28,9 @@ export default function AdminLogin() {
       if (error) throw error;
 
       if (data.user) {
-        // Check if user is admin in users table
+        // Check if user is admin in profile table
         const { data: userData, error: userError } = await supabase
-          .from('users')
+          .from('profile')
           .select('*')
           .eq('id', data.user.id)
           .single();

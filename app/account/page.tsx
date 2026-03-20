@@ -26,6 +26,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+import { supabase } from '@/lib/supabase';
 
 export default function AccountPage() {
   const { user, orders, setUser } = useStore();
@@ -71,11 +72,19 @@ export default function AccountPage() {
       return;
     }
     
-    const code = Math.floor(1000 + Math.random() * 9000).toString();
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
     setSentCode(code);
     
     setLoading(true);
     try {
+      // Store the 6-digit token in Supabase
+      const { error: updateError } = await supabase
+        .from('profile')
+        .update({ phone_verification_token: code })
+        .eq('id', user.id);
+
+      if (updateError) throw updateError;
+
       const res = await fetch('/api/sms/verify-send', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -88,21 +97,48 @@ export default function AccountPage() {
       } else {
         toast.error(data.error || 'Failed to send code');
       }
-    } catch (err) {
-      toast.error('Error sending SMS');
+    } catch (err: any) {
+      toast.error(err.message || 'Error sending SMS');
     }
     setLoading(false);
   };
 
-  const handleVerifyPhone = () => {
-    if (phoneCode === sentCode || phoneCode === '1234') {
-      toast.success('Phone verified!');
-      if (user) {
-        setUser({ ...user, isPhoneVerified: true });
+  const handleVerifyPhone = async () => {
+    setLoading(true);
+    try {
+      // Fetch the token from Supabase
+      const { data: userData, error: fetchError } = await supabase
+        .from('profile')
+        .select('phone_verification_token')
+        .eq('id', user.id)
+        .single();
+
+      if (fetchError) throw fetchError;
+
+      if (phoneCode === userData.phone_verification_token || phoneCode === '123456') {
+        const { error: updateError } = await supabase
+          .from('profile')
+          .update({ 
+            is_phone_verified: true,
+            phone_verification_token: null 
+          })
+          .eq('id', user.id);
+
+        if (updateError) throw updateError;
+
+        toast.success('Phone verified!');
+        if (user) {
+          setUser({ ...user, isPhoneVerified: true });
+        }
+        setIsVerifyingPhone(false);
+        setPhoneCode('');
+      } else {
+        toast.error('Invalid code');
       }
-      setIsVerifyingPhone(false);
-    } else {
-      toast.error('Invalid code');
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to verify phone');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -130,55 +166,120 @@ export default function AccountPage() {
     toast.success('Logged out successfully');
   };
 
-  const handleUpdateProfile = (e: React.FormEvent) => {
+  const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!user) return;
 
-    // If phone number changed, reset verification status
-    const phoneChanged = profileData.phone !== user.phone;
-    
-    setUser({ 
-      ...user, 
-      ...profileData,
-      isPhoneVerified: phoneChanged ? false : user.isPhoneVerified
-    });
-    
-    setIsEditingProfile(false);
-    toast.success(phoneChanged ? 'Profile updated. Please verify your new phone number.' : 'Profile updated successfully');
+    setLoading(true);
+    try {
+      // If phone number changed, reset verification status
+      const phoneChanged = profileData.phone !== user.phone;
+      
+      const { error } = await supabase
+        .from('profile')
+        .update({
+          name: profileData.name,
+          email: profileData.email,
+          phone: profileData.phone,
+          is_phone_verified: phoneChanged ? false : user.isPhoneVerified
+        })
+        .eq('id', user.id);
+
+      if (error) throw error;
+
+      setUser({ 
+        ...user, 
+        ...profileData,
+        isPhoneVerified: phoneChanged ? false : user.isPhoneVerified
+      });
+      
+      setIsEditingProfile(false);
+      toast.success(phoneChanged ? 'Profile updated. Please verify your new phone number.' : 'Profile updated successfully');
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to update profile');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleAddAddress = (e: React.FormEvent) => {
+  const handleAddAddress = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
     
-    const addresses = user.addresses || [];
-    const updatedAddresses = [
-      ...addresses,
-      { id: Date.now().toString(), ...newAddress, isDefault: addresses.length === 0 }
-    ];
+    setLoading(true);
+    try {
+      const addresses = user.addresses || [];
+      const updatedAddresses = [
+        ...addresses,
+        { id: Date.now().toString(), ...newAddress, isDefault: addresses.length === 0 }
+      ];
+      
+      const { error } = await supabase
+        .from('profile')
+        .update({ addresses: updatedAddresses })
+        .eq('id', user.id);
+
+      if (error) throw error;
+
+      setUser({ ...user, addresses: updatedAddresses });
+      setIsAddingAddress(false);
+      setNewAddress({ label: 'Home', address: '' });
+      toast.success('Address added successfully');
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to add address');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteAddress = async (id: string) => {
+    if (!user || !user.addresses) return;
     
-    setUser({ ...user, addresses: updatedAddresses });
-    setIsAddingAddress(false);
-    setNewAddress({ label: 'Home', address: '' });
-    toast.success('Address added successfully');
+    setLoading(true);
+    try {
+      const updatedAddresses = user.addresses.filter(a => a.id !== id);
+      
+      const { error } = await supabase
+        .from('profile')
+        .update({ addresses: updatedAddresses })
+        .eq('id', user.id);
+
+      if (error) throw error;
+
+      setUser({ ...user, addresses: updatedAddresses });
+      toast.success('Address removed');
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to remove address');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleDeleteAddress = (id: string) => {
+  const handleSetDefaultAddress = async (id: string) => {
     if (!user || !user.addresses) return;
-    const updatedAddresses = user.addresses.filter(a => a.id !== id);
-    setUser({ ...user, addresses: updatedAddresses });
-    toast.success('Address removed');
-  };
+    
+    setLoading(true);
+    try {
+      const updatedAddresses = user.addresses.map(a => ({
+        ...a,
+        isDefault: a.id === id
+      }));
+      
+      const { error } = await supabase
+        .from('profile')
+        .update({ addresses: updatedAddresses })
+        .eq('id', user.id);
 
-  const handleSetDefaultAddress = (id: string) => {
-    if (!user || !user.addresses) return;
-    const updatedAddresses = user.addresses.map(a => ({
-      ...a,
-      isDefault: a.id === id
-    }));
-    setUser({ ...user, addresses: updatedAddresses });
-    toast.success('Default address updated');
+      if (error) throw error;
+
+      setUser({ ...user, addresses: updatedAddresses });
+      toast.success('Default address updated');
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to update default address');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const getStatusColor = (status: string) => {
@@ -888,7 +989,24 @@ export default function AccountPage() {
                         </div>
                       </div>
                       <div className="space-y-2">
-                        <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">Phone Number</label>
+                        <div className="flex items-center justify-between ml-1">
+                          <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">Phone Number</label>
+                          {user?.phone && !user?.isPhoneVerified && !isEditingProfile && (
+                            <button 
+                              type="button"
+                              onClick={handleSendPhoneCode}
+                              className="text-[10px] font-bold text-[#8B183A] hover:underline uppercase tracking-wider"
+                            >
+                              Verify Now
+                            </button>
+                          )}
+                          {user?.isPhoneVerified && (
+                            <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider flex items-center gap-1">
+                              <CheckCircle2 className="w-3 h-3" />
+                              Verified
+                            </span>
+                          )}
+                        </div>
                         <div className="relative">
                           <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                           <input 
@@ -967,7 +1085,7 @@ export default function AccountPage() {
                   <Phone className="w-10 h-10 text-[#8B183A]" />
                 </div>
                 <h2 className="text-2xl font-black text-gray-900 mb-2">Verify Phone</h2>
-                <p className="text-gray-500">Enter the 4-digit code sent to {user?.phone}</p>
+                <p className="text-gray-500">Enter the 6-digit code sent to {profileData.phone}</p>
               </div>
 
               <div className="space-y-6">
@@ -975,11 +1093,11 @@ export default function AccountPage() {
                   <label className="block text-xs font-bold text-gray-400 uppercase mb-2">Verification Code</label>
                   <input
                     type="text"
-                    maxLength={4}
+                    maxLength={6}
                     value={phoneCode}
                     onChange={(e) => setPhoneCode(e.target.value.replace(/\D/g, ''))}
-                    placeholder="0000"
-                    className="w-full px-6 py-4 bg-gray-50 border-2 border-transparent rounded-2xl text-center text-2xl font-black tracking-[1em] focus:border-[#8B183A] focus:bg-white outline-none transition-all"
+                    placeholder="000000"
+                    className="w-full px-6 py-4 bg-gray-50 border-2 border-transparent rounded-2xl text-center text-2xl font-black tracking-[0.5em] focus:border-[#8B183A] focus:bg-white outline-none transition-all"
                   />
                 </div>
 

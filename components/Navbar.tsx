@@ -126,7 +126,7 @@ export function Navbar() {
               </button>
               
               <Link 
-                href={user ? "/account" : "/login"} 
+                href={user ? "/profile" : "/login"} 
                 className="p-1 text-gray-900 hover:text-[#8B183A] transition-colors"
               >
                 <div className="w-10 h-10 flex items-center justify-center">
@@ -214,7 +214,7 @@ export function Navbar() {
                   {user ? (
                     <>
                       <Link 
-                        href="/account"
+                        href="/profile"
                         onClick={() => setIsMenuOpen(false)}
                         className="flex items-center gap-3"
                       >

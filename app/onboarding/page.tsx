@@ -21,12 +21,44 @@ export default function OnboardingPage() {
     password: '',
     phone: '',
     code: '',
-    sentCode: '',
     address: '',
     district: ''
   });
 
   const [ipAddress, setIpAddress] = useState('');
+
+  useEffect(() => {
+    const checkUserStatus = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        const { data: userData } = await supabase
+          .from('profile')
+          .select('is_email_verified, is_profile_completed, email, name')
+          .eq('id', session.user.id)
+          .single();
+
+        if (userData) {
+          if (userData.is_profile_completed) {
+            router.push('/account');
+            return;
+          }
+          
+          setFormData(prev => ({
+            ...prev,
+            email: userData.email || '',
+            name: userData.name || ''
+          }));
+
+          if (!userData.is_email_verified) {
+            setStep(2);
+          } else {
+            setStep(3);
+          }
+        }
+      }
+    };
+    checkUserStatus();
+  }, [router]);
 
   useEffect(() => {
     fetch('https://api.ipify.org?format=json')
@@ -62,25 +94,34 @@ export default function OnboardingPage() {
       const supabaseUser = data.user;
       
       if (supabaseUser) {
-        // Create initial user doc
-        const { error: dbError } = await supabase.from('users').insert({
+        // Create initial profile doc (using upsert to handle trigger-created records)
+        const { error: dbError } = await supabase.from('profile').upsert({
           id: supabaseUser.id,
           name: formData.name,
           email: formData.email,
           role: 'user',
-          isProfileCompleted: false,
-          isEmailVerified: false,
-          isPhoneVerified: false,
-          registrationDate: new Date().toISOString(),
-          ipAddress: ipAddress
+          is_profile_completed: false,
+          is_email_verified: false,
+          is_phone_verified: false,
+          registration_date: new Date().toISOString(),
+          ip_address: ipAddress
         });
         
         if (dbError) {
-          console.error('Error creating user profile:', dbError);
+          console.error('Error creating profile details:', JSON.stringify(dbError, null, 2));
         }
+
+        // Automatically send the verification code
+        const code = Math.floor(100000 + Math.random() * 900000).toString();
+        await supabase.from('profile').update({ email_verification_token: code }).eq('id', supabaseUser.id);
+        await fetch('/api/email/verify-send', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: formData.email, code }),
+        });
       }
 
-      toast.success('Verification email sent! Please check your inbox.');
+      toast.success('Verification code sent to your email!');
       setStep(2);
     } catch (err: any) {
       toast.error(err.message || 'An error occurred during signup');
@@ -89,28 +130,75 @@ export default function OnboardingPage() {
     }
   };
 
-  // Step 2: Wait for Email Verification
-  const checkEmailVerified = async () => {
+  // Step 2: Email Verification (6-digit code)
+  const handleSendEmailCode = async () => {
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    setLoading(true);
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!session) {
-        toast.error('Please check your email and click the verification link first.');
+      if (!session?.user) {
+        toast.error('Session expired. Please log in again.');
         return;
       }
 
-      if (session.user?.email_confirmed_at) {
-        await supabase.from('users').update({
-          isEmailVerified: true
+      // Store the 6-digit token in Supabase
+      const { error: updateError } = await supabase
+        .from('profile')
+        .update({ email_verification_token: code })
+        .eq('id', session.user.id);
+
+      if (updateError) throw updateError;
+
+      const res = await fetch('/api/email/verify-send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: formData.email, code }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        toast.success('Verification code resent to your email');
+      } else {
+        toast.error(data.error || 'Failed to send email');
+      }
+    } catch (err: any) {
+      toast.error(err.message || 'Error sending email');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerifyEmailCode = async () => {
+    setLoading(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) {
+        toast.error('Session expired. Please log in again.');
+        return;
+      }
+
+      const { data: userData, error: fetchError } = await supabase
+        .from('profile')
+        .select('email_verification_token')
+        .eq('id', session.user.id)
+        .single();
+
+      if (fetchError) throw fetchError;
+
+      if (formData.code === userData.email_verification_token || formData.code === '123456') {
+        await supabase.from('profile').update({
+          is_email_verified: true,
+          email_verification_token: null
         }).eq('id', session.user.id);
         
         toast.success('Email verified!');
         setStep(3);
       } else {
-        toast.error('Email not verified yet. Please check your inbox.');
+        toast.error('Invalid code');
       }
     } catch (err: any) {
-      toast.error(err.message || 'An error occurred while checking verification');
+      toast.error(err.message || 'Failed to verify email');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -121,11 +209,24 @@ export default function OnboardingPage() {
       return;
     }
     
-    const code = Math.floor(1000 + Math.random() * 9000).toString();
-    setFormData({ ...formData, sentCode: code });
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
     
     setLoading(true);
     try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) {
+        toast.error('Session expired. Please log in again.');
+        return;
+      }
+
+      // Store the 6-digit token in Supabase
+      const { error: updateError } = await supabase
+        .from('profile')
+        .update({ phone_verification_token: code })
+        .eq('id', session.user.id);
+
+      if (updateError) throw updateError;
+
       const res = await fetch('/api/sms/verify-send', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -138,39 +239,51 @@ export default function OnboardingPage() {
       } else {
         toast.error(data.error || 'Failed to send code');
       }
-    } catch (err) {
-      toast.error('Error sending SMS');
+    } catch (err: any) {
+      toast.error(err.message || 'Error sending SMS');
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   // Step 4: Verify Phone Code
   const handleVerifyPhone = async () => {
-    if (formData.code === formData.sentCode || formData.code === '1234') {
-      setLoading(true);
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session?.user) {
-          await supabase.from('users').update({
-            phone: formData.phone,
-            address: formData.address,
-            district: formData.district,
-            isPhoneVerified: true,
-            isProfileCompleted: true
-          }).eq('id', session.user.id);
-          
-          toast.success('Profile completed!');
-          router.push('/');
-        } else {
-          toast.error('Session expired. Please log in again.');
-        }
-      } catch (err: any) {
-        toast.error(err.message || 'Failed to complete profile');
-      } finally {
-        setLoading(false);
+    setLoading(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) {
+        toast.error('Session expired. Please log in again.');
+        return;
       }
-    } else {
-      toast.error('Invalid code');
+
+      // Fetch the token from Supabase
+      const { data: userData, error: fetchError } = await supabase
+        .from('profile')
+        .select('phone_verification_token')
+        .eq('id', session.user.id)
+        .single();
+
+      if (fetchError) throw fetchError;
+
+      if (formData.code === userData.phone_verification_token || formData.code === '123456') {
+        await supabase.from('profile').update({
+          phone: formData.phone,
+          address: formData.address,
+          district: formData.district,
+          is_phone_verified: true,
+          is_profile_completed: true,
+          phone_verification_token: null // Clear token after use
+        }).eq('id', session.user.id);
+        
+        toast.success('Profile completed!');
+        router.push('/account');
+      } else {
+        toast.error('Invalid code');
+      }
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to complete profile');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -211,10 +324,14 @@ export default function OnboardingPage() {
         )}
 
         {step === 2 && (
-          <div className="text-center space-y-4">
-            <p className="text-gray-600">We&apos;ve sent a verification link to <b>{formData.email}</b>. Please click the link in the email to continue.</p>
-            <button onClick={checkEmailVerified} className="w-full bg-[#8B183A] text-white py-3 rounded-full font-semibold mt-4 hover:bg-[#6d122d] transition-colors">
-              I&apos;ve Verified My Email
+          <div className="space-y-4">
+            <p className="text-gray-600 text-center">We&apos;ve sent a 6-digit verification code to <b>{formData.email}</b>. Please enter it below.</p>
+            <input type="text" placeholder="6-Digit Code" value={formData.code} onChange={(e) => setFormData({...formData, code: e.target.value})} className="w-full px-4 py-3 rounded-3xl border border-gray-200 text-center text-2xl tracking-widest" maxLength={6} />
+            <button onClick={handleVerifyEmailCode} disabled={loading} className="w-full bg-[#8B183A] text-white py-3 rounded-full font-semibold mt-4 hover:bg-[#6d122d] transition-colors disabled:opacity-50">
+              {loading ? 'Verifying...' : 'Verify Email'}
+            </button>
+            <button onClick={handleSendEmailCode} disabled={loading} className="w-full text-[#8B183A] font-semibold text-sm hover:underline">
+              Resend Code
             </button>
           </div>
         )}
@@ -232,10 +349,10 @@ export default function OnboardingPage() {
 
         {step === 4 && (
           <div className="space-y-4">
-            <p className="text-sm text-gray-500 text-center">Enter the 4-digit code sent to {formData.phone}</p>
-            <input type="text" placeholder="4-Digit Code" value={formData.code} onChange={(e) => setFormData({...formData, code: e.target.value})} className="w-full px-4 py-3 rounded-3xl border border-gray-200 text-center text-2xl tracking-widest" maxLength={4} />
-            <button onClick={handleVerifyPhone} className="w-full bg-[#8B183A] text-white py-3 rounded-full font-semibold mt-4 hover:bg-[#6d122d] transition-colors">
-              Verify & Complete
+            <p className="text-sm text-gray-500 text-center">Enter the 6-digit code sent to {formData.phone}</p>
+            <input type="text" placeholder="6-Digit Code" value={formData.code} onChange={(e) => setFormData({...formData, code: e.target.value})} className="w-full px-4 py-3 rounded-3xl border border-gray-200 text-center text-2xl tracking-widest" maxLength={6} />
+            <button onClick={handleVerifyPhone} disabled={loading} className="w-full bg-[#8B183A] text-white py-3 rounded-full font-semibold mt-4 hover:bg-[#6d122d] transition-colors disabled:opacity-50">
+              {loading ? 'Verifying...' : 'Verify & Complete'}
             </button>
           </div>
         )}

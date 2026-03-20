@@ -16,7 +16,7 @@ export function MobileBottomNav() {
   // Hide on specific pages: Product Details, Checkout, Account (Login/Register), Admin
   const isProductPage = /^\/products\/[^/]+$/.test(pathname);
   const isCheckoutPage = pathname.startsWith('/checkout');
-  const isAccountPage = pathname.startsWith('/login') || pathname.startsWith('/register') || pathname.startsWith('/account');
+  const isAccountPage = pathname.startsWith('/login') || pathname.startsWith('/register') || pathname.startsWith('/profile');
   const isAdminPage = pathname.startsWith('/admin');
 
   if (isCartOpen || isProductPage || isCheckoutPage || isAccountPage || isAdminPage) return null;
@@ -26,7 +26,7 @@ export function MobileBottomNav() {
     { name: 'Shop', href: '/shop', icon: AddIcon },
     { name: 'Checkout', href: '/checkout', icon: CartIcon, count: cartCount },
     { name: 'Track', href: '/track-order', icon: TrackOrderIcon },
-    { name: 'Account', href: user ? '/account' : '/login', icon: UserIcon },
+    { name: 'Account', href: user ? '/profile' : '/login', icon: UserIcon },
   ];
 
   return (

@@ -68,6 +68,8 @@ type StoreState = {
     isPhoneVerified: boolean;
     registrationDate: string;
     ipAddress?: string;
+    address?: string;
+    district?: string;
     addresses?: { id: string; label: string; address: string; isDefault: boolean }[];
     points?: number;
   } | null;
@@ -439,7 +441,7 @@ export const useStore = create<StoreState>()(
           const { data: { session } } = await supabase.auth.getSession();
           if (session?.user) {
             const { data: userData } = await supabase
-              .from('users')
+              .from('profile')
               .select('*')
               .eq('id', session.user.id)
               .single();
@@ -452,10 +454,12 @@ export const useStore = create<StoreState>()(
                   phone: userData.phone || '',
                   email: userData.email || '',
                   role: userData.role || 'user',
-                  isProfileCompleted: true,
-                  isEmailVerified: true,
-                  isPhoneVerified: true,
-                  registrationDate: userData.created_at,
+                  isProfileCompleted: userData.is_profile_completed || false,
+                  isEmailVerified: userData.is_email_verified || false,
+                  isPhoneVerified: userData.is_phone_verified || false,
+                  registrationDate: userData.registration_date || userData.created_at,
+                  address: userData.address || '',
+                  district: userData.district || '',
                 }
               });
             }
