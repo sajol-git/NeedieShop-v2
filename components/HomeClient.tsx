@@ -95,27 +95,27 @@ export default function HomeClient() {
           </button>
         </div>
 
-            <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide">
+        <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide">
           {categories.length > 0 ? categories.map((category, index) => (
             <Link 
               key={category.id || `cat-${index}`} 
               href={`/category/${category.slug}`}
-              className="flex flex-col items-center gap-4 min-w-[160px] group"
+              className="flex flex-col items-center bg-white rounded-3xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all gap-4 min-w-[160px]"
             >
-              <div className="w-40 h-40 rounded-3xl bg-gray-100 flex items-center justify-center p-6 transition-transform group-hover:scale-105 overflow-hidden relative shadow-sm">
+              <div className="relative w-24 h-24 flex items-center justify-center overflow-hidden">
                 {category.photo ? (
                   <Image 
-                    src={category.photo || '/placeholder.png'} 
+                    src={category.photo} 
                     alt={category.name} 
                     fill 
-                    className="object-cover transition-opacity"
+                    className="object-contain"
                     referrerPolicy="no-referrer"
                   />
                 ) : (
                   <ImageIcon className="w-12 h-12 text-gray-300" />
                 )}
               </div>
-              <span className="text-sm font-semibold text-gray-900">{category.name}</span>
+              <span className="text-lg font-medium text-gray-900 text-center truncate w-full">{category.name}</span>
             </Link>
           )) : (
             <div className="text-gray-500 text-sm py-8 text-center w-full">No categories available</div>
@@ -213,22 +213,22 @@ export default function HomeClient() {
             <Link 
               key={brand.id || `brand-${index}`} 
               href={`/brand/${brand.slug}`}
-              className="flex flex-col items-center gap-4 min-w-[160px] group"
+              className="flex flex-col items-center bg-white rounded-3xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all gap-4 min-w-[160px]"
             >
-              <div className="w-40 h-40 rounded-3xl bg-gray-100 flex items-center justify-center p-6 transition-transform group-hover:scale-105 overflow-hidden relative shadow-sm">
+              <div className="relative w-24 h-24 flex items-center justify-center overflow-hidden">
                 {brand.photo ? (
                   <Image 
-                    src={brand.photo || '/placeholder.png'} 
+                    src={brand.photo} 
                     alt={brand.name} 
                     fill 
-                    className="object-contain transition-opacity"
+                    className="object-contain"
                     referrerPolicy="no-referrer"
                   />
                 ) : (
-                  <span className="text-gray-400 font-bold text-center">{brand.name}</span>
+                  <span className="text-gray-400 font-bold text-center text-xs">{brand.name}</span>
                 )}
               </div>
-              <span className="text-sm font-semibold text-gray-900">{brand.name}</span>
+              <span className="text-lg font-medium text-gray-900 text-center truncate w-full">{brand.name}</span>
             </Link>
           )) : (
             <div className="text-gray-500 text-sm py-8 text-center w-full">No brands available</div>

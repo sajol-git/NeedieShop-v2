@@ -15,6 +15,20 @@ export default function OnboardingPage() {
   const { user } = useStore();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [resendTimer, setResendTimer] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('resendTimer');
+      return saved ? parseInt(saved) : 360;
+    }
+    return 360;
+  });
+  const [canResend, setCanResend] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('currentUserId');
+    }
+    return null;
+  });
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -31,6 +45,7 @@ export default function OnboardingPage() {
     const checkUserStatus = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session?.user) {
+        setCurrentUserId(session.user.id);
         const { data: userData } = await supabase
           .from('profile')
           .select('is_email_verified, is_profile_completed, email, name')
@@ -55,10 +70,56 @@ export default function OnboardingPage() {
             setStep(3);
           }
         }
+      } else if (currentUserId) {
+        // If no session but we have a stored userId, check their status
+        const { data: userData } = await supabase
+          .from('profile')
+          .select('is_email_verified, is_profile_completed, email, name')
+          .eq('id', currentUserId)
+          .single();
+
+        if (userData) {
+          setFormData(prev => ({
+            ...prev,
+            email: userData.email || '',
+            name: userData.name || ''
+          }));
+
+          if (!userData.is_email_verified) {
+            setStep(2);
+          } else {
+            setStep(3);
+          }
+        }
       }
     };
     checkUserStatus();
-  }, [router]);
+  }, [router, currentUserId]);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      if (currentUserId) {
+        localStorage.setItem('currentUserId', currentUserId);
+      } else {
+        localStorage.removeItem('currentUserId');
+      }
+    }
+  }, [currentUserId]);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('resendTimer', resendTimer.toString());
+    }
+    let timer: NodeJS.Timeout;
+    if (step === 2 && resendTimer > 0) {
+      timer = setInterval(() => {
+        setResendTimer((prev) => prev - 1);
+      }, 1000);
+    } else if (resendTimer === 0) {
+      setCanResend(true);
+    }
+    return () => clearInterval(timer);
+  }, [step, resendTimer]);
 
   useEffect(() => {
     fetch('https://api.ipify.org?format=json')
@@ -94,6 +155,7 @@ export default function OnboardingPage() {
       const supabaseUser = data.user;
       
       if (supabaseUser) {
+        setCurrentUserId(supabaseUser.id);
         // Create initial profile doc (using upsert to handle trigger-created records)
         const { error: dbError } = await supabase.from('profile').upsert({
           id: supabaseUser.id,
@@ -123,6 +185,8 @@ export default function OnboardingPage() {
 
       toast.success('Verification code sent to your email!');
       setStep(2);
+      setResendTimer(360);
+      setCanResend(false);
     } catch (err: any) {
       toast.error(err.message || 'An error occurred during signup');
     } finally {
@@ -132,11 +196,14 @@ export default function OnboardingPage() {
 
   // Step 2: Email Verification (6-digit code)
   const handleSendEmailCode = async () => {
+    if (!canResend) return;
     const code = Math.floor(100000 + Math.random() * 900000).toString();
     setLoading(true);
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session?.user) {
+      const userId = session?.user?.id || currentUserId;
+      
+      if (!userId) {
         toast.error('Session expired. Please log in again.');
         return;
       }
@@ -145,7 +212,7 @@ export default function OnboardingPage() {
       const { error: updateError } = await supabase
         .from('profile')
         .update({ email_verification_token: code })
-        .eq('id', session.user.id);
+        .eq('id', userId);
 
       if (updateError) throw updateError;
 
@@ -157,6 +224,8 @@ export default function OnboardingPage() {
       const data = await res.json();
       if (data.success) {
         toast.success('Verification code resent to your email');
+        setResendTimer(360);
+        setCanResend(false);
       } else {
         toast.error(data.error || 'Failed to send email');
       }
@@ -171,7 +240,9 @@ export default function OnboardingPage() {
     setLoading(true);
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session?.user) {
+      const userId = session?.user?.id || currentUserId;
+
+      if (!userId) {
         toast.error('Session expired. Please log in again.');
         return;
       }
@@ -179,7 +250,7 @@ export default function OnboardingPage() {
       const { data: userData, error: fetchError } = await supabase
         .from('profile')
         .select('email_verification_token')
-        .eq('id', session.user.id)
+        .eq('id', userId)
         .single();
 
       if (fetchError) throw fetchError;
@@ -188,7 +259,11 @@ export default function OnboardingPage() {
         await supabase.from('profile').update({
           is_email_verified: true,
           email_verification_token: null
-        }).eq('id', session.user.id);
+        }).eq('id', userId);
+        
+        // Clear stored data after successful verification
+        localStorage.removeItem('currentUserId');
+        localStorage.removeItem('resendTimer');
         
         toast.success('Email verified!');
         setStep(3);
@@ -330,9 +405,17 @@ export default function OnboardingPage() {
             <button onClick={handleVerifyEmailCode} disabled={loading} className="w-full bg-[#8B183A] text-white py-3 rounded-full font-semibold mt-4 hover:bg-[#6d122d] transition-colors disabled:opacity-50">
               {loading ? 'Verifying...' : 'Verify Email'}
             </button>
-            <button onClick={handleSendEmailCode} disabled={loading} className="w-full text-[#8B183A] font-semibold text-sm hover:underline">
-              Resend Code
-            </button>
+            <div className="text-center">
+              {canResend ? (
+                <button onClick={handleSendEmailCode} disabled={loading} className="text-[#8B183A] font-semibold text-sm hover:underline">
+                  Resend Code
+                </button>
+              ) : (
+                <p className="text-gray-500 text-sm">
+                  Resend code in {Math.floor(resendTimer / 60)}:{(resendTimer % 60).toString().padStart(2, '0')}
+                </p>
+              )}
+            </div>
           </div>
         )}
 

@@ -466,12 +466,28 @@ export const useStore = create<StoreState>()(
           }
 
           // 2. Fetch Categories
-          const { data: categories } = await supabase.from('categories').select('*');
-          if (categories) set({ categories });
+          const { data: categoriesData } = await supabase.from('categories').select('*');
+          if (categoriesData) {
+            const categories = categoriesData.map(c => ({
+              id: c.id,
+              name: c.name,
+              slug: c.slug,
+              photo: c.image_url
+            }));
+            set({ categories });
+          }
 
           // 3. Fetch Brands
-          const { data: brands } = await supabase.from('brands').select('*');
-          if (brands) set({ brands });
+          const { data: brandsData } = await supabase.from('brands').select('*');
+          if (brandsData) {
+            const brands = brandsData.map(b => ({
+              id: b.id,
+              name: b.name,
+              slug: b.slug,
+              photo: b.image_url
+            }));
+            set({ brands });
+          }
 
           // 4. Fetch Products
           const { getAllProducts } = await import('@/lib/products');
