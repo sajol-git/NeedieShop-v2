@@ -81,7 +81,7 @@ export default function AccountPage() {
       const { error: updateError } = await supabase
         .from('profile')
         .update({ phone_verification_token: code })
-        .eq('id', user.id);
+        .eq('id', user!.id);
 
       if (updateError) throw updateError;
 
@@ -110,7 +110,7 @@ export default function AccountPage() {
       const { data: userData, error: fetchError } = await supabase
         .from('profile')
         .select('phone_verification_token')
-        .eq('id', user.id)
+        .eq('id', user!.id)
         .single();
 
       if (fetchError) throw fetchError;
@@ -122,7 +122,7 @@ export default function AccountPage() {
             is_phone_verified: true,
             phone_verification_token: null 
           })
-          .eq('id', user.id);
+          .eq('id', user!.id);
 
         if (updateError) throw updateError;
 
@@ -184,7 +184,7 @@ export default function AccountPage() {
           phone: profileData.phone,
           is_phone_verified: phoneChanged ? false : user.isPhoneVerified
         })
-        .eq('id', user.id);
+        .eq('id', user!.id);
 
       if (error) throw error;
 
@@ -218,7 +218,7 @@ export default function AccountPage() {
       const { error } = await supabase
         .from('profile')
         .update({ addresses: updatedAddresses })
-        .eq('id', user.id);
+        .eq('id', user!.id);
 
       if (error) throw error;
 
@@ -243,7 +243,7 @@ export default function AccountPage() {
       const { error } = await supabase
         .from('profile')
         .update({ addresses: updatedAddresses })
-        .eq('id', user.id);
+        .eq('id', user!.id);
 
       if (error) throw error;
 
@@ -269,7 +269,7 @@ export default function AccountPage() {
       const { error } = await supabase
         .from('profile')
         .update({ addresses: updatedAddresses })
-        .eq('id', user.id);
+        .eq('id', user!.id);
 
       if (error) throw error;
 

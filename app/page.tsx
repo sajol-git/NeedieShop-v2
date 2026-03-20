@@ -1,6 +1,7 @@
 import { getProducts } from '@/lib/products';
 import { Navbar } from '@/components/Navbar';
 import HomeClient from '@/components/HomeClient';
+import { Footer } from '@/components/Footer';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -18,6 +19,7 @@ export default function Home() {
     <div className="min-h-screen bg-white">
       <Navbar />
       <HomeClient />
+      <Footer />
     </div>
   );
 }
