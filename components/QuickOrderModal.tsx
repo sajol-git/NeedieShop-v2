@@ -34,7 +34,7 @@ export function QuickOrderModal({ isOpen, onClose, product, selectedVariantId, q
   });
 
   const shippingFee = formData.zone === 'Inside Dhaka' ? 60 : 120;
-  const subtotal = product.price * quantity;
+  const subtotal = product.discount_price * quantity;
   const total = subtotal + shippingFee;
 
   const handleSubmit = async (e: React.FormEvent) => {

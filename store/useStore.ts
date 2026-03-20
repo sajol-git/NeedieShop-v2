@@ -176,27 +176,20 @@ export const useStore = create<StoreState>()(
       addProduct: async (product) => {
         const { supabase } = await import('@/lib/supabase');
         
-        const state = get();
-        const categoryId = state.categories.find(c => c.name === product.category)?.id || product.category;
-        const brandId = state.brands.find(b => b.name === product.brand)?.id || product.brand;
-
         const { error } = await supabase.from('products').insert({
           id: product.id,
-          name: product.name,
+          title: product.title,
           slug: product.slug,
           description: product.description,
-          meta_title: product.metaTitle,
-          meta_description: product.metaDescription,
-          price: product.price,
-          compare_at_price: product.compareAtPrice,
-          feature_image: product.featureImage,
-          gallery: product.gallery,
-          category: categoryId,
-          brand: brandId,
+          meta_data: product.meta_data,
+          discount_price: product.discount_price,
+          free_delivery: product.free_delivery,
+          image_url: product.image_url,
+          image_gallery: product.image_gallery,
+          category: product.category,
+          brand: product.brand,
           stock: product.stock,
           status: product.status,
-          is_featured: product.isFeatured,
-          is_flash_sale: product.isFlashSale,
         });
         if (error) throw error;
         set((state) => ({ products: [...state.products, product] }));
@@ -229,7 +222,7 @@ export const useStore = create<StoreState>()(
           product_id: item.product.id,
           variant_id: item.variantId,
           quantity: item.quantity,
-          price: item.product.price
+          price: item.product.discount_price
         }));
 
         const { error: itemsError } = await supabase.from('order_items').insert(orderItems);
@@ -298,27 +291,19 @@ export const useStore = create<StoreState>()(
       updateProduct: async (id, updates) => {
         const { supabase } = await import('@/lib/supabase');
         
-        const state = get();
         const dbUpdates: any = {};
-        if (updates.name !== undefined) dbUpdates.name = updates.name;
+        if (updates.title !== undefined) dbUpdates.title = updates.title;
         if (updates.slug !== undefined) dbUpdates.slug = updates.slug;
         if (updates.description !== undefined) dbUpdates.description = updates.description;
-        if (updates.metaTitle !== undefined) dbUpdates.meta_title = updates.metaTitle;
-        if (updates.metaDescription !== undefined) dbUpdates.meta_description = updates.metaDescription;
-        if (updates.price !== undefined) dbUpdates.price = updates.price;
-        if (updates.compareAtPrice !== undefined) dbUpdates.compare_at_price = updates.compareAtPrice;
-        if (updates.featureImage !== undefined) dbUpdates.feature_image = updates.featureImage;
-        if (updates.gallery !== undefined) dbUpdates.gallery = updates.gallery;
-        if (updates.category !== undefined) {
-          dbUpdates.category = state.categories.find(c => c.name === updates.category)?.id || updates.category;
-        }
-        if (updates.brand !== undefined) {
-          dbUpdates.brand = state.brands.find(b => b.name === updates.brand)?.id || updates.brand;
-        }
+        if (updates.meta_data !== undefined) dbUpdates.meta_data = updates.meta_data;
+        if (updates.discount_price !== undefined) dbUpdates.discount_price = updates.discount_price;
+        if (updates.free_delivery !== undefined) dbUpdates.free_delivery = updates.free_delivery;
+        if (updates.image_url !== undefined) dbUpdates.image_url = updates.image_url;
+        if (updates.image_gallery !== undefined) dbUpdates.image_gallery = updates.image_gallery;
+        if (updates.category !== undefined) dbUpdates.category = updates.category;
+        if (updates.brand !== undefined) dbUpdates.brand = updates.brand;
         if (updates.stock !== undefined) dbUpdates.stock = updates.stock;
         if (updates.status !== undefined) dbUpdates.status = updates.status;
-        if (updates.isFeatured !== undefined) dbUpdates.is_featured = updates.isFeatured;
-        if (updates.isFlashSale !== undefined) dbUpdates.is_flash_sale = updates.isFlashSale;
 
         const { error } = await supabase.from('products').update(dbUpdates).eq('id', id);
         if (error) throw error;
@@ -447,117 +432,121 @@ export const useStore = create<StoreState>()(
       setUser: (user) => set({ user }),
 
       init: async () => {
-        const { supabase } = await import('@/lib/supabase');
-        
-        // 1. Check for existing session
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session?.user) {
-          const { data: userData } = await supabase
-            .from('users')
-            .select('*')
-            .eq('id', session.user.id)
-            .single();
+        try {
+          const { supabase } = await import('@/lib/supabase');
           
-          if (userData) {
-            set({
-              user: {
-                id: userData.id,
-                name: userData.name || 'User',
-                phone: userData.phone || '',
-                email: userData.email || '',
-                role: userData.role || 'user',
-                isProfileCompleted: true,
-                isEmailVerified: true,
-                isPhoneVerified: true,
-                registrationDate: userData.created_at,
-              }
+          // 1. Check for existing session
+          const { data: { session } } = await supabase.auth.getSession();
+          if (session?.user) {
+            const { data: userData } = await supabase
+              .from('users')
+              .select('*')
+              .eq('id', session.user.id)
+              .single();
+            
+            if (userData) {
+              set({
+                user: {
+                  id: userData.id,
+                  name: userData.name || 'User',
+                  phone: userData.phone || '',
+                  email: userData.email || '',
+                  role: userData.role || 'user',
+                  isProfileCompleted: true,
+                  isEmailVerified: true,
+                  isPhoneVerified: true,
+                  registrationDate: userData.created_at,
+                }
+              });
+            }
+          }
+
+          // 2. Fetch Categories
+          const { data: categories } = await supabase.from('categories').select('*');
+          if (categories) set({ categories });
+
+          // 3. Fetch Brands
+          const { data: brands } = await supabase.from('brands').select('*');
+          if (brands) set({ brands });
+
+          // 4. Fetch Products
+          const { getAllProducts } = await import('@/lib/products');
+          const products = await getAllProducts();
+          set({ products });
+
+          // 5. Fetch Orders
+          const { data: ordersData } = await supabase
+            .from('orders')
+            .select(`
+              *,
+              items:order_items(
+                *,
+                product:products(*)
+              ),
+              trackingHistory:order_tracking_history(*)
+            `)
+            .order('created_at', { ascending: false });
+
+          if (ordersData) {
+            const formattedOrders: Order[] = ordersData.map(o => ({
+              id: o.id,
+              total: Number(o.total),
+              subtotal: Number(o.subtotal),
+              shippingFee: Number(o.shipping_fee),
+              advancePayment: Number(o.advance_payment),
+              dueAmount: Number(o.due_amount),
+              status: o.status,
+              customerInfo: {
+                name: o.customer_name,
+                phone: o.customer_phone,
+                address: o.customer_address,
+                zone: o.customer_zone,
+                ipAddress: o.ip_address,
+              },
+              trackingNumber: o.tracking_number,
+              trackingHistory: o.trackingHistory.map((th: any) => ({
+                status: th.status,
+                date: th.created_at,
+                message: th.message
+              })),
+              items: o.items.map((item: any) => ({
+                product: item.product as Product,
+                variantId: item.variant_id,
+                quantity: item.quantity
+              })),
+              createdAt: o.created_at
+            }));
+            set({ orders: formattedOrders });
+          }
+
+          // 6. Fetch Banners
+          const { data: banners } = await supabase.from('banners').select('*').eq('status', 'Active');
+          if (banners) {
+            set({ 
+              heroBanners: banners.filter(b => b.type === 'hero'),
+              offerBanners: banners.filter(b => b.type === 'offer').map(b => b.image)
             });
           }
-        }
 
-        // 2. Fetch Categories
-        const { data: categories } = await supabase.from('categories').select('*');
-        if (categories) set({ categories });
-
-        // 3. Fetch Brands
-        const { data: brands } = await supabase.from('brands').select('*');
-        if (brands) set({ brands });
-
-        // 4. Fetch Products
-        const { getAllProducts } = await import('@/lib/products');
-        const products = await getAllProducts();
-        set({ products });
-
-        // 5. Fetch Orders
-        const { data: ordersData } = await supabase
-          .from('orders')
-          .select(`
-            *,
-            items:order_items(
-              *,
-              product:products(*)
-            ),
-            trackingHistory:order_tracking_history(*)
-          `)
-          .order('created_at', { ascending: false });
-
-        if (ordersData) {
-          const formattedOrders: Order[] = ordersData.map(o => ({
-            id: o.id,
-            total: Number(o.total),
-            subtotal: Number(o.subtotal),
-            shippingFee: Number(o.shipping_fee),
-            advancePayment: Number(o.advance_payment),
-            dueAmount: Number(o.due_amount),
-            status: o.status,
-            customerInfo: {
-              name: o.customer_name,
-              phone: o.customer_phone,
-              address: o.customer_address,
-              zone: o.customer_zone,
-              ipAddress: o.ip_address,
-            },
-            trackingNumber: o.tracking_number,
-            trackingHistory: o.trackingHistory.map((th: any) => ({
-              status: th.status,
-              date: th.created_at,
-              message: th.message
-            })),
-            items: o.items.map((item: any) => ({
-              product: item.product,
-              variantId: item.variant_id,
-              quantity: item.quantity
-            })),
-            createdAt: o.created_at
-          }));
-          set({ orders: formattedOrders });
-        }
-
-        // 6. Fetch Banners
-        const { data: banners } = await supabase.from('banners').select('*').eq('status', 'Active');
-        if (banners) {
-          set({ 
-            heroBanners: banners.filter(b => b.type === 'hero'),
-            offerBanners: banners.filter(b => b.type === 'offer').map(b => b.image)
-          });
-        }
-
-        // 7. Fetch Settings
-        const { data: settings } = await supabase.from('settings').select('*');
-        if (settings) {
-          const footer = settings.find(s => s.key === 'footer_content')?.value;
-          const copyright = settings.find(s => s.key === 'copyright_text')?.value;
-          const storeSettings = settings.find(s => s.key === 'store_settings')?.value;
-          const paymentSettings = settings.find(s => s.key === 'payment_settings')?.value;
-          const shippingZones = settings.find(s => s.key === 'shipping_zones')?.value;
-          const coupons = settings.find(s => s.key === 'coupons')?.value;
-          
-          if (footer) set({ footerContent: footer });
-          if (copyright) set({ copyrightText: copyright });
-          if (storeSettings) set({ storeSettings });
-          if (paymentSettings) set({ paymentSettings });
-          if (shippingZones) set({ shippingZones });
-          if (coupons) set({ coupons });
+          // 7. Fetch Settings
+          const { data: settings } = await supabase.from('settings').select('*');
+          if (settings) {
+            const footer = settings.find(s => s.key === 'footer_content')?.value;
+            const copyright = settings.find(s => s.key === 'copyright_text')?.value;
+            const storeSettings = settings.find(s => s.key === 'store_settings')?.value;
+            const paymentSettings = settings.find(s => s.key === 'payment_settings')?.value;
+            const shippingZones = settings.find(s => s.key === 'shipping_zones')?.value;
+            const coupons = settings.find(s => s.key === 'coupons')?.value;
+            
+            if (footer) set({ footerContent: footer });
+            if (copyright) set({ copyrightText: copyright });
+            if (storeSettings) set({ storeSettings });
+            if (paymentSettings) set({ paymentSettings });
+            if (shippingZones) set({ shippingZones });
+            if (coupons) set({ coupons });
+          }
+        } catch (error) {
+          console.error('Error during store initialization:', error);
         }
       }
     }),

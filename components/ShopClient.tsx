@@ -19,7 +19,7 @@ export default function ShopClient() {
   const productsPerPage = 8;
 
   const filteredProducts = allProducts.filter(product => 
-    (searchQuery === '' || product.name.toLowerCase().includes(searchQuery) || product.brand.toLowerCase().includes(searchQuery) || product.category.toLowerCase().includes(searchQuery)) &&
+    (searchQuery === '' || product.title.toLowerCase().includes(searchQuery) || product.brand.toLowerCase().includes(searchQuery) || product.category.toLowerCase().includes(searchQuery)) &&
     (categoryFilter === '' || product.category === categoryFilter) &&
     (brandFilter === '' || product.brand === brandFilter)
   );

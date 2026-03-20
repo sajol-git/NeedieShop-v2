@@ -24,38 +24,40 @@ export default function EditProductPage() {
   const [isGenerating, setIsGenerating] = useState(false);
   
   const [formData, setFormData] = useState({
-    name: '',
+    title: '',
     slug: '',
     description: '',
-    price: '',
-    compareAtPrice: '',
-    featureImage: '',
-    gallery: [''],
+    metaTitle: '',
+    metaDescription: '',
+    discount_price: '',
+    original_price: '',
+    image_url: '',
+    image_gallery: [''],
     category: 'gadgets',
     brand: '',
     stock: '',
     status: 'draft' as 'draft' | 'published',
-    isFeatured: false,
-    isFlashSale: false,
+    free_delivery: false,
   });
 
   useEffect(() => {
     const product = products.find(p => p.id === productId);
     if (product) {
       setFormData({
-        name: product.name,
+        title: product.title,
         slug: product.slug || '',
         description: product.description,
-        price: product.price.toString(),
-        compareAtPrice: product.compareAtPrice ? product.compareAtPrice.toString() : '',
-        featureImage: product.featureImage || '',
-        gallery: product.gallery && product.gallery.length > 0 ? product.gallery : [''],
+        metaTitle: product.meta_data?.title || '',
+        metaDescription: product.meta_data?.description || '',
+        discount_price: product.discount_price.toString(),
+        original_price: product.original_price ? product.original_price.toString() : '',
+        image_url: product.image_url || '',
+        image_gallery: product.image_gallery && product.image_gallery.length > 0 ? product.image_gallery : [''],
         category: product.category,
         brand: product.brand,
         stock: product.stock.toString(),
         status: product.status || 'draft',
-        isFeatured: product.isFeatured || false,
-        isFlashSale: product.isFlashSale || false,
+        free_delivery: product.free_delivery || false,
       });
     } else {
       toast.error('Product not found');
@@ -64,15 +66,15 @@ export default function EditProductPage() {
   }, [productId, products, router]);
 
   const generateDescription = async () => {
-    if (!formData.name || !formData.category) {
-      toast.error('Please enter a product name and category first.');
+    if (!formData.title || !formData.category) {
+      toast.error('Please enter a product title and category first.');
       return;
     }
 
     setIsGenerating(true);
     try {
       const ai = new GoogleGenAI({ apiKey: process.env.NEXT_PUBLIC_GEMINI_API_KEY });
-      const prompt = `Write a compelling, premium e-commerce product description for a ${formData.category} product named "${formData.name}". Include key features and benefits. Keep it concise (around 3-4 sentences) and engaging.`;
+      const prompt = `Write a compelling, premium e-commerce product description for a ${formData.category} product named "${formData.title}". Include key features and benefits. Keep it concise (around 3-4 sentences) and engaging.`;
       
       const response = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
@@ -92,25 +94,28 @@ export default function EditProductPage() {
   };
 
   const handleSave = async () => {
-    if (!formData.name || !formData.price) {
-      toast.error('Name and price are required');
+    if (!formData.title || !formData.discount_price) {
+      toast.error('Title and price are required');
       return;
     }
 
     const updatedProduct: Partial<Product> = {
-      name: formData.name,
-      slug: formData.slug || slugify(formData.name, { lower: true, strict: true }),
+      title: formData.title,
+      slug: formData.slug || slugify(formData.title, { lower: true, strict: true }),
       status: formData.status,
       description: formData.description,
-      price: Number(formData.price),
-      compareAtPrice: formData.compareAtPrice ? Number(formData.compareAtPrice) : undefined,
-      featureImage: formData.featureImage.trim(),
-      gallery: formData.gallery.filter(img => img.trim() !== ''),
+      discount_price: Number(formData.discount_price),
+      original_price: formData.original_price ? Number(formData.original_price) : undefined,
+      image_url: formData.image_url.trim(),
+      image_gallery: formData.image_gallery.filter(img => img.trim() !== ''),
       category: formData.category,
       brand: formData.brand,
       stock: Number(formData.stock) || 0,
-      isFeatured: formData.isFeatured,
-      isFlashSale: formData.isFlashSale,
+      free_delivery: formData.free_delivery,
+      meta_data: {
+        title: formData.metaTitle,
+        description: formData.metaDescription
+      }
     };
 
     try {
@@ -162,11 +167,11 @@ export default function EditProductPage() {
                 <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
                 <input 
                   type="text" 
-                  value={formData.name}
+                  value={formData.title}
                   onChange={(e) => {
                     setFormData({
                       ...formData, 
-                      name: e.target.value,
+                      title: e.target.value,
                       slug: slugify(e.target.value, { lower: true, strict: true })
                     });
                   }}
@@ -189,6 +194,16 @@ export default function EditProductPage() {
                 )}
               </div>
               <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Meta Title (SEO)</label>
+                <input 
+                  type="text" 
+                  value={formData.metaTitle}
+                  onChange={(e) => setFormData({...formData, metaTitle: e.target.value})}
+                  placeholder="SEO Title"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-3xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
+                />
+              </div>
+              <div>
                 <div className="flex items-center justify-between mb-1">
                   <label className="block text-sm font-medium text-gray-700">Description</label>
                   <button 
@@ -209,6 +224,15 @@ export default function EditProductPage() {
                   />
                 </div>
               </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Meta Description (SEO)</label>
+                <textarea 
+                  value={formData.metaDescription}
+                  onChange={(e) => setFormData({...formData, metaDescription: e.target.value})}
+                  rows={2}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-3xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all resize-y"
+                />
+              </div>
             </div>
           </div>
 
@@ -223,22 +247,22 @@ export default function EditProductPage() {
                 <div className="flex gap-2">
                   <input 
                     type="text" 
-                    value={formData.featureImage}
-                    onChange={(e) => setFormData({...formData, featureImage: e.target.value})}
+                    value={formData.image_url}
+                    onChange={(e) => setFormData({...formData, image_url: e.target.value})}
                     placeholder="https://example.com/feature-image.jpg"
                     className="flex-1 px-3 py-2 border border-gray-300 rounded-3xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
                   />
                   <ImageUpload 
-                    onUpload={(url) => setFormData({...formData, featureImage: url})} 
+                    onUpload={(url) => setFormData({...formData, image_url: url})} 
                     buttonText="Upload" 
                     className="px-4 py-2 rounded-3xl" 
-                    fileName={formData.name}
+                    fileName={formData.title}
                   />
                 </div>
-                {formData.featureImage && (
+                {formData.image_url && (
                   <div className="mt-3 relative w-32 aspect-square rounded-lg border border-gray-200 overflow-hidden bg-gray-50">
                     <Image 
-                      src={formData.featureImage} 
+                      src={formData.image_url} 
                       alt="Feature Preview" 
                       fill 
                       className="object-cover"
@@ -252,33 +276,33 @@ export default function EditProductPage() {
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Gallery Images (Up to 10)</label>
                 <div className="space-y-3">
-                  {formData.gallery.map((url, index) => (
+                  {formData.image_gallery.map((url, index) => (
                     <div key={index} className="flex gap-2">
                       <input 
                         type="text" 
                         value={url}
                         onChange={(e) => {
-                          const newGallery = [...formData.gallery];
+                          const newGallery = [...formData.image_gallery];
                           newGallery[index] = e.target.value;
-                          setFormData({...formData, gallery: newGallery});
+                          setFormData({...formData, image_gallery: newGallery});
                         }}
                         placeholder={`https://example.com/gallery-${index + 1}.jpg`}
                         className="flex-1 px-3 py-2 border border-gray-300 rounded-3xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
                       />
                       <ImageUpload 
                         onUpload={(newUrl) => {
-                          const newGallery = [...formData.gallery];
+                          const newGallery = [...formData.image_gallery];
                           newGallery[index] = newUrl;
-                          setFormData({...formData, gallery: newGallery});
+                          setFormData({...formData, image_gallery: newGallery});
                         }} 
                         buttonText="Upload" 
                         className="px-4 py-2 rounded-3xl" 
-                        fileName={`${formData.name}_gallery_${index}`}
+                        fileName={`${formData.title}_gallery_${index}`}
                       />
                       <button 
                         onClick={() => {
-                          const newGallery = formData.gallery.filter((_, i) => i !== index);
-                          setFormData({...formData, gallery: newGallery.length ? newGallery : ['']});
+                          const newGallery = formData.image_gallery.filter((_, i) => i !== index);
+                          setFormData({...formData, image_gallery: newGallery.length ? newGallery : ['']});
                         }}
                         className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                       >
@@ -286,9 +310,9 @@ export default function EditProductPage() {
                       </button>
                     </div>
                   ))}
-                  {formData.gallery.length < 10 && (
+                  {formData.image_gallery.length < 10 && (
                     <button 
-                      onClick={() => setFormData({...formData, gallery: [...formData.gallery, '']})}
+                      onClick={() => setFormData({...formData, image_gallery: [...formData.image_gallery, '']})}
                       className="text-sm font-medium text-indigo-600 hover:text-indigo-700 flex items-center gap-1"
                     >
                       <Plus className="w-4 h-4" />
@@ -298,9 +322,9 @@ export default function EditProductPage() {
                 </div>
                 
                 {/* Image Preview Grid */}
-                {formData.gallery.filter(url => url.trim() !== '').length > 0 && (
+                {formData.image_gallery.filter(url => url.trim() !== '').length > 0 && (
                   <div className="mt-4 grid grid-cols-4 gap-4">
-                    {formData.gallery.filter(url => url.trim() !== '').map((url, index) => (
+                    {formData.image_gallery.filter(url => url.trim() !== '').map((url, index) => (
                       <div key={index} className="relative aspect-square rounded-lg border border-gray-200 overflow-hidden bg-gray-50">
                         <Image 
                           src={url} 
@@ -322,26 +346,26 @@ export default function EditProductPage() {
             <h2 className="text-base font-semibold text-gray-900 mb-4">Pricing</h2>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Price</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Discount Price</label>
                 <div className="relative">
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">৳</span>
                   <input 
                     type="number" 
-                    value={formData.price}
-                    onChange={(e) => setFormData({...formData, price: e.target.value})}
+                    value={formData.discount_price}
+                    onChange={(e) => setFormData({...formData, discount_price: e.target.value})}
                     className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-3xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
                     placeholder="0.00"
                   />
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Compare at price</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Original Price</label>
                 <div className="relative">
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">৳</span>
                   <input 
                     type="number" 
-                    value={formData.compareAtPrice}
-                    onChange={(e) => setFormData({...formData, compareAtPrice: e.target.value})}
+                    value={formData.original_price}
+                    onChange={(e) => setFormData({...formData, original_price: e.target.value})}
                     className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-3xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
                     placeholder="0.00"
                   />
@@ -416,26 +440,13 @@ export default function EditProductPage() {
                 <div className="relative flex items-center justify-center">
                   <input 
                     type="checkbox" 
-                    checked={formData.isFeatured}
-                    onChange={(e) => setFormData({...formData, isFeatured: e.target.checked})}
+                    checked={formData.free_delivery}
+                    onChange={(e) => setFormData({...formData, free_delivery: e.target.checked})}
                     className="peer appearance-none w-5 h-5 border border-gray-300 rounded focus:ring-2 focus:ring-indigo-500 focus:ring-offset-1 checked:bg-indigo-600 checked:border-indigo-600 transition-colors cursor-pointer"
                   />
                   <Check className="w-3.5 h-3.5 text-white absolute pointer-events-none opacity-0 peer-checked:opacity-100 transition-opacity" />
                 </div>
-                <span className="text-sm text-gray-700 group-hover:text-gray-900">Featured Product</span>
-              </label>
-              
-              <label className="flex items-center gap-3 cursor-pointer group">
-                <div className="relative flex items-center justify-center">
-                  <input 
-                    type="checkbox" 
-                    checked={formData.isFlashSale}
-                    onChange={(e) => setFormData({...formData, isFlashSale: e.target.checked})}
-                    className="peer appearance-none w-5 h-5 border border-gray-300 rounded focus:ring-2 focus:ring-indigo-500 focus:ring-offset-1 checked:bg-indigo-600 checked:border-indigo-600 transition-colors cursor-pointer"
-                  />
-                  <Check className="w-3.5 h-3.5 text-white absolute pointer-events-none opacity-0 peer-checked:opacity-100 transition-opacity" />
-                </div>
-                <span className="text-sm text-gray-700 group-hover:text-gray-900">Flash Sale</span>
+                <span className="text-sm text-gray-700 group-hover:text-gray-900">Free Delivery</span>
               </label>
             </div>
           </div>

@@ -15,8 +15,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   }
 
   return {
-    title: `${product.name} - NeedieShop`,
-    description: product.metaDescription || `Buy ${product.name} at NeedieShop. Premium quality gadgets and accessories.`,
+    title: `${product.title} - NeedieShop`,
+    description: product.meta_data?.description || `Buy ${product.title} at NeedieShop. Premium quality gadgets and accessories.`,
   };
 }
 

@@ -40,7 +40,7 @@ export default function CheckoutPage() {
     paymentMethod: 'Cash on Delivery' as 'Cash on Delivery' | 'bKash',
   });
 
-  const subtotal = cart.reduce((acc, item) => acc + item.product.price * item.quantity, 0);
+  const subtotal = cart.reduce((acc, item) => acc + item.product.discount_price * item.quantity, 0);
   const shippingFee = formData.zone === 'Inside Dhaka' ? 60 : 120;
   const total = subtotal + shippingFee;
 
@@ -270,12 +270,12 @@ export default function CheckoutPage() {
                   {cart.map((item, index) => (
                     <div key={index} className="flex gap-4">
                       <div className="relative w-20 h-20 bg-gray-50 rounded-2xl overflow-hidden shrink-0 border border-gray-100">
-                        <Image src={item.product.featureImage || '/placeholder.png'} alt={item.product.name} fill className="object-cover" referrerPolicy="no-referrer" />
+                        <Image src={item.product.image_url || '/placeholder.png'} alt={item.product.title} fill className="object-cover" referrerPolicy="no-referrer" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h4 className="font-bold text-sm text-gray-900 line-clamp-1">{item.product.name}</h4>
+                        <h4 className="font-bold text-sm text-gray-900 line-clamp-1">{item.product.title}</h4>
                         <p className="text-xs text-gray-500 mt-1">Qty: {item.quantity}</p>
-                        <p className="text-sm font-bold text-gray-900 mt-2">৳{(item.product.price * item.quantity).toLocaleString()}</p>
+                        <p className="text-sm font-bold text-gray-900 mt-2">৳{(item.product.discount_price * item.quantity).toLocaleString()}</p>
                       </div>
                       <button 
                         type="button"

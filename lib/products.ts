@@ -16,113 +16,73 @@ export type Brand = {
 
 export type Product = {
   id: string;
-  name: string;
+  title: string;
   slug: string;
   status: 'draft' | 'published';
   description: string;
-  metaTitle?: string;
-  metaDescription?: string;
-  price: number;
-  compareAtPrice?: number;
-  featureImage: string;
-  gallery: string[];
+  meta_data?: {
+    title?: string;
+    description?: string;
+  };
+  discount_price: number;
+  original_price?: number;
+  is_featured?: boolean;
+  is_flash_sale?: boolean;
+  free_delivery: boolean;
+  image_url: string;
+  image_gallery: string[];
   category: string;
   brand: string;
   stock: number;
-  variants: { id: string; name: string; price: number; stock: number }[];
-  specifications: { name: string; value: string }[];
-  isFeatured: boolean;
-  isFlashSale: boolean;
-  flashSaleEndTime?: string;
-  relatedProducts: string[];
+  created_at: string;
 };
 
 export async function getAllProducts() {
   const { data, error } = await supabase
     .from('products')
-    .select(`
-      *,
-      categories (name),
-      brands (name),
-      product_variants (*),
-      product_specifications (*)
-    `);
+    .select('*')
+    .order('created_at', { ascending: false });
 
   if (error) {
-    console.error('Error fetching all products:', error);
+    console.error('Error fetching all products:', JSON.stringify(error, null, 2));
     return [];
   }
 
-  return data.map(p => ({
-    ...p,
-    category: p.categories?.name || p.category || '',
-    brand: p.brands?.name || p.brand || '',
-    variants: p.product_variants || [],
-    specifications: p.product_specifications || []
-  })) as Product[];
+  return data as Product[];
 }
 
 export async function getProducts() {
   const { data, error } = await supabase
     .from('products')
-    .select(`
-      *,
-      categories (name),
-      brands (name),
-      product_variants (*),
-      product_specifications (*)
-    `)
-    .eq('status', 'published');
+    .select('*')
+    .eq('status', 'published')
+    .order('created_at', { ascending: false });
 
   if (error) {
-    console.error('Error fetching products:', error);
+    console.error('Error fetching products:', JSON.stringify(error, null, 2));
     return [];
   }
 
-  return data.map(p => ({
-    ...p,
-    category: p.categories?.name || '',
-    brand: p.brands?.name || '',
-    variants: p.product_variants || [],
-    specifications: p.product_specifications || []
-  })) as Product[];
+  return data as Product[];
 }
 
 export async function getProductById(id: string) {
   const { data, error } = await supabase
     .from('products')
-    .select(`
-      *,
-      categories (name),
-      brands (name),
-      product_variants (*),
-      product_specifications (*)
-    `)
+    .select('*')
     .eq('id', id)
     .single();
 
   if (error) return null;
 
-  return {
-    ...data,
-    category: data.categories?.name || '',
-    brand: data.brands?.name || '',
-    variants: data.product_variants || [],
-    specifications: data.product_specifications || []
-  } as Product;
+  return data as Product;
 }
 
 export async function getProductBySlug(slug: string) {
   // Try by slug first
   let { data, error } = await supabase
     .from('products')
-    .select(`
-      *,
-      categories (name),
-      brands (name),
-      product_variants (*),
-      product_specifications (*)
-    `)
+    .select('*')
     .eq('slug', slug)
     .eq('status', 'published')
     .maybeSingle();
@@ -133,13 +93,7 @@ export async function getProductBySlug(slug: string) {
     if (isUUID) {
       const { data: idData, error: idError } = await supabase
         .from('products')
-        .select(`
-          *,
-          categories (name),
-          brands (name),
-          product_variants (*),
-          product_specifications (*)
-        `)
+        .select('*')
         .eq('id', slug)
         .eq('status', 'published')
         .maybeSingle();
@@ -151,11 +105,5 @@ export async function getProductBySlug(slug: string) {
 
   if (error || !data) return null;
 
-  return {
-    ...data,
-    category: data.categories?.name || '',
-    brand: data.brands?.name || '',
-    variants: data.product_variants || [],
-    specifications: data.product_specifications || []
-  } as Product;
+  return data as Product;
 }

@@ -27,11 +27,7 @@ export default function CustomerLogin() {
       });
       if (error) toast.error(error.message);
     } catch (err: any) {
-      if (err.message === 'Failed to fetch') {
-        toast.error('Supabase is not configured. Please add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to your environment variables.');
-      } else {
-        toast.error(err.message || 'An error occurred during login');
-      }
+      toast.error(err.message || 'An error occurred during login');
     }
   };
 

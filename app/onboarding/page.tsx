@@ -67,7 +67,7 @@ export default function OnboardingPage() {
           id: supabaseUser.id,
           name: formData.name,
           email: formData.email,
-          role: formData.email === 'shadikulislamsajol@gmail.com' ? 'admin' : 'user',
+          role: 'user',
           isProfileCompleted: false,
           isEmailVerified: false,
           isPhoneVerified: false,

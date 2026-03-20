@@ -40,29 +40,21 @@ export default function AdminDashboard() {
           title="Total Revenue" 
           value={`৳${totalRevenue.toLocaleString()}`} 
           icon={Banknote} 
-          trend="+12.5%" 
-          isPositive={true} 
         />
         <StatCard 
           title="Total Orders" 
           value={totalOrders.toString()} 
           icon={TotalOrderIcon} 
-          trend="+5.2%" 
-          isPositive={true} 
         />
         <StatCard 
           title="Pending Orders" 
           value={pendingOrders.toString()} 
           icon={Activity} 
-          trend="-2.1%" 
-          isPositive={false} 
         />
         <StatCard 
           title="Total Products" 
           value={totalProducts.toString()} 
           icon={VenetianMask} 
-          trend="+1.2%" 
-          isPositive={true} 
         />
       </div>
 
@@ -119,7 +111,7 @@ export default function AdminDashboard() {
   );
 }
 
-function StatCard({ title, value, icon: Icon, trend, isPositive }: any) {
+function StatCard({ title, value, icon: Icon }: any) {
   return (
     <motion.div 
       whileHover={{ y: -2 }}
@@ -128,12 +120,6 @@ function StatCard({ title, value, icon: Icon, trend, isPositive }: any) {
       <div className="flex items-center justify-between mb-4">
         <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center">
           <Icon className="w-6 h-6 text-indigo-600" />
-        </div>
-        <div className={`flex items-center gap-1 text-sm font-medium px-2 py-1 rounded-full ${
-          isPositive ? 'text-emerald-700 bg-emerald-50' : 'text-red-700 bg-red-50'
-        }`}>
-          {isPositive ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownRight className="w-4 h-4" />}
-          {trend}
         </div>
       </div>
       <div>

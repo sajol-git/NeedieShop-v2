@@ -25,14 +25,14 @@ export function SocialProof() {
       toast.custom((t) => (
         <div className="bg-white/95 backdrop-blur-md p-4 rounded-3xl shadow-xl border border-gray-100 flex items-center gap-4 w-80 animate-in slide-in-from-bottom-5">
           <div className="relative w-14 h-14 rounded-2xl overflow-hidden bg-gray-100 shrink-0">
-            <Image src={randomProduct.featureImage || '/placeholder.png'} alt={randomProduct.name} fill className="object-cover" referrerPolicy="no-referrer" />
+            <Image src={randomProduct.image_url || '/placeholder.png'} alt={randomProduct.title} fill className="object-cover" referrerPolicy="no-referrer" />
           </div>
           <div className="flex-1">
             <div className="flex items-center gap-1 mb-1">
               <span className="text-sm font-bold text-gray-900">{randomName}</span>
               <span className="text-[10px] text-gray-500">from {randomLocation}</span>
             </div>
-            <p className="text-xs text-gray-600 line-clamp-1">Purchased <span className="font-bold text-[#8B183A]">{randomProduct.name}</span></p>
+            <p className="text-xs text-gray-600 line-clamp-1">Purchased <span className="font-bold text-[#8B183A]">{randomProduct.title}</span></p>
             <div className="flex items-center gap-1 mt-1">
               <CheckCircle2 className="w-3 h-3 text-emerald-500" />
               <span className="text-[10px] text-emerald-600 font-bold uppercase tracking-wider">Verified Buyer • {timeAgo}m ago</span>

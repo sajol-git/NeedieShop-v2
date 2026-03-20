@@ -37,7 +37,6 @@ export default function ProductDetailsClient({ product, relatedProducts }: Produ
   const router = useRouter();
   
   const [quantity, setQuantity] = useState(1);
-  const [selectedVariantId, setSelectedVariantId] = useState(product?.variants?.[0]?.id);
   const [activeImage, setActiveImage] = useState(0);
   const [isQuickOrderOpen, setIsQuickOrderOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'details' | 'videos' | 'reviews' | 'shipping'>('details');
@@ -67,20 +66,20 @@ export default function ProductDetailsClient({ product, relatedProducts }: Produ
   const category = categories.find(c => c.name === product.category);
   const categorySlug = category ? category.slug : product.category.toLowerCase();
 
-  const allImages = [product.featureImage, ...product.gallery];
+  const allImages = [product.image_url, ...(product.image_gallery || [])];
 
   const handleAddToCart = () => {
-    addToCart(product as any, selectedVariantId, quantity);
+    addToCart(product as any, undefined, quantity);
     toast.success('Added to cart!');
   };
 
   const handleOrderNow = () => {
-    addToCart(product as any, selectedVariantId, quantity);
+    addToCart(product as any, undefined, quantity);
     router.push('/checkout');
   };
 
   const handleWhatsAppOrder = () => {
-    const message = `Hi, I want to order ${product.name}.\nQuantity: ${quantity}\nPrice: ৳${product.price}\nLink: ${window.location.href}`;
+    const message = `Hi, I want to order ${product.title}.\nQuantity: ${quantity}\nPrice: ৳${product.discount_price}\nLink: ${window.location.href}`;
     const whatsappUrl = `https://wa.me/8801311030261?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
   };
@@ -93,7 +92,7 @@ export default function ProductDetailsClient({ product, relatedProducts }: Produ
         <span className="text-gray-300">›</span>
         <Link href={`/category/${categorySlug}`} className="hover:text-gray-900 transition-colors">{product.category}</Link>
         <span className="text-gray-300">›</span>
-        <span className="text-gray-900 font-medium">{product.name}</span>
+        <span className="text-gray-900 font-medium">{product.title}</span>
       </nav>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 mb-20">
@@ -102,7 +101,7 @@ export default function ProductDetailsClient({ product, relatedProducts }: Produ
           <div className="relative aspect-square rounded-3xl overflow-hidden bg-gray-50 border border-gray-100">
             <Image 
               src={allImages[activeImage] || '/placeholder.png'} 
-              alt={product.name} 
+              alt={product.title} 
               fill 
               className="object-cover"
               priority
@@ -119,7 +118,7 @@ export default function ProductDetailsClient({ product, relatedProducts }: Produ
                   activeImage === index ? 'border-[#8B183A]' : 'border-transparent bg-gray-50'
                 }`}
               >
-                <Image src={img || '/placeholder.png'} alt={`${product.name} ${index}`} fill className="object-cover" referrerPolicy="no-referrer" />
+                <Image src={img || '/placeholder.png'} alt={`${product.title} ${index}`} fill className="object-cover" referrerPolicy="no-referrer" />
               </button>
             ))}
           </div>
@@ -127,38 +126,19 @@ export default function ProductDetailsClient({ product, relatedProducts }: Produ
 
         {/* Product Info */}
         <div className="flex flex-col pt-4">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">{product.name}</h1>
-          <div className="text-3xl font-bold text-gray-900 mb-6">৳{product.price.toLocaleString()}</div>
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">{product.title}</h1>
+          <div className="flex items-center gap-4 mb-6">
+            <div className="text-3xl font-bold text-gray-900">৳{product.discount_price.toLocaleString()}</div>
+            {product.original_price && (
+              <div className="text-xl text-gray-400 line-through">৳{product.original_price.toLocaleString()}</div>
+            )}
+          </div>
           
           <div className="flex items-center gap-1 mb-10">
             {[...Array(5)].map((_, i) => (
               <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
             ))}
           </div>
-
-          {/* Color Selection (Variants) */}
-          {product.variants.length > 0 && (
-            <div className="mb-8">
-              <div className="flex items-center gap-4 mb-4">
-                <span className="text-lg font-bold text-gray-900">Color:</span>
-                <div className="flex gap-3">
-                  {product.variants.map((v) => (
-                    <button
-                      key={v.id}
-                      onClick={() => setSelectedVariantId(v.id)}
-                      className={`px-6 py-2 rounded-full border font-medium text-sm transition-all ${
-                        selectedVariantId === v.id 
-                        ? 'border-gray-900 bg-gray-900 text-white' 
-                        : 'border-gray-200 text-gray-600 hover:border-gray-400'
-                      }`}
-                    >
-                      {v.name}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
 
           {/* Quantity Selector */}
           <div className="flex items-center gap-6 mb-10">
@@ -236,20 +216,6 @@ export default function ProductDetailsClient({ product, relatedProducts }: Produ
                 className="text-gray-600 leading-relaxed text-lg max-w-4xl prose prose-indigo"
                 dangerouslySetInnerHTML={{ __html: product.description }}
               />
-              
-              {product.specifications.length > 0 && (
-                <div className="space-y-4">
-                  <h3 className="text-xl font-bold text-gray-900">Specifications</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {product.specifications.map((spec, i) => (
-                      <div key={i} className="flex justify-between border-b border-gray-100 pb-2">
-                        <span className="text-gray-500">{spec.name}</span>
-                        <span className="text-gray-900 font-medium">{spec.value}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
             </div>
           )}
           {/* Other tabs content... */}
@@ -299,7 +265,6 @@ export default function ProductDetailsClient({ product, relatedProducts }: Produ
         isOpen={isQuickOrderOpen} 
         onClose={() => setIsQuickOrderOpen(false)} 
         product={product as any}
-        selectedVariantId={selectedVariantId}
         quantity={quantity}
       />
     </main>

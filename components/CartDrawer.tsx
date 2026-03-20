@@ -9,8 +9,7 @@ export function CartDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () =
   const { cart, removeFromCart, updateCartQuantity } = useStore();
 
   const subtotal = cart.reduce((acc, item) => {
-    const variantPrice = item.product.variants.find(v => v.id === item.variantId)?.price || item.product.price;
-    return acc + variantPrice * item.quantity;
+    return acc + item.product.discount_price * item.quantity;
   }, 0);
 
   return (
@@ -59,8 +58,7 @@ export function CartDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () =
                 </div>
               ) : (
                 cart.map((item) => {
-                  const variant = item.product.variants.find(v => v.id === item.variantId);
-                  const price = variant?.price || item.product.price;
+                  const price = item.product.discount_price;
                   
                   return (
                     <div key={`${item.product.id}-${item.variantId}`} className="flex gap-4 bg-white/50 p-3 rounded-2xl border border-gray-100 shadow-sm">
@@ -69,7 +67,7 @@ export function CartDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () =
                         onClick={onClose}
                         className="relative w-20 h-20 rounded-xl overflow-hidden bg-gray-100 shrink-0 hover:opacity-80 transition-opacity"
                       >
-                        <Image src={item.product.featureImage || '/placeholder.png'} alt={item.product.name} fill className="object-cover" referrerPolicy="no-referrer" />
+                        <Image src={item.product.image_url || '/placeholder.png'} alt={item.product.title} fill className="object-cover" referrerPolicy="no-referrer" />
                       </Link>
                       <div className="flex-1 flex flex-col justify-between">
                         <div>
@@ -78,9 +76,8 @@ export function CartDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () =
                             onClick={onClose}
                             className="font-medium text-gray-900 line-clamp-1 hover:text-[#8B183A] transition-colors"
                           >
-                            {item.product.name}
+                            {item.product.title}
                           </Link>
-                          {variant && <p className="text-sm text-gray-500">{variant.name}</p>}
                           <p className="font-semibold text-indigo-600 mt-1">৳{price.toLocaleString()}</p>
                         </div>
                         <div className="flex items-center justify-between mt-2">

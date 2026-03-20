@@ -11,8 +11,8 @@ import { useStore } from '@/store/useStore';
 
 export default function HomeClient() {
   const { heroBanners, categories, products } = useStore();
-  const featuredProducts = products.filter(p => p.isFeatured && p.status === 'published');
-  const flashSaleProducts = products.filter(p => p.isFlashSale && p.status === 'published');
+  const featuredProducts = products.filter(p => p.is_featured && p.status === 'published');
+  const flashSaleProducts = products.filter(p => p.is_flash_sale && p.status === 'published');
   const activeBanners = heroBanners.filter(b => b.status === 'Active');
   const [timeLeft, setTimeLeft] = useState({ hours: 23, minutes: 59, seconds: 59 });
   const [currentBanner, setCurrentBanner] = useState(0);

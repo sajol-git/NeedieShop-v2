@@ -4,12 +4,15 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
 if (!supabaseUrl || !supabaseAnonKey) {
-  console.warn('Supabase credentials missing. Please check your environment variables (NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY).');
+  const missing = [];
+  if (!supabaseUrl) missing.push('NEXT_PUBLIC_SUPABASE_URL');
+  if (!supabaseAnonKey) missing.push('NEXT_PUBLIC_SUPABASE_ANON_KEY');
+  console.warn(`Supabase credentials are missing: ${missing.join(', ')}. Please check your environment variables in AI Studio Secrets.`);
 }
 
-// createClient will throw if supabaseUrl is empty, so we provide a placeholder if it's missing
-// to avoid crashing the whole app, but it will still fail when used.
-const effectiveUrl = supabaseUrl || 'https://placeholder.supabase.co';
-const effectiveKey = supabaseAnonKey || 'placeholder';
-
-export const supabase = createClient(effectiveUrl, effectiveKey);
+// Ensure createClient is called with non-empty strings to avoid immediate errors
+// but requests will still fail if keys are invalid.
+export const supabase = createClient(
+  supabaseUrl || 'https://placeholder.supabase.co',
+  supabaseAnonKey || 'placeholder-key'
+);

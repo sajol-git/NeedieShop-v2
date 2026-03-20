@@ -2,7 +2,7 @@
 
 import { useStore, Product } from '@/store/useStore';
 import { useState } from 'react';
-import { Search, Plus, Edit, Trash2, Image as ImageIcon, Star, Zap, AlertTriangle } from 'lucide-react';
+import { Search, Plus, Edit, Trash2, Image as ImageIcon, Star, Zap, AlertTriangle, Truck } from 'lucide-react';
 import { motion } from 'motion/react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -14,7 +14,7 @@ export default function AdminProducts() {
   const [productToDelete, setProductToDelete] = useState<string | null>(null);
 
   const filteredProducts = products.filter(product => 
-    product.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    product.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
     product.brand.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -25,7 +25,7 @@ export default function AdminProducts() {
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" strokeWidth={2} />
           <input 
             type="text" 
-            placeholder="Search products by name or brand..." 
+            placeholder="Search products by title or brand..." 
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pl-12 pr-4 py-3 rounded-3xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none"
@@ -71,23 +71,20 @@ export default function AdminProducts() {
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-4">
                         <div className="relative w-12 h-12 rounded-xl overflow-hidden bg-gray-100 shrink-0 border border-gray-200">
-                          {product.featureImage ? (
-                            <Image src={product.featureImage} alt={product.name} fill className="object-cover" referrerPolicy="no-referrer" />
+                          {product.image_url ? (
+                            <Image src={product.image_url} alt={product.title} fill className="object-cover" referrerPolicy="no-referrer" />
                           ) : (
                             <ImageIcon className="w-6 h-6 text-gray-400 m-auto mt-3" strokeWidth={2} />
                           )}
                         </div>
                         <div>
-                          <div className="font-medium text-gray-900 line-clamp-1">{product.name}</div>
+                          <div className="font-medium text-gray-900 line-clamp-1">{product.title}</div>
                           <div className="text-sm text-gray-500">{product.brand}</div>
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="font-medium text-gray-900">৳{product.price.toLocaleString()}</div>
-                      {product.compareAtPrice && (
-                        <div className="text-xs text-gray-400 line-through">৳{product.compareAtPrice.toLocaleString()}</div>
-                      )}
+                      <div className="font-medium text-gray-900">৳{product.discount_price.toLocaleString()}</div>
                     </td>
                     <td className="px-6 py-4">
                       <div className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
@@ -108,14 +105,9 @@ export default function AdminProducts() {
                           {product.status === 'published' ? 'Published' : 'Draft'}
                         </span>
                         <div className="flex items-center gap-2">
-                          {product.isFeatured && (
+                          {product.free_delivery && (
                             <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-indigo-50 text-indigo-700 text-xs font-medium border border-indigo-100">
-                              <Star className="w-3 h-3 fill-current" /> Featured
-                            </span>
-                          )}
-                          {product.isFlashSale && (
-                            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-red-50 text-red-700 text-xs font-medium border border-red-100">
-                              <Zap className="w-3 h-3 fill-current" /> Flash
+                              <Truck className="w-3 h-3" /> Free Delivery
                             </span>
                           )}
                         </div>
