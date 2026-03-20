@@ -341,6 +341,18 @@ export default function OnboardingPage() {
       if (fetchError) throw fetchError;
 
       if (formData.code === userData.phone_verification_token || formData.code === '123456') {
+        // Update auth.users phone
+        const res = await fetch('/api/auth/update-phone', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: session.user.id, phone: formData.phone }),
+        });
+        const data = await res.json();
+        
+        if (!res.ok) {
+          throw new Error(data.error || 'Failed to update phone in auth');
+        }
+
         await supabase.from('profile').update({
           phone: formData.phone,
           address: formData.address,

@@ -2,9 +2,8 @@
 
 import { useStore } from '@/store/useStore';
 import { motion } from 'motion/react';
-import { Banknote, VenetianMask, Activity, ArrowUpRight, ArrowDownRight } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { TotalOrderIcon } from '@/components/icons';
+import { TotalOrderIcon, DashboardIcon, TrackOrderIcon, ShopIcon } from '@/components/icons';
 
 export default function AdminDashboard() {
   const { orders, products } = useStore();
@@ -39,7 +38,7 @@ export default function AdminDashboard() {
         <StatCard 
           title="Total Revenue" 
           value={`৳${totalRevenue.toLocaleString()}`} 
-          icon={Banknote} 
+          icon={DashboardIcon} 
         />
         <StatCard 
           title="Total Orders" 
@@ -49,12 +48,12 @@ export default function AdminDashboard() {
         <StatCard 
           title="Pending Orders" 
           value={pendingOrders.toString()} 
-          icon={Activity} 
+          icon={TrackOrderIcon} 
         />
         <StatCard 
           title="Total Products" 
           value={totalProducts.toString()} 
-          icon={VenetianMask} 
+          icon={ShopIcon} 
         />
       </div>
 

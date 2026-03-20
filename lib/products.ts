@@ -17,7 +17,7 @@ export type Brand = {
 export type Product = {
   id: string;
   title: string;
-  slug: string;
+  slug?: string;
   status: 'draft' | 'published';
   description: string;
   meta_data?: {
@@ -87,17 +87,16 @@ export async function getProductBySlug(slug: string) {
     .eq('status', 'published')
     .maybeSingle();
 
-  // If not found by slug, try by ID if it's a UUID
-  if (!data && !error) {
-    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(slug);
-    if (isUUID) {
-      const { data: idData, error: idError } = await supabase
-        .from('products')
-        .select('*')
-        .eq('id', slug)
-        .eq('status', 'published')
-        .maybeSingle();
-      
+  // If not found by slug or if there's an error (like missing slug column), try by ID
+  if (!data || error) {
+    const { data: idData, error: idError } = await supabase
+      .from('products')
+      .select('*')
+      .eq('id', slug)
+      .eq('status', 'published')
+      .maybeSingle();
+    
+    if (idData) {
       data = idData;
       error = idError;
     }

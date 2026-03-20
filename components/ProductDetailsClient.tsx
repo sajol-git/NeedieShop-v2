@@ -64,7 +64,7 @@ export default function ProductDetailsClient({ product, relatedProducts }: Produ
   }
 
   const category = categories.find(c => c.name === product.category);
-  const categorySlug = category ? category.slug : product.category.toLowerCase();
+  const categorySlug = category ? category.slug : (product.category ? product.category.toLowerCase() : 'uncategorized');
 
   const allImages = [product.image_url, ...(product.image_gallery || [])];
 

@@ -35,10 +35,14 @@ export default function CustomerLogin() {
     e.preventDefault();
     setLoading(true);
     try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+      // Check if input is a phone number (digits, optional leading +)
+      const isPhone = /^\+?[0-9]{10,15}$/.test(email.replace(/[- ]/g, ''));
+      
+      const { error } = await supabase.auth.signInWithPassword(
+        isPhone 
+          ? { phone: email.replace(/[- ]/g, ''), password } 
+          : { email, password }
+      );
 
       if (error) {
         toast.error(error.message);

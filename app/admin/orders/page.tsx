@@ -15,9 +15,9 @@ export default function AdminOrders() {
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
 
   const filteredOrders = orders.filter(order => {
-    const matchesSearch = order.id.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                          order.customerInfo.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          order.customerInfo.phone.includes(searchTerm);
+    const matchesSearch = order.id?.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                          order.customerInfo?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          order.customerInfo?.phone?.includes(searchTerm);
     const matchesStatus = statusFilter === 'All' || order.status === statusFilter;
     return matchesSearch && matchesStatus;
   });

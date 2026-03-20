@@ -126,7 +126,7 @@ export function Navbar() {
               </button>
               
               <Link 
-                href={user ? "/profile" : "/login"} 
+                href={user ? "/account" : "/login"} 
                 className="p-1 text-gray-900 hover:text-[#8B183A] transition-colors"
               >
                 <div className="w-10 h-10 flex items-center justify-center">

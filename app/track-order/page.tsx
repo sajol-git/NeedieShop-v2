@@ -21,7 +21,7 @@ function TrackOrderContent() {
   const initialResult = useMemo(() => {
     if (!initialSearch) return null;
     const order = orders.find(o => 
-      o.id.toLowerCase() === initialSearch.toLowerCase() || 
+      o.id?.toLowerCase() === initialSearch.toLowerCase() || 
       o.customerInfo.phone === initialSearch
     );
     return order || 'not_found';
@@ -33,7 +33,7 @@ function TrackOrderContent() {
   const handleTrack = (e: React.FormEvent) => {
     e.preventDefault();
     const order = orders.find(o => 
-      o.id.toLowerCase() === searchQuery.toLowerCase() || 
+      o.id?.toLowerCase() === searchQuery.toLowerCase() || 
       o.customerInfo.phone === searchQuery
     );
     setManualResult(order || 'not_found');

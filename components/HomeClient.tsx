@@ -95,27 +95,30 @@ export default function HomeClient() {
           </button>
         </div>
 
-        <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide">
+        <div className="flex gap-4 sm:gap-6 overflow-x-auto pb-4 scrollbar-hide">
           {categories.length > 0 ? categories.map((category, index) => (
             <Link 
               key={category.id || `cat-${index}`} 
               href={`/category/${category.slug}`}
-              className="flex flex-col items-center bg-white rounded-3xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all gap-4 min-w-[160px]"
+              className="group bg-white rounded-xl overflow-hidden border border-gray-100 hover:shadow-xl transition-all duration-500 p-1 block min-w-[120px] w-[120px] sm:min-w-[140px] sm:w-[140px] shrink-0"
             >
-              <div className="relative w-24 h-24 flex items-center justify-center overflow-hidden">
+              <div className="block relative aspect-square bg-gray-50 rounded-xl overflow-hidden">
                 {category.photo ? (
-                  <Image 
+                  <img 
                     src={category.photo} 
                     alt={category.name} 
-                    fill 
-                    className="object-contain"
+                    className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-700"
                     referrerPolicy="no-referrer"
                   />
                 ) : (
-                  <ImageIcon className="w-12 h-12 text-gray-300" />
+                  <div className="w-full h-full flex items-center justify-center">
+                    <ImageIcon className="w-8 h-8 text-gray-300" />
+                  </div>
                 )}
               </div>
-              <span className="text-lg font-medium text-gray-900 text-center truncate w-full">{category.name}</span>
+              <div className="px-1 py-2 text-center">
+                <span className="text-xs font-bold text-gray-900 group-hover:text-[#8B183A] transition-colors">{category.name}</span>
+              </div>
             </Link>
           )) : (
             <div className="text-gray-500 text-sm py-8 text-center w-full">No categories available</div>
@@ -208,27 +211,30 @@ export default function HomeClient() {
       {/* Popular Brands */}
       <section className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 mb-20">
         <h2 className="text-3xl font-bold text-gray-900 mb-8">Popular Brands</h2>
-        <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide">
+        <div className="flex gap-4 sm:gap-6 overflow-x-auto pb-4 scrollbar-hide">
           {brands.length > 0 ? brands.map((brand, index) => (
             <Link 
               key={brand.id || `brand-${index}`} 
               href={`/brand/${brand.slug}`}
-              className="flex flex-col items-center bg-white rounded-3xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all gap-4 min-w-[160px]"
+              className="group bg-white rounded-xl overflow-hidden border border-gray-100 hover:shadow-xl transition-all duration-500 p-1 block min-w-[120px] w-[120px] sm:min-w-[140px] sm:w-[140px] shrink-0"
             >
-              <div className="relative w-24 h-24 flex items-center justify-center overflow-hidden">
+              <div className="block relative aspect-square bg-gray-50 rounded-xl overflow-hidden">
                 {brand.photo ? (
-                  <Image 
+                  <img 
                     src={brand.photo} 
                     alt={brand.name} 
-                    fill 
-                    className="object-contain"
+                    className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-700"
                     referrerPolicy="no-referrer"
                   />
                 ) : (
-                  <span className="text-gray-400 font-bold text-center text-xs">{brand.name}</span>
+                  <div className="w-full h-full flex items-center justify-center">
+                    <span className="text-gray-400 font-bold text-center text-[10px]">{brand.name}</span>
+                  </div>
                 )}
               </div>
-              <span className="text-lg font-medium text-gray-900 text-center truncate w-full">{brand.name}</span>
+              <div className="px-1 py-2 text-center">
+                <span className="text-xs font-bold text-gray-900 group-hover:text-[#8B183A] transition-colors">{brand.name}</span>
+              </div>
             </Link>
           )) : (
             <div className="text-gray-500 text-sm py-8 text-center w-full">No brands available</div>

@@ -2,7 +2,8 @@
 
 import { useStore, Product } from '@/store/useStore';
 import { useState } from 'react';
-import { Search, Plus, Edit, Trash2, Image as ImageIcon, Star, Zap, AlertTriangle, Truck } from 'lucide-react';
+import { Search, Edit, Trash2, Image as ImageIcon, Star, Zap, AlertTriangle, Truck } from 'lucide-react';
+import { AddIcon } from '@/components/icons';
 import { motion } from 'motion/react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -14,8 +15,8 @@ export default function AdminProducts() {
   const [productToDelete, setProductToDelete] = useState<string | null>(null);
 
   const filteredProducts = products.filter(product => 
-    product.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    product.brand.toLowerCase().includes(searchTerm.toLowerCase())
+    product.title?.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    product.brand?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -35,7 +36,7 @@ export default function AdminProducts() {
           href="/admin/products/new"
           className="bg-[#8B183A] text-white px-6 py-3 rounded-full font-semibold hover:bg-[#6d122d] transition-colors flex items-center gap-2 shadow-lg shadow-[#8B183A]/20 w-full sm:w-auto justify-center"
         >
-          <Plus className="w-5 h-5" strokeWidth={2} />
+          <AddIcon className="w-5 h-5" />
           Add Product
         </Link>
       </div>

@@ -45,8 +45,8 @@ export default function AdminCustomers() {
   };
 
   const filteredCustomers = customers.filter(customer => 
-    customer.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    customer.phone.includes(searchTerm)
+    customer.name?.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    customer.phone?.includes(searchTerm)
   );
 
   return (

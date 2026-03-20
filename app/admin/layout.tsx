@@ -2,10 +2,19 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Command, Hexagon, Inbox, VenetianMask, SlidersHorizontal, Sparkles, Layers, LogOut, Menu, X, Tag, MessageSquare } from 'lucide-react';
+import { LogOut, Menu, X } from 'lucide-react';
 import { useStore } from '@/store/useStore';
 import { useEffect, useState } from 'react';
-import { TotalOrderIcon } from '@/components/icons';
+import { 
+  DashboardIcon, 
+  TotalOrderIcon, 
+  ShopIcon, 
+  UserIcon, 
+  NotificationIcon, 
+  SupportIcon,
+  NeediePrimeIcon,
+  HomeIcon
+} from '@/components/icons';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -42,15 +51,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   };
 
   const navigation = [
-    { name: 'Dashboard', href: '/admin', icon: Command },
+    { name: 'Dashboard', href: '/admin', icon: DashboardIcon },
     { name: 'Orders', href: '/admin/orders', icon: TotalOrderIcon },
-    { name: 'Products', href: '/admin/products', icon: Hexagon },
-    { name: 'Catalog', href: '/admin/catalog', icon: Tag },
-    { name: 'Customers', href: '/admin/customers', icon: VenetianMask },
-    { name: 'Marketing', href: '/admin/marketing', icon: Sparkles },
-    { name: 'SMS', href: '/admin/sms', icon: MessageSquare },
-    { name: 'CMS', href: '/admin/cms', icon: Layers },
-    { name: 'Settings', href: '/admin/settings', icon: SlidersHorizontal },
+    { name: 'Products', href: '/admin/products', icon: ShopIcon },
+    { name: 'Catalog', href: '/admin/catalog', icon: NeediePrimeIcon },
+    { name: 'Customers', href: '/admin/customers', icon: UserIcon },
+    { name: 'SMS', href: '/admin/sms', icon: NotificationIcon },
+    { name: 'CMS', href: '/admin/cms', icon: HomeIcon },
+    { name: 'Settings', href: '/admin/settings', icon: SupportIcon },
   ];
 
   return (

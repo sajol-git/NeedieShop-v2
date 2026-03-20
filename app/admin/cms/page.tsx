@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import { Image as ImageIcon, Clock, LayoutGrid, Save, Plus, Trash2, Edit2, Settings } from 'lucide-react';
+import { Image as ImageIcon, Clock, LayoutGrid, Save, Trash2, Edit2, Settings } from 'lucide-react';
+import { AddIcon } from '@/components/icons';
 import { toast } from 'sonner';
 import { useStore } from '@/store/useStore';
 import { ImageUpload } from '@/components/ImageUpload';
@@ -107,7 +108,7 @@ export default function AdminCMS() {
             onClick={() => { setEditingBanner(null); setBannerImageUrl(''); setIsBannerModalOpen(true); }}
             className="flex items-center gap-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded-lg transition-colors shadow-sm shadow-indigo-200"
           >
-            <Plus className="w-4 h-4" />
+            <AddIcon className="w-4 h-4" />
             Add Banner
           </button>
         </div>

@@ -2,18 +2,15 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Sparkles, UploadCloud, Plus, Trash2, Check } from 'lucide-react';
+import { ArrowLeft, Sparkles, UploadCloud, Trash2, Check } from 'lucide-react';
+import { AddIcon } from '@/components/icons';
 import { useStore, type Product } from '@/store/useStore';
 import { GoogleGenAI } from '@google/genai';
 import { toast } from 'sonner';
 import Link from 'next/link';
 import Image from 'next/image';
 import slugify from 'slugify';
-import dynamic from 'next/dynamic';
-import 'react-quill/dist/quill.snow.css';
 import { ImageUpload } from '@/components/ImageUpload';
-
-const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
 
 export default function AddProductPage() {
   const router = useRouter();
@@ -200,11 +197,11 @@ export default function AddProductPage() {
                   </button>
                 </div>
                 <div className="bg-white rounded-xl overflow-hidden border border-gray-300">
-                  <ReactQuill 
-                    theme="snow" 
+                  <textarea 
                     value={formData.description} 
-                    onChange={(val) => setFormData({...formData, description: val})} 
-                    className="h-64 mb-12"
+                    onChange={(e) => setFormData({...formData, description: e.target.value})} 
+                    className="w-full h-64 p-4 outline-none resize-y"
+                    placeholder="Enter product description..."
                   />
                 </div>
               </div>
@@ -299,7 +296,7 @@ export default function AddProductPage() {
                       onClick={() => setFormData({...formData, image_gallery: [...formData.image_gallery, '']})}
                       className="text-sm font-medium text-indigo-600 hover:text-indigo-700 flex items-center gap-1"
                     >
-                      <Plus className="w-4 h-4" />
+                      <AddIcon className="w-4 h-4" />
                       Add gallery image URL
                     </button>
                   )}

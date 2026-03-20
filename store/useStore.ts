@@ -178,7 +178,9 @@ export const useStore = create<StoreState>()(
       addProduct: async (product) => {
         const { supabase } = await import('@/lib/supabase');
         
-        const { error } = await supabase.from('products').insert({
+        let error;
+        // Try inserting with slug first
+        const res1 = await supabase.from('products').insert({
           id: product.id,
           title: product.title,
           slug: product.slug,
@@ -193,6 +195,28 @@ export const useStore = create<StoreState>()(
           stock: product.stock,
           status: product.status,
         });
+        
+        error = res1.error;
+
+        // If it fails because slug column doesn't exist (42703), try without slug
+        if (error && error.code === '42703') {
+          const res2 = await supabase.from('products').insert({
+            id: product.id,
+            title: product.title,
+            description: product.description,
+            meta_data: product.meta_data,
+            discount_price: product.discount_price,
+            free_delivery: product.free_delivery,
+            image_url: product.image_url,
+            image_gallery: product.image_gallery,
+            category: product.category,
+            brand: product.brand,
+            stock: product.stock,
+            status: product.status,
+          });
+          error = res2.error;
+        }
+
         if (error) throw error;
         set((state) => ({ products: [...state.products, product] }));
       },
@@ -307,7 +331,16 @@ export const useStore = create<StoreState>()(
         if (updates.stock !== undefined) dbUpdates.stock = updates.stock;
         if (updates.status !== undefined) dbUpdates.status = updates.status;
 
-        const { error } = await supabase.from('products').update(dbUpdates).eq('id', id);
+        let error;
+        const res1 = await supabase.from('products').update(dbUpdates).eq('id', id);
+        error = res1.error;
+
+        if (error && error.code === '42703' && dbUpdates.slug !== undefined) {
+          delete dbUpdates.slug;
+          const res2 = await supabase.from('products').update(dbUpdates).eq('id', id);
+          error = res2.error;
+        }
+
         if (error) throw error;
         set((state) => ({
           products: state.products.map((p) => (p.id === id ? { ...p, ...updates } : p)),
