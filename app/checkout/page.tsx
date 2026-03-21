@@ -81,7 +81,7 @@ export default function CheckoutPage() {
         name: formData.name,
         phone: formData.phone,
         address: formData.address,
-        zone: formData.zone,
+        zone: formData.zone as "Inside Dhaka" | "Outside Dhaka",
         ipAddress,
       },
       trackingHistory: [

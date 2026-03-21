@@ -18,9 +18,9 @@ export default function HomeClient() {
   const displayOfferBanners = Array.isArray(offerBanners) && offerBanners.length > 0 
     ? offerBanners 
     : [
-        { title: 'Exclusive for Man', image: 'https://picsum.photos/seed/man/600/300', link: '#' },
-        { title: 'Exclusive for Woman', image: 'https://picsum.photos/seed/woman/600/300', link: '#' },
-        { title: 'Exclusive for Kids', image: 'https://picsum.photos/seed/kids/600/300', link: '#' },
+        { title: 'Exclusive for Man', subtitle: '2022-23', image: 'https://picsum.photos/seed/man/600/300', link: '#' },
+        { title: 'Exclusive for Woman', subtitle: '2022-23', image: 'https://picsum.photos/seed/woman/600/300', link: '#' },
+        { title: 'Exclusive for Kids', subtitle: '2022-23', image: 'https://picsum.photos/seed/kids/600/300', link: '#' },
       ];
   const [timeLeft, setTimeLeft] = useState({ hours: 23, minutes: 59, seconds: 59 });
   const [currentBanner, setCurrentBanner] = useState(0);
@@ -143,7 +143,7 @@ export default function HomeClient() {
               <Image src={banner.image || '/placeholder.png'} alt={banner.title} fill className="object-cover group-hover:scale-105 transition-transform duration-700" referrerPolicy="no-referrer" />
               <div className="absolute inset-0 bg-black/20 flex flex-col justify-center p-8">
                 <h3 className="text-white text-2xl font-bold">{banner.title}</h3>
-                <p className="text-white">2022-23</p>
+                <p className="text-white">{banner.subtitle}</p>
               </div>
             </Link>
           ))}

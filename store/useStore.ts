@@ -74,7 +74,7 @@ type StoreState = {
     points?: number;
   } | null;
   isCartOpen: boolean;
-  offerBanners: { title: string; image: string; link: string }[];
+  offerBanners: { title: string; subtitle: string; image: string; link: string }[];
   copyrightText: string;
   heroBanners: { id: number; title: string; image: string; link: string; status: 'Active' | 'Inactive' }[];
   footerContent: {
@@ -144,7 +144,11 @@ export const useStore = create<StoreState>()(
       orders: [],
       user: null,
       isCartOpen: false,
-      offerBanners: [],
+      offerBanners: [
+        { title: 'Exclusive for Man', subtitle: '2022-23', image: 'https://picsum.photos/seed/man/600/300', link: '#' },
+        { title: 'Exclusive for Woman', subtitle: '2022-23', image: 'https://picsum.photos/seed/woman/600/300', link: '#' },
+        { title: 'Exclusive for Kids', subtitle: '2022-23', image: 'https://picsum.photos/seed/kids/600/300', link: '#' },
+      ],
       copyrightText: '',
       heroBanners: [],
       footerContent: {

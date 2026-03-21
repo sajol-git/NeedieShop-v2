@@ -32,15 +32,15 @@ export default function CMSPage() {
   });
 
   // Offer Banners local state (assuming 3 banners)
-  const [localOfferBanners, setLocalOfferBanners] = useState<{ title: string; image: string; link: string }[]>(
+  const [localOfferBanners, setLocalOfferBanners] = useState<{ title: string; subtitle: string; image: string; link: string }[]>(
     Array.isArray(offerBanners) && offerBanners.length > 0 
       ? (typeof offerBanners[0] === 'string' 
-          ? offerBanners.map(img => ({ title: '', image: img, link: '' }))
+          ? offerBanners.map(img => ({ title: '', subtitle: '2022-23', image: img, link: '' }))
           : offerBanners as any)
       : [
-          { title: 'Exclusive for Man', image: 'https://picsum.photos/seed/man/600/300', link: '#' },
-          { title: 'Exclusive for Woman', image: 'https://picsum.photos/seed/woman/600/300', link: '#' },
-          { title: 'Exclusive for Kids', image: 'https://picsum.photos/seed/kids/600/300', link: '#' },
+          { title: 'Exclusive for Man', subtitle: '2022-23', image: 'https://picsum.photos/seed/man/600/300', link: '#' },
+          { title: 'Exclusive for Woman', subtitle: '2022-23', image: 'https://picsum.photos/seed/woman/600/300', link: '#' },
+          { title: 'Exclusive for Kids', subtitle: '2022-23', image: 'https://picsum.photos/seed/kids/600/300', link: '#' },
         ]
   );
 
@@ -101,7 +101,7 @@ export default function CMSPage() {
 
   const toggleStatus = async (id: number) => {
     const updatedBanners = heroBanners.map(b => 
-      b.id === id ? { ...b, status: b.status === 'Active' ? 'Inactive' : 'Active' } : b
+      b.id === id ? { ...b, status: (b.status === 'Active' ? 'Inactive' : 'Active') as 'Active' | 'Inactive' } : b
     );
 
     try {
@@ -415,6 +415,20 @@ export default function CMSPage() {
                       }}
                       className="w-full px-4 py-2 rounded-xl border border-gray-200 text-sm"
                       placeholder="Banner Title"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Subtitle</label>
+                    <input
+                      type="text"
+                      value={banner.subtitle}
+                      onChange={e => {
+                        const newBanners = [...localOfferBanners];
+                        newBanners[index].subtitle = e.target.value;
+                        setLocalOfferBanners(newBanners);
+                      }}
+                      className="w-full px-4 py-2 rounded-xl border border-gray-200 text-sm"
+                      placeholder="e.g. 2022-23"
                     />
                   </div>
                   <div className="space-y-1">
