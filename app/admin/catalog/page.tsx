@@ -159,7 +159,7 @@ export default function AdminCatalog() {
                     <Trash2 className="w-4 h-4" />
                   </button>
                   <div className="relative w-full flex-1 flex items-center justify-center overflow-hidden">
-                    {cat.photo ? (
+                    {cat.photo && cat.photo !== '#' ? (
                       <div className="relative w-full h-full max-h-[80px] sm:max-h-[100px]">
                         <Image 
                           src={cat.photo} 
@@ -244,7 +244,7 @@ export default function AdminCatalog() {
                     <Trash2 className="w-4 h-4" />
                   </button>
                   <div className="relative w-full flex-1 flex items-center justify-center overflow-hidden">
-                    {brand.photo ? (
+                    {brand.photo && brand.photo !== '#' ? (
                       <div className="relative w-full h-full max-h-[80px] sm:max-h-[100px]">
                         <Image 
                           src={brand.photo} 

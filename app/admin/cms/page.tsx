@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useStore } from '@/store/useStore';
 import { 
   Plus, 
@@ -14,13 +14,16 @@ import {
   Eye,
   EyeOff,
   MoveUp,
-  MoveDown
+  MoveDown,
+  UploadCloud
 } from 'lucide-react';
 import Image from 'next/image';
 import { toast } from 'sonner';
+import { ImageUpload } from '@/components/ImageUpload';
 
 export default function CMSPage() {
-  const { heroBanners, setHeroBanners, offerBanners, setOfferBanners } = useStore();
+  const { heroBanners: rawHeroBanners, setHeroBanners, offerBanners, setOfferBanners } = useStore();
+  const heroBanners = Array.isArray(rawHeroBanners) ? rawHeroBanners : [];
   const [activeTab, setActiveTab] = useState<'hero' | 'offer'>('hero');
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
@@ -32,17 +35,17 @@ export default function CMSPage() {
   });
 
   // Offer Banners local state (assuming 3 banners)
-  const [localOfferBanners, setLocalOfferBanners] = useState<{ title: string; subtitle: string; image: string; link: string }[]>(
-    Array.isArray(offerBanners) && offerBanners.length > 0 
-      ? (typeof offerBanners[0] === 'string' 
-          ? offerBanners.map(img => ({ title: '', subtitle: '2022-23', image: img, link: '' }))
-          : offerBanners as any)
-      : [
-          { title: 'Exclusive for Man', subtitle: '2022-23', image: 'https://picsum.photos/seed/man/600/300', link: '#' },
-          { title: 'Exclusive for Woman', subtitle: '2022-23', image: 'https://picsum.photos/seed/woman/600/300', link: '#' },
-          { title: 'Exclusive for Kids', subtitle: '2022-23', image: 'https://picsum.photos/seed/kids/600/300', link: '#' },
-        ]
-  );
+  const initialOfferBanners = Array.isArray(offerBanners) && offerBanners.length > 0 
+    ? (typeof offerBanners[0] === 'string' 
+        ? offerBanners.map(img => ({ title: '', subtitle: '', image: img, link: '' }))
+        : offerBanners as any)
+    : [
+        { title: '', subtitle: '', image: '', link: '' },
+        { title: '', subtitle: '', image: '', link: '' },
+        { title: '', subtitle: '', image: '', link: '' },
+      ];
+
+  const [localOfferBanners, setLocalOfferBanners] = useState<{ title: string; subtitle: string; image: string; link: string }[]>(initialOfferBanners);
 
   const handleSaveOfferBanners = async () => {
     try {
@@ -211,13 +214,20 @@ export default function CMSPage() {
                   <label className="text-sm font-bold text-gray-700 flex items-center gap-2">
                     <ImageIcon className="w-4 h-4" /> Image URL
                   </label>
-                  <input
-                    type="text"
-                    value={formData.image}
-                    onChange={e => setFormData({ ...formData, image: e.target.value })}
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#8B183A]/20 focus:border-[#8B183A] transition-all"
-                    placeholder="https://example.com/banner.jpg"
-                  />
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={formData.image}
+                      onChange={e => setFormData({ ...formData, image: e.target.value })}
+                      className="flex-1 px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#8B183A]/20 focus:border-[#8B183A] transition-all"
+                      placeholder="https://example.com/banner.jpg"
+                    />
+                    <ImageUpload 
+                      onUpload={(url) => setFormData({ ...formData, image: url })}
+                      buttonText="Upload"
+                      className="h-[50px] px-6 rounded-xl bg-[#8B183A]/5 text-[#8B183A] hover:bg-[#8B183A]/10 border border-[#8B183A]/10"
+                    />
+                  </div>
                   <p className="text-xs text-gray-400">Recommended size: 1920x740px or 2.6:1 aspect ratio</p>
                 </div>
               </div>
@@ -250,7 +260,7 @@ export default function CMSPage() {
                     {/* Banner Preview */}
                     <div className="lg:w-1/3 relative aspect-[2.6/1] lg:aspect-auto bg-gray-100">
                       <Image
-                        src={banner.image || '/placeholder.png'}
+                        src={banner.image && banner.image !== '#' ? banner.image : '/placeholder.png'}
                         alt={banner.title}
                         fill
                         className="object-cover"
@@ -284,13 +294,20 @@ export default function CMSPage() {
                               className="w-full px-4 py-2 rounded-xl border border-gray-200 text-sm"
                               placeholder="Link"
                             />
-                            <input
-                              type="text"
-                              value={formData.image}
-                              onChange={e => setFormData({ ...formData, image: e.target.value })}
-                              className="w-full md:col-span-2 px-4 py-2 rounded-xl border border-gray-200 text-sm"
-                              placeholder="Image URL"
-                            />
+                            <div className="md:col-span-2 flex gap-2">
+                              <input
+                                type="text"
+                                value={formData.image}
+                                onChange={e => setFormData({ ...formData, image: e.target.value })}
+                                className="flex-1 px-4 py-2 rounded-xl border border-gray-200 text-sm"
+                                placeholder="Image URL"
+                              />
+                              <ImageUpload 
+                                onUpload={(url) => setFormData({ ...formData, image: url })}
+                                buttonText="Upload"
+                                className="px-4 py-2 rounded-xl bg-[#8B183A]/5 text-[#8B183A] hover:bg-[#8B183A]/10 border border-[#8B183A]/10"
+                              />
+                            </div>
                           </div>
                           <div className="flex justify-end gap-2">
                             <button onClick={() => setEditingId(null)} className="p-2 text-gray-400 hover:text-gray-600">
@@ -390,7 +407,7 @@ export default function CMSPage() {
           </div>
         </div>
       ) : (
-        <div className="space-y-8">
+        <div className="space-y-8" key={JSON.stringify(offerBanners)}>
           <div>
             <h3 className="text-xl font-bold text-gray-900">Offer Banners</h3>
             <p className="text-sm text-gray-500">Manage the 3 banners below categories</p>
@@ -400,7 +417,7 @@ export default function CMSPage() {
             {localOfferBanners.map((banner, index) => (
               <div key={index} className="bg-white p-6 rounded-3xl border border-gray-200 shadow-sm space-y-4">
                 <div className="relative aspect-[2/1] rounded-2xl overflow-hidden bg-gray-100 mb-4">
-                  <Image src={banner.image || '/placeholder.png'} alt={banner.title} fill className="object-cover" referrerPolicy="no-referrer" />
+                  <Image src={banner.image && banner.image !== '#' ? banner.image : '/placeholder.png'} alt={banner.title} fill className="object-cover" referrerPolicy="no-referrer" />
                 </div>
                 <div className="space-y-3">
                   <div className="space-y-1">
@@ -433,17 +450,28 @@ export default function CMSPage() {
                   </div>
                   <div className="space-y-1">
                     <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Image URL</label>
-                    <input
-                      type="text"
-                      value={banner.image}
-                      onChange={e => {
-                        const newBanners = [...localOfferBanners];
-                        newBanners[index].image = e.target.value;
-                        setLocalOfferBanners(newBanners);
-                      }}
-                      className="w-full px-4 py-2 rounded-xl border border-gray-200 text-sm"
-                      placeholder="Image URL"
-                    />
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={banner.image}
+                        onChange={e => {
+                          const newBanners = [...localOfferBanners];
+                          newBanners[index].image = e.target.value;
+                          setLocalOfferBanners(newBanners);
+                        }}
+                        className="flex-1 px-4 py-2 rounded-xl border border-gray-200 text-sm"
+                        placeholder="Image URL"
+                      />
+                      <ImageUpload 
+                        onUpload={(url) => {
+                          const newBanners = [...localOfferBanners];
+                          newBanners[index].image = url;
+                          setLocalOfferBanners(newBanners);
+                        }}
+                        buttonText="Upload"
+                        className="px-3 py-2 rounded-xl bg-gray-50 text-gray-600 hover:bg-gray-100 border border-gray-200"
+                      />
+                    </div>
                   </div>
                   <div className="space-y-1">
                     <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Link</label>

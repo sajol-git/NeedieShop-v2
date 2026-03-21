@@ -35,7 +35,7 @@ export function ProductCard({ product }: ProductCardProps) {
       >
         <div className="block relative aspect-square bg-gray-50 rounded-xl overflow-hidden">
           <Image 
-            src={product.image_url || '/placeholder.png'} 
+            src={product.image_url && product.image_url !== '#' ? product.image_url : '/placeholder.png'} 
             alt={product.title} 
             fill 
             className="object-cover group-hover:scale-105 transition-transform duration-700"

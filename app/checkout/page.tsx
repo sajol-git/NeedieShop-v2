@@ -94,10 +94,15 @@ export default function CheckoutPage() {
       createdAt: new Date().toISOString(),
     };
 
-    await addOrder(newOrder);
-    clearCart();
-    toast.success('Order placed successfully!');
-    router.push(`/order-success/${newOrder.id}`);
+    try {
+      await addOrder(newOrder);
+      clearCart();
+      toast.success('Order placed successfully!');
+      router.push(`/order-success/${newOrder.id}`);
+    } catch (error) {
+      console.error('Failed to place order:', error);
+      toast.error('Failed to place order. Please try again.');
+    }
   };
 
   if (cart.length === 0) {

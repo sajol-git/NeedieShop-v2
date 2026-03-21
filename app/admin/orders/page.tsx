@@ -183,7 +183,7 @@ export default function AdminOrders() {
                       />
                     </td>
                     <td className="px-6 py-4">
-                      <div className="font-medium text-gray-900 whitespace-nowrap">#{order.id.slice(0, 8)}</div>
+                      <div className="font-medium text-gray-900 whitespace-nowrap">#{order.id.startsWith('ORD-NS-') ? order.id : order.id.slice(0, 8)}</div>
                       <div className="text-xs text-gray-500 whitespace-nowrap">{order.items.length} items</div>
                     </td>
                     <td className="px-6 py-4">

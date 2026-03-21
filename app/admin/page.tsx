@@ -122,7 +122,7 @@ export default function AdminDashboard() {
                   </div>
                   <div>
                     <p className="text-sm font-semibold text-gray-900 line-clamp-1">{order.customerInfo.name}</p>
-                    <p className="text-xs text-gray-500 font-medium">#{order.id.slice(0, 8)}</p>
+                    <p className="text-xs text-gray-500 font-medium">#{order.id.startsWith('ORD-NS-') ? order.id : order.id.slice(0, 8)}</p>
                   </div>
                 </div>
                 <div className="text-right">

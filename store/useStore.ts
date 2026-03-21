@@ -144,11 +144,7 @@ export const useStore = create<StoreState>()(
       orders: [],
       user: null,
       isCartOpen: false,
-      offerBanners: [
-        { title: 'Exclusive for Man', subtitle: '2022-23', image: 'https://picsum.photos/seed/man/600/300', link: '#' },
-        { title: 'Exclusive for Woman', subtitle: '2022-23', image: 'https://picsum.photos/seed/woman/600/300', link: '#' },
-        { title: 'Exclusive for Kids', subtitle: '2022-23', image: 'https://picsum.photos/seed/kids/600/300', link: '#' },
-      ],
+      offerBanners: [],
       copyrightText: '',
       heroBanners: [],
       footerContent: {
@@ -160,22 +156,19 @@ export const useStore = create<StoreState>()(
         youtube: '',
       },
       storeSettings: {
-        name: 'NeedieShop',
-        email: 'support@needieshop.bd',
-        phone: '+880 1700 000000',
-        address: 'Dhaka, Bangladesh',
+        name: '',
+        email: '',
+        phone: '',
+        address: '',
         currency: 'BDT (৳)',
       },
       paymentSettings: {
         codEnabled: true,
         bkashEnabled: true,
         nagadEnabled: true,
-        advanceAmount: 200,
+        advanceAmount: 0,
       },
-      shippingZones: [
-        { id: 1, name: 'Inside Dhaka', fee: 60, estimatedDays: '1-2' },
-        { id: 2, name: 'Outside Dhaka', fee: 120, estimatedDays: '3-5' },
-      ],
+      shippingZones: [],
       coupons: [],
 
       setProducts: (products) => set({ products }),
@@ -605,10 +598,11 @@ export const useStore = create<StoreState>()(
             if (Array.isArray(offerBanners)) set({ offerBanners });
           }
 
-          // 7. Subscribe to Realtime Updates for Settings
+          // 7. Subscribe to Realtime Updates
           supabase
             .channel('settings_changes')
             .on('postgres_changes', { event: '*', table: 'settings', schema: 'public' }, (payload) => {
+              if (!payload.new) return;
               const { key, value } = payload.new as any;
               if (key === 'footer_content') set({ footerContent: value });
               if (key === 'copyright_text') set({ copyrightText: value });
@@ -618,6 +612,53 @@ export const useStore = create<StoreState>()(
               if (key === 'coupons') set({ coupons: value });
               if (key === 'hero_banners' && Array.isArray(value)) set({ heroBanners: value });
               if (key === 'offer_banners' && Array.isArray(value)) set({ offerBanners: value });
+            })
+            .subscribe();
+
+          supabase
+            .channel('products_changes')
+            .on('postgres_changes', { event: '*', table: 'products', schema: 'public' }, async () => {
+              const { getAllProducts } = await import('@/lib/products');
+              const products = await getAllProducts();
+              set({ products });
+            })
+            .subscribe();
+
+          supabase
+            .channel('categories_changes')
+            .on('postgres_changes', { event: '*', table: 'categories', schema: 'public' }, (payload) => {
+              if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
+                const c = payload.new as any;
+                const category = { id: c.id, name: c.name, slug: c.slug, photo: c.image_url };
+                set((state) => ({
+                  categories: payload.eventType === 'INSERT' 
+                    ? [...state.categories, category]
+                    : state.categories.map(cat => cat.id === c.id ? category : cat)
+                }));
+              } else if (payload.eventType === 'DELETE') {
+                set((state) => ({
+                  categories: state.categories.filter(cat => cat.id !== payload.old.id)
+                }));
+              }
+            })
+            .subscribe();
+
+          supabase
+            .channel('brands_changes')
+            .on('postgres_changes', { event: '*', table: 'brands', schema: 'public' }, (payload) => {
+              if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
+                const b = payload.new as any;
+                const brand = { id: b.id, name: b.name, slug: b.slug, photo: b.image_url };
+                set((state) => ({
+                  brands: payload.eventType === 'INSERT' 
+                    ? [...state.brands, brand]
+                    : state.brands.map(br => br.id === b.id ? brand : br)
+                }));
+              } else if (payload.eventType === 'DELETE') {
+                set((state) => ({
+                  brands: state.brands.filter(br => br.id !== payload.old.id)
+                }));
+              }
             })
             .subscribe();
         } catch (error) {

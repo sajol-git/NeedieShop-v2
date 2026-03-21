@@ -13,6 +13,30 @@ export default function AdminProducts() {
   const [searchTerm, setSearchTerm] = useState('');
   const [productToDelete, setProductToDelete] = useState<string | null>(null);
   const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
+  const [bulkStockQuantity, setBulkStockQuantity] = useState<number | null>(null);
+
+  const handleBulkStockUpdate = async () => {
+    if (bulkStockQuantity === null || selectedProducts.length === 0) {
+      toast.error('Please enter a stock quantity and select products.');
+      return;
+    }
+
+    if (bulkStockQuantity < 0) {
+      toast.error('Stock quantity cannot be negative.');
+      return;
+    }
+
+    try {
+      for (const id of selectedProducts) {
+        await updateProduct(id, { stock: bulkStockQuantity });
+      }
+      toast.success(`${selectedProducts.length} products stock updated to ${bulkStockQuantity}`);
+      setSelectedProducts([]);
+      setBulkStockQuantity(null);
+    } catch (error) {
+      toast.error('Failed to update stock for some products');
+    }
+  };
 
   const filteredProducts = products.filter(product => 
     product.title?.toLowerCase().includes(searchTerm.toLowerCase()) || 
@@ -102,31 +126,56 @@ export default function AdminProducts() {
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="bg-indigo-50 border border-indigo-100 p-4 rounded-xl flex flex-wrap items-center justify-between gap-4"
+            className="bg-indigo-50 border border-indigo-100 p-6 rounded-2xl space-y-4"
           >
-            <div className="flex items-center gap-2 text-indigo-700 font-medium text-sm">
-              <CheckSquare className="w-5 h-5" />
-              <span>{selectedProducts.length} products selected</span>
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div className="flex items-center gap-2 text-indigo-700 font-medium text-sm">
+                <CheckSquare className="w-5 h-5" />
+                <span>{selectedProducts.length} products selected</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <button 
+                  onClick={() => handleBulkStatusUpdate('published')}
+                  className="text-sm font-medium px-4 py-2 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-gray-700"
+                >
+                  Publish
+                </button>
+                <button 
+                  onClick={() => handleBulkStatusUpdate('draft')}
+                  className="text-sm font-medium px-4 py-2 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-gray-700"
+                >
+                  Draft
+                </button>
+                <button 
+                  onClick={handleBulkDelete}
+                  className="text-sm font-medium px-4 py-2 bg-red-50 text-red-600 border border-red-100 rounded-lg hover:bg-red-100 transition-colors flex items-center gap-2"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  Delete
+                </button>
+              </div>
             </div>
-            <div className="flex items-center gap-3">
+
+            <div className="pt-4 border-t border-indigo-100 flex flex-col sm:flex-row gap-4 items-end">
+              <div className="flex-1 w-full">
+                <label className="block text-xs font-bold text-indigo-600 uppercase tracking-widest mb-1.5 ml-1">Bulk Stock Update</label>
+                <div className="relative">
+                  <Package className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-indigo-400" />
+                  <input 
+                    type="number" 
+                    value={bulkStockQuantity === null ? '' : bulkStockQuantity}
+                    onChange={(e) => setBulkStockQuantity(e.target.value === '' ? null : Number(e.target.value))}
+                    className="w-full pl-12 pr-4 py-3 rounded-xl border border-indigo-200 focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 transition-all outline-none text-sm bg-white"
+                    placeholder="Enter stock quantity for selected products..."
+                  />
+                </div>
+              </div>
               <button 
-                onClick={() => handleBulkStatusUpdate('published')}
-                className="text-sm font-medium px-4 py-2 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-gray-700"
+                onClick={handleBulkStockUpdate}
+                className="px-6 py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100 flex items-center gap-2 w-full sm:w-auto justify-center text-sm"
               >
-                Publish
-              </button>
-              <button 
-                onClick={() => handleBulkStatusUpdate('draft')}
-                className="text-sm font-medium px-4 py-2 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-gray-700"
-              >
-                Draft
-              </button>
-              <button 
-                onClick={handleBulkDelete}
-                className="text-sm font-medium px-4 py-2 bg-red-50 text-red-600 border border-red-100 rounded-lg hover:bg-red-100 transition-colors flex items-center gap-2"
-              >
-                <Trash2 className="w-4 h-4" />
-                Delete
+                <Save className="w-4 h-4" />
+                Update Stock
               </button>
             </div>
           </motion.div>
@@ -182,7 +231,7 @@ export default function AdminProducts() {
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-4">
                         <div className="w-12 h-12 rounded-xl bg-gray-50 border border-gray-100 overflow-hidden relative shrink-0 flex items-center justify-center">
-                          {product.image_url ? (
+                          {product.image_url && product.image_url !== '#' ? (
                             <Image 
                               src={product.image_url} 
                               alt={product.title} 

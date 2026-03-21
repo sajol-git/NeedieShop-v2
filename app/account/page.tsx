@@ -33,10 +33,14 @@ export default function AccountPage() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<'dashboard' | 'orders' | 'profile' | 'rewards' | 'address' | 'notifications' | 'support'>(() => {
     if (typeof window !== 'undefined') {
-      const params = new URLSearchParams(window.location.search);
-      const tab = params.get('tab');
-      if (tab && ['dashboard', 'orders', 'profile', 'rewards', 'address', 'notifications', 'support'].includes(tab)) {
-        return tab as any;
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const tab = params.get('tab');
+        if (tab && ['dashboard', 'orders', 'profile', 'rewards', 'address', 'notifications', 'support'].includes(tab)) {
+          return tab as any;
+        }
+      } catch (e) {
+        console.error('Failed to parse URLSearchParams', e);
       }
     }
     return 'dashboard';

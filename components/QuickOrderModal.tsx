@@ -24,16 +24,18 @@ const generateOrderId = (orderCount: number) => {
 export function QuickOrderModal({ isOpen, onClose, product, selectedVariantId, quantity }: QuickOrderModalProps) {
   const addOrder = useStore((state) => state.addOrder);
   const orders = useStore((state) => state.orders);
+  const shippingZones = useStore((state) => state.shippingZones);
   const router = useRouter();
 
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
     address: '',
-    zone: 'Inside Dhaka' as 'Inside Dhaka' | 'Outside Dhaka',
+    zone: (Array.isArray(shippingZones) && shippingZones.length > 0 ? shippingZones[0].name : 'Inside Dhaka') as string,
   });
 
-  const shippingFee = formData.zone === 'Inside Dhaka' ? 60 : 120;
+  const selectedZone = Array.isArray(shippingZones) ? shippingZones.find(z => z.name === formData.zone) : undefined;
+  const shippingFee = selectedZone ? selectedZone.fee : (Array.isArray(shippingZones) && shippingZones.length > 0 ? shippingZones[0].fee : 60);
   const subtotal = product.discount_price * quantity;
   const total = subtotal + shippingFee;
 
@@ -65,6 +67,7 @@ export function QuickOrderModal({ isOpen, onClose, product, selectedVariantId, q
       status: 'Pending',
       customerInfo: {
         ...formData,
+        zone: formData.zone as "Inside Dhaka" | "Outside Dhaka",
         ipAddress,
       },
       trackingHistory: [
@@ -77,10 +80,15 @@ export function QuickOrderModal({ isOpen, onClose, product, selectedVariantId, q
       createdAt: new Date().toISOString(),
     };
 
-    addOrder(newOrder);
-    toast.success('Order placed successfully!');
-    onClose();
-    router.push(`/order-success/${newOrder.id}`);
+    try {
+      await addOrder(newOrder);
+      toast.success('Order placed successfully!');
+      onClose();
+      router.push(`/order-success/${newOrder.id}`);
+    } catch (error) {
+      console.error('Failed to place order:', error);
+      toast.error('Failed to place order. Please try again.');
+    }
   };
 
   return (
@@ -154,28 +162,20 @@ export function QuickOrderModal({ isOpen, onClose, product, selectedVariantId, q
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
-                  <button
-                    type="button"
-                    onClick={() => setFormData({ ...formData, zone: 'Inside Dhaka' })}
-                    className={`p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 ${
-                      formData.zone === 'Inside Dhaka' ? 'border-[#8B183A] bg-[#8B183A]/5 text-[#8B183A]' : 'border-gray-100 text-gray-500'
-                    }`}
-                  >
-                    <Truck className="w-6 h-6" strokeWidth={1.5} />
-                    <span className="text-xs font-bold uppercase">Inside Dhaka</span>
-                    <span className="text-sm font-bold">৳60</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setFormData({ ...formData, zone: 'Outside Dhaka' })}
-                    className={`p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 ${
-                      formData.zone === 'Outside Dhaka' ? 'border-[#8B183A] bg-[#8B183A]/5 text-[#8B183A]' : 'border-gray-100 text-gray-500'
-                    }`}
-                  >
-                    <Truck className="w-6 h-6" strokeWidth={1.5} />
-                    <span className="text-xs font-bold uppercase">Outside Dhaka</span>
-                    <span className="text-sm font-bold">৳120</span>
-                  </button>
+                  {Array.isArray(shippingZones) && shippingZones.map((zone) => (
+                    <button
+                      key={zone.id}
+                      type="button"
+                      onClick={() => setFormData({ ...formData, zone: zone.name })}
+                      className={`p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 ${
+                        formData.zone === zone.name ? 'border-[#8B183A] bg-[#8B183A]/5 text-[#8B183A]' : 'border-gray-100 text-gray-500'
+                      }`}
+                    >
+                      <Truck className="w-6 h-6" strokeWidth={1.5} />
+                      <span className="text-xs font-bold uppercase">{zone.name}</span>
+                      <span className="text-sm font-bold">৳{zone.fee}</span>
+                    </button>
+                  ))}
                 </div>
 
                 <div className="bg-white border border-gray-100 p-6 rounded-3xl space-y-3 shadow-sm">
