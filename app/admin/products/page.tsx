@@ -2,7 +2,7 @@
 
 import { useStore, Product } from '@/store/useStore';
 import { useState } from 'react';
-import { Search, Edit, Trash2, Image as ImageIcon, Star, Zap, AlertTriangle, Truck, CheckSquare, Square, MoreVertical, Package, Plus } from 'lucide-react';
+import { Search, Edit, Trash2, Image as ImageIcon, Star, Zap, AlertTriangle, Truck, CheckSquare, Square, MoreVertical, Package, Plus, Save } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import Image from 'next/image';
 import Link from 'next/link';
