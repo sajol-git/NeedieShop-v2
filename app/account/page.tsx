@@ -17,11 +17,10 @@ import {
   Bell,
   MapPin,
   PlusCircle,
-  Mail,
   Phone,
   LayoutDashboard
 } from 'lucide-react';
-import { UserIcon, TotalOrderIcon, HomeIcon, TrackOrderIcon, NeediePrimeIcon, SupportIcon } from '@/components/icons';
+import { UserIcon, TotalOrderIcon, HomeIcon, TrackOrderIcon, NeediePrimeIcon, SupportIcon, EmailIcon } from '@/components/icons';
 import { motion, AnimatePresence } from 'motion/react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -441,7 +440,7 @@ export default function AccountPage() {
                       </div>
                       <div className="flex items-center gap-4 p-6 bg-gray-50 rounded-2xl border border-gray-100">
                         <div className="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600">
-                          <Mail className="w-6 h-6" />
+                          <EmailIcon className="w-6 h-6" />
                         </div>
                         <div className="flex-1">
                           <p className="text-xs font-bold text-gray-400 uppercase">Email Address</p>
@@ -894,7 +893,7 @@ export default function AccountPage() {
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
                       <div className="p-6 bg-gray-50 rounded-3xl border border-gray-100 text-center group hover:bg-white hover:shadow-md transition-all">
                         <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-[#8B183A] mx-auto mb-4 shadow-sm group-hover:scale-110 transition-transform">
-                          <Mail className="w-6 h-6" />
+                          <EmailIcon className="w-6 h-6" />
                         </div>
                         <h4 className="font-bold text-gray-900 mb-1">Email Us</h4>
                         <p className="text-xs text-gray-500">support@needieshop.bd</p>
@@ -991,7 +990,7 @@ export default function AccountPage() {
                       <div className="space-y-2">
                         <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">Email Address</label>
                         <div className="relative">
-                          <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                          <EmailIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                           <input 
                             type="email" 
                             disabled={!isEditingProfile}

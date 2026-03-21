@@ -26,7 +26,7 @@ export function MobileBottomNav() {
     { name: 'Shop', href: '/shop', icon: AddIcon },
     { name: 'Checkout', href: '/checkout', icon: CartIcon, count: cartCount },
     { name: 'Track', href: '/track-order', icon: TrackOrderIcon },
-    { name: 'Account', href: user ? '/profile' : '/login', icon: UserIcon },
+    { name: 'Account', href: user ? (user.role === 'admin' ? '/admin' : (user.role === 'suspect' ? '/suspect' : '/account')) : '/login', icon: UserIcon },
   ];
 
   return (

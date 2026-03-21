@@ -14,11 +14,16 @@ import { supabase } from '@/lib/supabase';
 export default function OrderSuccessPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const orders = useStore((state) => state.orders);
-  const [order, setOrder] = useState<Order | null>(orders.find(o => o.id === id) || null);
-  const [loading, setLoading] = useState(!order);
+  
+  // Find order in store first
+  const storeOrder = orders.find(o => o.id === id);
+  
+  const [order, setOrder] = useState<Order | null>(storeOrder || null);
+  const [loading, setLoading] = useState(!storeOrder);
 
   useEffect(() => {
-    if (!order) {
+    let isMounted = true;
+    if (!storeOrder && !order) {
       const fetchOrder = async () => {
         const { data, error } = await supabase
           .from('orders')
@@ -26,14 +31,19 @@ export default function OrderSuccessPage({ params }: { params: Promise<{ id: str
           .eq('id', id)
           .single();
         
-        if (data) {
-          setOrder(data as Order);
+        if (isMounted) {
+          if (data) {
+            setOrder(data as any);
+          }
+          setLoading(false);
         }
-        setLoading(false);
       };
       fetchOrder();
     }
-  }, [order, id]);
+    return () => {
+      isMounted = false;
+    };
+  }, [storeOrder, order, id]);
 
   if (loading) {
     return (
@@ -68,8 +78,8 @@ export default function OrderSuccessPage({ params }: { params: Promise<{ id: str
             <CheckCircle2 className="w-10 h-10 text-emerald-600" />
           </div>
           
-          <h1 className="text-4xl font-black text-gray-900 mb-4">Order Placed!</h1>
-          <p className="text-gray-500 mb-12 text-lg">
+          <h1 className="text-3xl font-black text-gray-900 mb-4">Order Placed!</h1>
+          <p className="text-gray-500 mb-12 text-base text-justify">
             Thank you for your order. Your order ID is <span className="font-bold text-gray-900">#{order.id}</span>.
             We will contact you shortly to confirm your delivery.
           </p>
@@ -79,7 +89,7 @@ export default function OrderSuccessPage({ params }: { params: Promise<{ id: str
             <h2 className="text-xl font-bold text-gray-900 text-center mb-8">Order Summary</h2>
             
             <div className="space-y-6 mb-8">
-              {order.items.map((item, index) => (
+              {order.items?.map((item, index) => (
                 <div key={index} className="flex items-center gap-4">
                   <div className="relative w-16 h-16 bg-gray-50 rounded-2xl overflow-hidden shrink-0 border border-gray-100">
                     <Image src={item.product.image_url || '/placeholder.png'} alt={item.product.title} fill className="object-cover" referrerPolicy="no-referrer" />

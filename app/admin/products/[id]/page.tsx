@@ -173,7 +173,7 @@ export default function EditProductPage() {
                     });
                   }}
                   placeholder="Short sleeve t-shirt"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-3xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-3xl focus:ring-2 focus:ring-[#8B183A] focus:border-[#8B183A] outline-none transition-all"
                 />
               </div>
               <div>
@@ -184,7 +184,7 @@ export default function EditProductPage() {
                   onChange={(e) => setFormData({...formData, slug: e.target.value})}
                   placeholder="short-sleeve-t-shirt"
                   disabled={formData.status === 'published'}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-3xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all disabled:bg-gray-100 disabled:text-gray-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-3xl focus:ring-2 focus:ring-[#8B183A] focus:border-[#8B183A] outline-none transition-all disabled:bg-gray-100 disabled:text-gray-500"
                 />
                 {formData.status === 'published' && (
                   <p className="text-xs text-gray-500 mt-1">Slug cannot be edited while published. Change status to draft to edit.</p>
@@ -197,7 +197,7 @@ export default function EditProductPage() {
                   value={formData.metaTitle}
                   onChange={(e) => setFormData({...formData, metaTitle: e.target.value})}
                   placeholder="SEO Title"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-3xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-3xl focus:ring-2 focus:ring-[#8B183A] focus:border-[#8B183A] outline-none transition-all"
                 />
               </div>
               <div>
@@ -206,7 +206,7 @@ export default function EditProductPage() {
                   <button 
                     onClick={generateDescription}
                     disabled={isGenerating}
-                    className="text-xs font-medium text-indigo-600 hover:text-indigo-700 flex items-center gap-1 disabled:opacity-50"
+                    className="text-xs font-medium text-[#8B183A] hover:text-[#8B183A]/80 flex items-center gap-1 disabled:opacity-50"
                   >
                     <Sparkles className="w-3 h-3" />
                     {isGenerating ? 'Generating...' : 'Generate with AI'}
@@ -227,7 +227,7 @@ export default function EditProductPage() {
                   value={formData.metaDescription}
                   onChange={(e) => setFormData({...formData, metaDescription: e.target.value})}
                   rows={2}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-3xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all resize-y"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-3xl focus:ring-2 focus:ring-[#8B183A] focus:border-[#8B183A] outline-none transition-all resize-y"
                 />
               </div>
             </div>
@@ -247,7 +247,7 @@ export default function EditProductPage() {
                     value={formData.image_url}
                     onChange={(e) => setFormData({...formData, image_url: e.target.value})}
                     placeholder="https://example.com/feature-image.jpg"
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-3xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-3xl focus:ring-2 focus:ring-[#8B183A] focus:border-[#8B183A] outline-none transition-all"
                   />
                   <ImageUpload 
                     onUpload={(url) => setFormData({...formData, image_url: url})} 
@@ -284,7 +284,7 @@ export default function EditProductPage() {
                           setFormData({...formData, image_gallery: newGallery});
                         }}
                         placeholder={`https://example.com/gallery-${index + 1}.jpg`}
-                        className="flex-1 px-3 py-2 border border-gray-300 rounded-3xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
+                        className="flex-1 px-3 py-2 border border-gray-300 rounded-3xl focus:ring-2 focus:ring-[#8B183A] focus:border-[#8B183A] outline-none transition-all"
                       />
                       <ImageUpload 
                         onUpload={(newUrl) => {
@@ -310,7 +310,7 @@ export default function EditProductPage() {
                   {formData.image_gallery.length < 10 && (
                     <button 
                       onClick={() => setFormData({...formData, image_gallery: [...formData.image_gallery, '']})}
-                      className="text-sm font-medium text-indigo-600 hover:text-indigo-700 flex items-center gap-1"
+                      className="text-sm font-medium text-[#8B183A] hover:text-[#8B183A]/80 flex items-center gap-1"
                     >
                       <AddIcon className="w-4 h-4" />
                       Add gallery image URL
@@ -350,7 +350,7 @@ export default function EditProductPage() {
                     type="number" 
                     value={formData.discount_price}
                     onChange={(e) => setFormData({...formData, discount_price: e.target.value})}
-                    className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-3xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
+                    className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-3xl focus:ring-2 focus:ring-[#8B183A] focus:border-[#8B183A] outline-none transition-all"
                     placeholder="0.00"
                   />
                 </div>
@@ -363,7 +363,7 @@ export default function EditProductPage() {
                     type="number" 
                     value={formData.original_price}
                     onChange={(e) => setFormData({...formData, original_price: e.target.value})}
-                    className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-3xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
+                    className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-3xl focus:ring-2 focus:ring-[#8B183A] focus:border-[#8B183A] outline-none transition-all"
                     placeholder="0.00"
                   />
                 </div>
@@ -380,7 +380,7 @@ export default function EditProductPage() {
                 type="number" 
                 value={formData.stock}
                 onChange={(e) => setFormData({...formData, stock: e.target.value})}
-                className="w-full px-3 py-2 border border-gray-300 rounded-3xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
+                className="w-full px-3 py-2 border border-gray-300 rounded-3xl focus:ring-2 focus:ring-[#8B183A] focus:border-[#8B183A] outline-none transition-all"
                 placeholder="0"
               />
             </div>
@@ -395,7 +395,7 @@ export default function EditProductPage() {
             <select 
               value={formData.status}
               onChange={(e) => setFormData({...formData, status: e.target.value as 'draft' | 'published'})}
-              className="w-full px-3 py-2 border border-gray-300 rounded-3xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all bg-white"
+              className="w-full px-3 py-2 border border-gray-300 rounded-3xl focus:ring-2 focus:ring-[#8B183A] focus:border-[#8B183A] outline-none transition-all bg-white"
             >
               <option value="published">Published</option>
               <option value="draft">Draft</option>
@@ -411,7 +411,7 @@ export default function EditProductPage() {
                 <select 
                   value={formData.category}
                   onChange={(e) => setFormData({...formData, category: e.target.value})}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-3xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all bg-white"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-3xl focus:ring-2 focus:ring-[#8B183A] focus:border-[#8B183A] outline-none transition-all bg-white"
                 >
                   {categories.map(cat => <option key={cat.id} value={cat.name}>{cat.name}</option>)}
                 </select>
@@ -421,7 +421,7 @@ export default function EditProductPage() {
                 <select 
                   value={formData.brand}
                   onChange={(e) => setFormData({...formData, brand: e.target.value})}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-3xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all bg-white"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-3xl focus:ring-2 focus:ring-[#8B183A] focus:border-[#8B183A] outline-none transition-all bg-white"
                 >
                   {brands.map(brand => <option key={brand.id} value={brand.name}>{brand.name}</option>)}
                 </select>
@@ -439,7 +439,7 @@ export default function EditProductPage() {
                     type="checkbox" 
                     checked={formData.free_delivery}
                     onChange={(e) => setFormData({...formData, free_delivery: e.target.checked})}
-                    className="peer appearance-none w-5 h-5 border border-gray-300 rounded focus:ring-2 focus:ring-indigo-500 focus:ring-offset-1 checked:bg-indigo-600 checked:border-indigo-600 transition-colors cursor-pointer"
+                    className="peer appearance-none w-5 h-5 border border-gray-300 rounded focus:ring-2 focus:ring-[#8B183A] focus:ring-offset-1 checked:bg-[#8B183A] checked:border-[#8B183A] transition-colors cursor-pointer"
                   />
                   <Check className="w-3.5 h-3.5 text-white absolute pointer-events-none opacity-0 peer-checked:opacity-100 transition-opacity" />
                 </div>

@@ -64,8 +64,8 @@ export default function AdminLogin() {
   return (
     <div className="min-h-screen bg-gray-900 flex flex-col items-center justify-center p-4 relative overflow-hidden">
       {/* Dark theme decorative background elements */}
-      <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-900/40 rounded-full blur-3xl opacity-50 mix-blend-screen"></div>
-      <div className="absolute bottom-0 left-0 w-96 h-96 bg-violet-900/40 rounded-full blur-3xl opacity-50 mix-blend-screen"></div>
+      <div className="absolute top-0 right-0 w-96 h-96 bg-[#8B183A]/20 rounded-full blur-3xl opacity-50 mix-blend-screen"></div>
+      <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#8B183A]/10 rounded-full blur-3xl opacity-50 mix-blend-screen"></div>
 
       <motion.div 
         initial={{ opacity: 0, scale: 0.95 }}
@@ -74,7 +74,7 @@ export default function AdminLogin() {
       >
         <div className="bg-gray-800/50 backdrop-blur-xl p-8 rounded-[2rem] shadow-2xl border border-gray-700/50">
           <div className="flex justify-center mb-8">
-            <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-violet-600 rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-500/30 transform -rotate-3">
+            <div className="w-16 h-16 bg-gradient-to-br from-[#8B183A] to-red-900 rounded-2xl flex items-center justify-center shadow-lg shadow-[#8B183A]/30 transform -rotate-3">
               <Crown className="w-8 h-8 text-white" />
             </div>
           </div>
@@ -96,7 +96,7 @@ export default function AdminLogin() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="admin@needieshop.bd"
-                  className="w-full pl-12 pr-4 py-3 bg-gray-900/50 border border-gray-700 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all text-white placeholder-gray-600"
+                  className="w-full pl-12 pr-4 py-3 bg-gray-900/50 border border-gray-700 rounded-xl focus:ring-2 focus:ring-[#8B183A] focus:border-[#8B183A] outline-none transition-all text-white placeholder-gray-600"
                 />
               </div>
             </div>
@@ -112,7 +112,7 @@ export default function AdminLogin() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full pl-12 pr-4 py-3 bg-gray-900/50 border border-gray-700 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all text-white placeholder-gray-600"
+                  className="w-full pl-12 pr-4 py-3 bg-gray-900/50 border border-gray-700 rounded-xl focus:ring-2 focus:ring-[#8B183A] focus:border-[#8B183A] outline-none transition-all text-white placeholder-gray-600"
                 />
               </div>
             </div>
@@ -120,7 +120,7 @@ export default function AdminLogin() {
             <button 
               type="submit"
               disabled={loading}
-              className="w-full bg-indigo-600 text-white py-3.5 rounded-xl font-semibold hover:bg-indigo-500 transition-colors flex items-center justify-center gap-2 group mt-4 shadow-lg shadow-indigo-600/20 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-[#8B183A] text-white py-3.5 rounded-xl font-semibold hover:bg-[#8B183A]/90 transition-colors flex items-center justify-center gap-2 group mt-4 shadow-lg shadow-[#8B183A]/20 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? 'Authenticating...' : 'Authenticate'}
               {!loading && <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />}

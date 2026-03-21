@@ -2,7 +2,8 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { Facebook, Instagram, Youtube, Mail, Phone, MapPin, Lock, Smartphone } from 'lucide-react';
+import { Facebook, Instagram, Youtube, Phone, MapPin, Lock, Smartphone } from 'lucide-react';
+import { EmailIcon } from '@/components/icons';
 import { useStore } from '@/store/useStore';
 
 export function Footer() {
@@ -69,7 +70,7 @@ export function Footer() {
                 <span className="text-sm">{footerContent.address}</span>
               </li>
               <li className="flex items-center gap-3 text-gray-400">
-                <Mail className="w-5 h-5 shrink-0 text-[#8B183A]" strokeWidth={2} />
+                <EmailIcon className="w-5 h-5 shrink-0 text-[#8B183A]" />
                 <span className="text-sm">{footerContent.email}</span>
               </li>
               <li className="flex items-center gap-3 text-gray-400">
@@ -78,15 +79,21 @@ export function Footer() {
               </li>
             </ul>
             <div className="mt-6 flex gap-4">
-              <Link href={footerContent.facebook} className="w-10 h-10 bg-white/5 rounded-full flex items-center justify-center hover:bg-[#8B183A] transition-colors">
-                <Facebook className="w-5 h-5" strokeWidth={2} />
-              </Link>
-              <Link href={footerContent.instagram} className="w-10 h-10 bg-white/5 rounded-full flex items-center justify-center hover:bg-[#8B183A] transition-colors">
-                <Instagram className="w-5 h-5" strokeWidth={2} />
-              </Link>
-              <Link href={footerContent.youtube} className="w-10 h-10 bg-white/5 rounded-full flex items-center justify-center hover:bg-[#8B183A] transition-colors">
-                <Youtube className="w-5 h-5" strokeWidth={2} />
-              </Link>
+              {footerContent?.facebook && (
+                <Link href={footerContent.facebook} className="w-10 h-10 bg-white/5 rounded-full flex items-center justify-center hover:bg-[#8B183A] transition-colors">
+                  <Facebook className="w-5 h-5" strokeWidth={2} />
+                </Link>
+              )}
+              {footerContent?.instagram && (
+                <Link href={footerContent.instagram} className="w-10 h-10 bg-white/5 rounded-full flex items-center justify-center hover:bg-[#8B183A] transition-colors">
+                  <Instagram className="w-5 h-5" strokeWidth={2} />
+                </Link>
+              )}
+              {footerContent?.youtube && (
+                <Link href={footerContent.youtube} className="w-10 h-10 bg-white/5 rounded-full flex items-center justify-center hover:bg-[#8B183A] transition-colors">
+                  <Youtube className="w-5 h-5" strokeWidth={2} />
+                </Link>
+              )}
             </div>
             <div className="mt-6 flex flex-wrap gap-4">
               <Link href="#" className="block">

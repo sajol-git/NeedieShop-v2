@@ -32,16 +32,18 @@ export default function CheckoutPage() {
   const clearCart = useStore((state) => state.clearCart);
   const router = useRouter();
 
+  const shippingZones = useStore((state) => state.shippingZones);
   const [formData, setFormData] = useState({
     name: user && user.isProfileCompleted ? user.name : '',
     phone: user && user.isProfileCompleted ? user.phone : '',
     address: '',
-    zone: 'Inside Dhaka' as 'Inside Dhaka' | 'Outside Dhaka',
+    zone: (Array.isArray(shippingZones) && shippingZones.length > 0 ? shippingZones[0].name : 'Outside Dhaka') as string,
     paymentMethod: 'Cash on Delivery' as 'Cash on Delivery' | 'bKash',
   });
 
   const subtotal = cart.reduce((acc, item) => acc + item.product.discount_price * item.quantity, 0);
-  const shippingFee = formData.zone === 'Inside Dhaka' ? 60 : 120;
+  const selectedZone = Array.isArray(shippingZones) ? shippingZones.find(z => z.name === formData.zone) : undefined;
+  const shippingFee = selectedZone ? selectedZone.fee : (Array.isArray(shippingZones) && shippingZones.length > 0 ? shippingZones[0].fee : 120);
   const total = subtotal + shippingFee;
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -92,7 +94,7 @@ export default function CheckoutPage() {
       createdAt: new Date().toISOString(),
     };
 
-    addOrder(newOrder);
+    await addOrder(newOrder);
     clearCart();
     toast.success('Order placed successfully!');
     router.push(`/order-success/${newOrder.id}`);
@@ -189,28 +191,20 @@ export default function CheckoutPage() {
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
-                  <button
-                    type="button"
-                    onClick={() => setFormData({ ...formData, zone: 'Inside Dhaka' })}
-                    className={`p-6 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 ${
-                      formData.zone === 'Inside Dhaka' ? 'border-[#8B183A] bg-[#8B183A]/5 text-[#8B183A]' : 'border-gray-100 text-gray-500'
-                    }`}
-                  >
-                    <TrackOrderIcon className="w-6 h-6" strokeWidth={10} />
-                    <span className="text-xs font-bold uppercase">Inside Dhaka</span>
-                    <span className="text-sm font-bold">৳60</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setFormData({ ...formData, zone: 'Outside Dhaka' })}
-                    className={`p-6 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 ${
-                      formData.zone === 'Outside Dhaka' ? 'border-[#8B183A] bg-[#8B183A]/5 text-[#8B183A]' : 'border-gray-100 text-gray-500'
-                    }`}
-                  >
-                    <TrackOrderIcon className="w-6 h-6" strokeWidth={10} />
-                    <span className="text-xs font-bold uppercase">Outside Dhaka</span>
-                    <span className="text-sm font-bold">৳120</span>
-                  </button>
+                  {Array.isArray(shippingZones) && shippingZones.map((zone) => (
+                    <button
+                      key={zone.id}
+                      type="button"
+                      onClick={() => setFormData({ ...formData, zone: zone.name as any })}
+                      className={`p-6 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 ${
+                        formData.zone === zone.name ? 'border-[#8B183A] bg-[#8B183A]/5 text-[#8B183A]' : 'border-gray-100 text-gray-500'
+                      }`}
+                    >
+                      <TrackOrderIcon className="w-6 h-6" strokeWidth={10} />
+                      <span className="text-xs font-bold uppercase">{zone.name}</span>
+                      <span className="text-sm font-bold">৳{zone.fee}</span>
+                    </button>
+                  ))}
                 </div>
               </div>
             </section>

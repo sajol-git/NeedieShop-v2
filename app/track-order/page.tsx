@@ -47,8 +47,8 @@ function TrackOrderContent() {
   return (
     <main className="pt-24 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="text-center mb-12">
-        <h1 className="text-4xl font-black text-gray-900 mb-4">Track Your Order</h1>
-        <p className="text-gray-500">Enter your Order ID or Phone Number to see the status</p>
+        <h1 className="text-3xl font-black text-gray-900 mb-4">Track Your Order</h1>
+        <p className="text-gray-500 text-sm text-justify">Enter your Order ID or Phone Number to see the status</p>
       </div>
 
       <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 mb-12">

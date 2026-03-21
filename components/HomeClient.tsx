@@ -10,10 +10,18 @@ import { Product } from '@/lib/products';
 import { useStore } from '@/store/useStore';
 
 export default function HomeClient() {
-  const { heroBanners, categories, products, brands } = useStore();
+  const { heroBanners, categories, products, brands, offerBanners } = useStore();
   const featuredProducts = products.filter(p => p.is_featured && p.status === 'published');
   const flashSaleProducts = products.filter(p => p.is_flash_sale && p.status === 'published');
-  const activeBanners = heroBanners.filter(b => b.status === 'Active');
+  const activeBanners = (Array.isArray(heroBanners) ? heroBanners : []).filter(b => b.status === 'Active');
+  
+  const displayOfferBanners = Array.isArray(offerBanners) && offerBanners.length > 0 
+    ? offerBanners 
+    : [
+        { title: 'Exclusive for Man', image: 'https://picsum.photos/seed/man/600/300', link: '#' },
+        { title: 'Exclusive for Woman', image: 'https://picsum.photos/seed/woman/600/300', link: '#' },
+        { title: 'Exclusive for Kids', image: 'https://picsum.photos/seed/kids/600/300', link: '#' },
+      ];
   const [timeLeft, setTimeLeft] = useState({ hours: 23, minutes: 59, seconds: 59 });
   const [currentBanner, setCurrentBanner] = useState(0);
 
@@ -104,10 +112,11 @@ export default function HomeClient() {
             >
               <div className="block relative aspect-square bg-gray-50 rounded-xl overflow-hidden">
                 {category.photo ? (
-                  <img 
+                  <Image 
                     src={category.photo} 
                     alt={category.name} 
-                    className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-700"
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-700"
                     referrerPolicy="no-referrer"
                   />
                 ) : (
@@ -129,18 +138,14 @@ export default function HomeClient() {
       {/* Winter Collection Banners */}
       <section className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 mb-20">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {[
-            { title: 'Exclusive for Man', image: 'https://picsum.photos/seed/man/600/300' },
-            { title: 'Exclusive for Woman', image: 'https://picsum.photos/seed/woman/600/300' },
-            { title: 'Exclusive for Kids', image: 'https://picsum.photos/seed/kids/600/300' },
-          ].map((banner, i) => (
-            <div key={i} className="relative rounded-3xl overflow-hidden aspect-[2/1] md:aspect-[1.5/1]">
-              <Image src={banner.image} alt={banner.title} fill className="object-cover" referrerPolicy="no-referrer" />
+          {displayOfferBanners.map((banner, i) => (
+            <Link key={i} href={banner.link || '#'} className="relative rounded-3xl overflow-hidden aspect-[2/1] md:aspect-[1.5/1] group">
+              <Image src={banner.image || '/placeholder.png'} alt={banner.title} fill className="object-cover group-hover:scale-105 transition-transform duration-700" referrerPolicy="no-referrer" />
               <div className="absolute inset-0 bg-black/20 flex flex-col justify-center p-8">
                 <h3 className="text-white text-2xl font-bold">{banner.title}</h3>
                 <p className="text-white">2022-23</p>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       </section>
@@ -220,10 +225,11 @@ export default function HomeClient() {
             >
               <div className="block relative aspect-square bg-gray-50 rounded-xl overflow-hidden">
                 {brand.photo ? (
-                  <img 
+                  <Image 
                     src={brand.photo} 
                     alt={brand.name} 
-                    className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-700"
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-700"
                     referrerPolicy="no-referrer"
                   />
                 ) : (

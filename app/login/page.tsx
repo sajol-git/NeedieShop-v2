@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ScanFace, Sparkles, Phone, ArrowRight, KeyRound, Mail, Lock, User } from 'lucide-react';
+import { ScanFace, Sparkles, Phone, ArrowRight, KeyRound, Lock, User } from 'lucide-react';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'motion/react';
 import Link from 'next/link';

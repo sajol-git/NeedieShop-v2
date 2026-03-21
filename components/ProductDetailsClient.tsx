@@ -126,7 +126,7 @@ export default function ProductDetailsClient({ product, relatedProducts }: Produ
 
         {/* Product Info */}
         <div className="flex flex-col pt-4">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">{product.title}</h1>
+          <h1 className="text-2xl font-bold text-gray-900 mb-4 text-justify">{product.title}</h1>
           <div className="flex items-center gap-4 mb-6">
             <div className="text-3xl font-bold text-gray-900">৳{product.discount_price.toLocaleString()}</div>
             {product.original_price && (
@@ -211,9 +211,9 @@ export default function ProductDetailsClient({ product, relatedProducts }: Produ
         <div className="border border-gray-100 rounded-3xl p-8 md:p-12">
           {activeTab === 'details' && (
             <div className="space-y-8">
-              <h2 className="text-3xl font-bold text-gray-900">Product Details</h2>
+              <h2 className="text-2xl font-bold text-gray-900">Product Details</h2>
               <div 
-                className="text-gray-600 leading-relaxed text-lg max-w-4xl prose prose-indigo"
+                className="text-gray-600 leading-relaxed text-sm text-justify max-w-4xl prose prose-indigo"
                 dangerouslySetInnerHTML={{ __html: product.description }}
               />
             </div>

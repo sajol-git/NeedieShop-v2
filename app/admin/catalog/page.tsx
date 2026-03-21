@@ -106,8 +106,8 @@ export default function AdminCatalog() {
         {/* Categories Section */}
         <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 flex flex-col h-full">
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 bg-purple-50 rounded-xl flex items-center justify-center">
-              <Tag className="w-5 h-5 text-purple-600" />
+            <div className="w-10 h-10 bg-[#8B183A]/10 rounded-xl flex items-center justify-center">
+              <Tag className="w-5 h-5 text-[#8B183A]" />
             </div>
             <div>
               <h2 className="text-lg font-semibold text-gray-900">Categories</h2>
@@ -120,7 +120,7 @@ export default function AdminCatalog() {
               type="text" 
               value={newCategoryName} 
               onChange={e => setNewCategoryName(e.target.value)} 
-              className="w-full px-4 py-2.5 rounded-2xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 outline-none transition-all" 
+              className="w-full px-4 py-2.5 rounded-2xl border border-gray-200 focus:ring-2 focus:ring-[#8B183A] outline-none transition-all" 
               placeholder="Category Name" 
             />
             <div className="flex flex-col sm:flex-row gap-2">
@@ -129,14 +129,14 @@ export default function AdminCatalog() {
                 value={newCategoryPhoto} 
                 onChange={e => setNewCategoryPhoto(e.target.value)} 
                 onKeyDown={e => e.key === 'Enter' && handleAddCategory()}
-                className="flex-1 px-4 py-2.5 rounded-2xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 outline-none transition-all" 
+                className="flex-1 px-4 py-2.5 rounded-2xl border border-gray-200 focus:ring-2 focus:ring-[#8B183A] outline-none transition-all" 
                 placeholder="Photo URL (Cloudinary)" 
               />
               <div className="flex gap-2 w-full sm:w-auto">
                 <ImageUpload onUpload={(url) => setNewCategoryPhoto(url)} buttonText="Upload" className="flex-1 sm:flex-none px-4 py-2.5 rounded-2xl" />
                 <button 
                   onClick={handleAddCategory}
-                  className="flex-1 sm:flex-none bg-indigo-600 text-white px-5 py-2.5 rounded-2xl font-medium hover:bg-indigo-700 transition-colors flex items-center justify-center gap-2"
+                  className="flex-1 sm:flex-none bg-[#8B183A] text-white px-5 py-2.5 rounded-2xl font-medium hover:bg-[#8B183A]/90 transition-colors flex items-center justify-center gap-2"
                 >
                   <AddIcon className="w-4 h-4" />
                   Add
@@ -160,12 +160,15 @@ export default function AdminCatalog() {
                   </button>
                   <div className="relative w-full flex-1 flex items-center justify-center overflow-hidden">
                     {cat.photo ? (
-                      <img 
-                        src={cat.photo} 
-                        alt={cat.name} 
-                        className="object-contain w-full h-full max-h-[80px] sm:max-h-[100px]"
-                        referrerPolicy="no-referrer" 
-                      />
+                      <div className="relative w-full h-full max-h-[80px] sm:max-h-[100px]">
+                        <Image 
+                          src={cat.photo} 
+                          alt={cat.name} 
+                          fill
+                          className="object-contain"
+                          referrerPolicy="no-referrer" 
+                        />
+                      </div>
                     ) : (
                       <ImageIcon className="w-10 h-10 sm:w-12 sm:h-12 text-gray-300" />
                     )}
@@ -188,8 +191,8 @@ export default function AdminCatalog() {
         {/* Brands Section */}
         <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 flex flex-col h-full">
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center">
-              <TotalOrderIcon className="w-6 h-6 text-orange-600" />
+            <div className="w-10 h-10 bg-[#8B183A]/10 rounded-xl flex items-center justify-center">
+              <TotalOrderIcon className="w-6 h-6 text-[#8B183A]" />
             </div>
             <div>
               <h2 className="text-lg font-semibold text-gray-900">Brands</h2>
@@ -202,7 +205,7 @@ export default function AdminCatalog() {
               type="text" 
               value={newBrandName} 
               onChange={e => setNewBrandName(e.target.value)} 
-              className="w-full px-4 py-2.5 rounded-2xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 outline-none transition-all" 
+              className="w-full px-4 py-2.5 rounded-2xl border border-gray-200 focus:ring-2 focus:ring-[#8B183A] outline-none transition-all" 
               placeholder="Brand Name" 
             />
             <div className="flex flex-col sm:flex-row gap-2">
@@ -211,14 +214,14 @@ export default function AdminCatalog() {
                 value={newBrandPhoto} 
                 onChange={e => setNewBrandPhoto(e.target.value)} 
                 onKeyDown={e => e.key === 'Enter' && handleAddBrand()}
-                className="flex-1 px-4 py-2.5 rounded-2xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 outline-none transition-all" 
+                className="flex-1 px-4 py-2.5 rounded-2xl border border-gray-200 focus:ring-2 focus:ring-[#8B183A] outline-none transition-all" 
                 placeholder="Photo URL (Cloudinary)" 
               />
               <div className="flex gap-2 w-full sm:w-auto">
                 <ImageUpload onUpload={(url) => setNewBrandPhoto(url)} buttonText="Upload" className="flex-1 sm:flex-none px-4 py-2.5 rounded-2xl" />
                 <button 
                   onClick={handleAddBrand}
-                  className="flex-1 sm:flex-none bg-indigo-600 text-white px-5 py-2.5 rounded-2xl font-medium hover:bg-indigo-700 transition-colors flex items-center justify-center gap-2"
+                  className="flex-1 sm:flex-none bg-[#8B183A] text-white px-5 py-2.5 rounded-2xl font-medium hover:bg-[#8B183A]/90 transition-colors flex items-center justify-center gap-2"
                 >
                   <AddIcon className="w-4 h-4" />
                   Add
@@ -242,12 +245,15 @@ export default function AdminCatalog() {
                   </button>
                   <div className="relative w-full flex-1 flex items-center justify-center overflow-hidden">
                     {brand.photo ? (
-                      <img 
-                        src={brand.photo} 
-                        alt={brand.name} 
-                        className="object-contain w-full h-full max-h-[80px] sm:max-h-[100px]"
-                        referrerPolicy="no-referrer" 
-                      />
+                      <div className="relative w-full h-full max-h-[80px] sm:max-h-[100px]">
+                        <Image 
+                          src={brand.photo} 
+                          alt={brand.name} 
+                          fill
+                          className="object-contain"
+                          referrerPolicy="no-referrer" 
+                        />
+                      </div>
                     ) : (
                       <span className="text-gray-400 font-bold text-center text-xs">{brand.name}</span>
                     )}

@@ -11,3 +11,5 @@ export * from './NeediePrimeIcon';
 export * from './SupportIcon';
 export * from './ShopIcon';
 export * from './NotificationIcon';
+export * from './SmsIcon';
+export * from './EmailIcon';

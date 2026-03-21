@@ -74,7 +74,7 @@ type StoreState = {
     points?: number;
   } | null;
   isCartOpen: boolean;
-  offerBanners: string[];
+  offerBanners: { title: string; image: string; link: string }[];
   copyrightText: string;
   heroBanners: { id: number; title: string; image: string; link: string; status: 'Active' | 'Inactive' }[];
   footerContent: {
@@ -115,7 +115,7 @@ type StoreState = {
   setBrands: (brands: Brand[]) => void;
   addBrand: (brand: Brand) => Promise<void>;
   deleteBrand: (id: string) => Promise<void>;
-  setOfferBanners: (banners: string[]) => void;
+  setOfferBanners: (banners: StoreState['offerBanners']) => Promise<void>;
   setCopyrightText: (text: string) => Promise<void>;
   setHeroBanners: (banners: StoreState['heroBanners']) => Promise<void>;
   setFooterContent: (content: StoreState['footerContent']) => Promise<void>;
@@ -380,7 +380,14 @@ export const useStore = create<StoreState>()(
         if (error) throw error;
         set((state) => ({ brands: state.brands.filter(b => b.id !== id) }));
       },
-      setOfferBanners: (offerBanners) => set({ offerBanners }),
+      setOfferBanners: async (offerBanners) => {
+        const { supabase } = await import('@/lib/supabase');
+        const { error } = await supabase
+          .from('settings')
+          .upsert({ key: 'offer_banners', value: offerBanners }, { onConflict: 'key' });
+        if (error) throw error;
+        set({ offerBanners });
+      },
       setCopyrightText: async (copyrightText) => {
         const { supabase } = await import('@/lib/supabase');
         const { error } = await supabase
@@ -425,9 +432,9 @@ export const useStore = create<StoreState>()(
         const { supabase } = await import('@/lib/supabase');
         const { error } = await supabase
           .from('settings')
-          .upsert({ key: 'shipping_zones', value: shippingZones }, { onConflict: 'key' });
+          .upsert({ key: 'shipping_zones', value: Array.isArray(shippingZones) ? shippingZones : [] }, { onConflict: 'key' });
         if (error) throw error;
-        set({ shippingZones });
+        set({ shippingZones: Array.isArray(shippingZones) ? shippingZones : [] });
       },
       setCoupons: async (coupons) => {
         const { supabase } = await import('@/lib/supabase');
@@ -572,16 +579,7 @@ export const useStore = create<StoreState>()(
             set({ orders: formattedOrders });
           }
 
-          // 6. Fetch Banners
-          const { data: banners } = await supabase.from('banners').select('*').eq('status', 'Active');
-          if (banners) {
-            set({ 
-              heroBanners: banners.filter(b => b.type === 'hero'),
-              offerBanners: banners.filter(b => b.type === 'offer').map(b => b.image)
-            });
-          }
-
-          // 7. Fetch Settings
+          // 6. Fetch Settings
           const { data: settings } = await supabase.from('settings').select('*');
           if (settings) {
             const footer = settings.find(s => s.key === 'footer_content')?.value;
@@ -590,14 +588,34 @@ export const useStore = create<StoreState>()(
             const paymentSettings = settings.find(s => s.key === 'payment_settings')?.value;
             const shippingZones = settings.find(s => s.key === 'shipping_zones')?.value;
             const coupons = settings.find(s => s.key === 'coupons')?.value;
+            const heroBanners = settings.find(s => s.key === 'hero_banners')?.value;
+            const offerBanners = settings.find(s => s.key === 'offer_banners')?.value;
             
             if (footer) set({ footerContent: footer });
             if (copyright) set({ copyrightText: copyright });
             if (storeSettings) set({ storeSettings });
             if (paymentSettings) set({ paymentSettings });
-            if (shippingZones) set({ shippingZones });
+            if (shippingZones) set({ shippingZones: Array.isArray(shippingZones) ? shippingZones : [] });
             if (coupons) set({ coupons });
+            if (Array.isArray(heroBanners)) set({ heroBanners });
+            if (Array.isArray(offerBanners)) set({ offerBanners });
           }
+
+          // 7. Subscribe to Realtime Updates for Settings
+          supabase
+            .channel('settings_changes')
+            .on('postgres_changes', { event: '*', table: 'settings', schema: 'public' }, (payload) => {
+              const { key, value } = payload.new as any;
+              if (key === 'footer_content') set({ footerContent: value });
+              if (key === 'copyright_text') set({ copyrightText: value });
+              if (key === 'store_settings') set({ storeSettings: value });
+              if (key === 'payment_settings') set({ paymentSettings: value });
+              if (key === 'shipping_zones') set({ shippingZones: Array.isArray(value) ? value : [] });
+              if (key === 'coupons') set({ coupons: value });
+              if (key === 'hero_banners' && Array.isArray(value)) set({ heroBanners: value });
+              if (key === 'offer_banners' && Array.isArray(value)) set({ offerBanners: value });
+            })
+            .subscribe();
         } catch (error) {
           console.error('Error during store initialization:', error);
         }
