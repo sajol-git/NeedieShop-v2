@@ -25,11 +25,23 @@ export default function OrderSuccessPage({ params }: { params: Promise<{ id: str
     let isMounted = true;
     if (!storeOrder && !order) {
       const fetchOrder = async () => {
-        const { data, error } = await supabase
+        // Try fetching by order_id first
+        let { data, error } = await supabase
           .from('orders')
           .select('*')
-          .eq('id', id)
+          .eq('order_id', id)
           .single();
+        
+        // If not found, try fetching by id
+        if (error || !data) {
+          const { data: dataById, error: errorById } = await supabase
+            .from('orders')
+            .select('*')
+            .eq('id', id)
+            .single();
+          data = dataById;
+          error = errorById;
+        }
         
         if (isMounted) {
           if (data) {
@@ -80,7 +92,7 @@ export default function OrderSuccessPage({ params }: { params: Promise<{ id: str
           
           <h1 className="text-3xl font-black text-gray-900 mb-4">Order Placed!</h1>
           <p className="text-gray-500 mb-12 text-base text-justify">
-            Thank you for your order. Your order ID is <span className="font-bold text-gray-900">#{order.id}</span>.
+            Thank you for your order. Your order ID is <span className="font-bold text-gray-900">#{order.order_id || order.id}</span>.
             We will contact you shortly to confirm your delivery.
           </p>
 
@@ -99,7 +111,7 @@ export default function OrderSuccessPage({ params }: { params: Promise<{ id: str
                     <p className="text-xs text-gray-500 mt-0.5">Quantity: {item.quantity}</p>
                   </div>
                   <div className="font-bold text-gray-900">
-                    ৳{(item.product.discount_price * item.quantity).toLocaleString()}
+                    ৳{((item.product.discount_price || 0) * (item.quantity || 0)).toLocaleString()}
                   </div>
                 </div>
               ))}
@@ -108,11 +120,11 @@ export default function OrderSuccessPage({ params }: { params: Promise<{ id: str
             <div className="space-y-4 pt-8 border-t border-dashed border-gray-200">
               <div className="flex justify-between text-sm text-gray-600">
                 <span>Subtotal</span>
-                <span className="font-medium">৳{order.subtotal.toLocaleString()}</span>
+                <span className="font-medium">৳{(order.subtotal || 0).toLocaleString()}</span>
               </div>
               <div className="flex justify-between text-sm text-gray-600">
                 <span>Shipping Charge</span>
-                <span className="font-medium">৳{order.shippingFee.toLocaleString()}</span>
+                <span className="font-medium">৳{(order.shippingFee || 0).toLocaleString()}</span>
               </div>
               <div className="flex justify-between text-sm text-gray-600">
                 <span>Discount</span>
@@ -120,7 +132,7 @@ export default function OrderSuccessPage({ params }: { params: Promise<{ id: str
               </div>
               <div className="flex justify-between text-xl font-black text-gray-900 pt-4 border-t border-dashed border-gray-200">
                 <span>Total</span>
-                <span>৳{order.total.toLocaleString()}</span>
+                <span>৳{(order.total || 0).toLocaleString()}</span>
               </div>
             </div>
           </div>

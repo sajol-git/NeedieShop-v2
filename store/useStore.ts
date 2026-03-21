@@ -18,6 +18,7 @@ export type OrderStatusUpdate = {
 
 export type Order = {
   id: string;
+  order_id: string; // Add this
   items: CartItem[];
   total: number;
   subtotal: number;
@@ -220,11 +221,13 @@ export const useStore = create<StoreState>()(
       setOrders: (orders) => set({ orders }),
       addOrder: async (order) => {
         const { supabase } = await import('@/lib/supabase');
+        const orderUuid = crypto.randomUUID();
         
         // 1. Insert Order
         const { error: orderError } = await supabase.from('orders').insert({
-          id: order.id,
-          total: order.total,
+          id: orderUuid, // Generate a new valid UUID for the primary key
+          order_id: order.order_id,      // Use the human-readable ID
+          total_amount: order.total,
           subtotal: order.subtotal,
           shipping_fee: order.shippingFee,
           advance_payment: order.advancePayment,
@@ -237,11 +240,17 @@ export const useStore = create<StoreState>()(
           ip_address: order.customerInfo.ipAddress,
         });
 
-        if (orderError) throw orderError;
+        if (orderError) {
+          console.error('Order insertion error details:', JSON.stringify(orderError, null, 2));
+          console.error('Order insertion error message:', orderError.message);
+          console.error('Order insertion error details:', orderError.details);
+          console.error('Order insertion error hint:', orderError.hint);
+          throw orderError;
+        }
 
         // 2. Insert Order Items
         const orderItems = order.items.map(item => ({
-          order_id: order.id,
+          order_id: orderUuid, // Use the UUID
           product_id: item.product.id,
           variant_id: item.variantId,
           quantity: item.quantity,
@@ -249,15 +258,24 @@ export const useStore = create<StoreState>()(
         }));
 
         const { error: itemsError } = await supabase.from('order_items').insert(orderItems);
-        if (itemsError) throw itemsError;
+        if (itemsError) {
+          console.error('Order items insertion error details:', JSON.stringify(itemsError, null, 2));
+          console.error('Order items insertion error message:', itemsError.message);
+          console.error('Order items insertion error details:', itemsError.details);
+          console.error('Order items insertion error hint:', itemsError.hint);
+          throw itemsError;
+        }
 
         // 3. Insert Initial Tracking History
         const { error: trackingError } = await supabase.from('order_tracking_history').insert({
-          order_id: order.id,
+          order_id: orderUuid, // Use the UUID
           status: order.status,
           message: order.trackingHistory[0].message
         });
-        if (trackingError) throw trackingError;
+        if (trackingError) {
+          console.error('Tracking history insertion error:', trackingError);
+          throw trackingError;
+        }
 
         set((state) => ({ orders: [order, ...state.orders] }));
       },

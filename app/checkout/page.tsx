@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 import { CartIcon, UserIcon, TrackOrderIcon } from '@/components/icons';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
@@ -33,29 +33,40 @@ export default function CheckoutPage() {
   const router = useRouter();
 
   const shippingZones = useStore((state) => state.shippingZones);
+  const paymentSettings = useStore((state) => state.paymentSettings);
+  const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     name: user && user.isProfileCompleted ? user.name : '',
     phone: user && user.isProfileCompleted ? user.phone : '',
     address: '',
-    zone: (Array.isArray(shippingZones) && shippingZones.length > 0 ? shippingZones[0].name : 'Outside Dhaka') as string,
-    paymentMethod: 'Cash on Delivery' as 'Cash on Delivery' | 'bKash',
+    zone: '',
+    paymentMethod: (paymentSettings.codEnabled ? 'Cash on Delivery' : 'bKash') as 'Cash on Delivery' | 'bKash',
   });
 
+  const effectiveZone = formData.zone || (Array.isArray(shippingZones) && shippingZones.length > 0 ? shippingZones[0].name : '');
+
   const subtotal = cart.reduce((acc, item) => acc + item.product.discount_price * item.quantity, 0);
-  const selectedZone = Array.isArray(shippingZones) ? shippingZones.find(z => z.name === formData.zone) : undefined;
+  const selectedZone = Array.isArray(shippingZones) ? shippingZones.find(z => z.name === effectiveZone) : undefined;
   const shippingFee = selectedZone ? selectedZone.fee : (Array.isArray(shippingZones) && shippingZones.length > 0 ? shippingZones[0].fee : 120);
   const total = subtotal + shippingFee;
+
+  const handleNext = () => {
+    if (step === 1) {
+      if (!formData.name || !formData.phone || !formData.address) {
+        toast.error('Please fill in all shipping details');
+        return;
+      }
+    }
+    setStep(step + 1);
+  };
+
+  const handleBack = () => setStep(step - 1);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (cart.length === 0) {
       toast.error('Your cart is empty');
-      return;
-    }
-
-    if (!formData.name || !formData.phone || !formData.address) {
-      toast.error('Please fill in all required fields');
       return;
     }
 
@@ -68,8 +79,10 @@ export default function CheckoutPage() {
       console.error('Failed to get IP address', error);
     }
 
+    const orderId = generateOrderId(orders.length);
     const newOrder: Order = {
-      id: generateOrderId(orders.length),
+      id: crypto.randomUUID(),
+      order_id: orderId,
       items: cart,
       total,
       subtotal,
@@ -98,7 +111,7 @@ export default function CheckoutPage() {
       await addOrder(newOrder);
       clearCart();
       toast.success('Order placed successfully!');
-      router.push(`/order-success/${newOrder.id}`);
+      router.push(`/order-success/${newOrder.order_id}`);
     } catch (error) {
       console.error('Failed to place order:', error);
       toast.error('Failed to place order. Please try again.');
@@ -137,123 +150,77 @@ export default function CheckoutPage() {
         </div>
 
         <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-          {/* Left Column: Shipping & Payment */}
+          {/* Left Column: Checkout Steps */}
           <div className="lg:col-span-7 space-y-8">
-            {/* Shipping Info */}
-            <section className="bg-white rounded-3xl p-8 md:p-10 shadow-sm border border-gray-100">
-              <div className="flex items-center gap-3 mb-8">
-                <div className="w-10 h-10 bg-[#8B183A]/10 rounded-xl flex items-center justify-center text-[#8B183A]">
-                  <TrackOrderIcon className="w-5 h-5" strokeWidth={10} />
-                </div>
-                <h2 className="text-xl font-bold text-gray-900">Shipping Information</h2>
-              </div>
+            {/* Step Indicators */}
+            <div className="flex gap-4 mb-8">
+              {[1, 2, 3].map((s) => (
+                <div key={s} className={`flex-1 h-2 rounded-full ${step >= s ? 'bg-[#8B183A]' : 'bg-gray-200'}`} />
+              ))}
+            </div>
 
-              <div className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">Full Name</label>
-                    <div className="relative">
-                      <UserIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                      <input
-                        type="text"
-                        required
-                        className="w-full pl-12 pr-4 py-4 bg-gray-50 border-none rounded-3xl text-sm focus:ring-2 focus:ring-[#8B183A]/20 outline-none"
-                        placeholder="Enter your full name"
-                        value={formData.name}
-                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      />
+            {step === 1 && (
+              <section className="bg-white rounded-3xl p-8 md:p-10 shadow-sm border border-gray-100">
+                <h2 className="text-xl font-bold text-gray-900 mb-8">1. Shipping Information</h2>
+                <div className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">Full Name</label>
+                      <input type="text" required className="w-full px-4 py-4 bg-gray-50 border-none rounded-3xl text-sm focus:ring-2 focus:ring-[#8B183A]/20 outline-none" placeholder="Enter your full name" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">Phone Number</label>
+                      <input type="tel" required className="w-full px-4 py-4 bg-gray-50 border-none rounded-3xl text-sm focus:ring-2 focus:ring-[#8B183A]/20 outline-none" placeholder="01XXXXXXXXX" value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} />
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">Phone Number</label>
-                    <div className="relative">
-                      <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                      <input
-                        type="tel"
-                        required
-                        className="w-full pl-12 pr-4 py-4 bg-gray-50 border-none rounded-3xl text-sm focus:ring-2 focus:ring-[#8B183A]/20 outline-none"
-                        placeholder="01XXXXXXXXX"
-                        value={formData.phone}
-                        onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                      />
-                    </div>
+                    <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">Delivery Address</label>
+                    <textarea required rows={3} className="w-full px-4 py-4 bg-gray-50 border-none rounded-3xl text-sm focus:ring-2 focus:ring-[#8B183A]/20 outline-none resize-none" placeholder="House no, Road no, Area, City" value={formData.address} onChange={(e) => setFormData({ ...formData, address: e.target.value })} />
                   </div>
                 </div>
+                <button type="button" onClick={handleNext} className="w-full bg-[#8B183A] text-white py-4 rounded-full font-bold mt-8">Next</button>
+              </section>
+            )}
 
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">Delivery Address</label>
-                  <div className="relative">
-                    <MapPin className="absolute left-4 top-4 w-5 h-5 text-gray-400" />
-                    <textarea
-                      required
-                      rows={3}
-                      className="w-full pl-12 pr-4 py-4 bg-gray-50 border-none rounded-3xl text-sm focus:ring-2 focus:ring-[#8B183A]/20 outline-none resize-none"
-                      placeholder="House no, Road no, Area, City"
-                      value={formData.address}
-                      onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                    />
-                  </div>
-                </div>
-
+            {step === 2 && (
+              <section className="bg-white rounded-3xl p-8 md:p-10 shadow-sm border border-gray-100">
+                <h2 className="text-xl font-bold text-gray-900 mb-8">2. Shipping Zone</h2>
                 <div className="grid grid-cols-2 gap-4">
                   {Array.isArray(shippingZones) && shippingZones.map((zone) => (
-                    <button
-                      key={zone.id}
-                      type="button"
-                      onClick={() => setFormData({ ...formData, zone: zone.name as any })}
-                      className={`p-6 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 ${
-                        formData.zone === zone.name ? 'border-[#8B183A] bg-[#8B183A]/5 text-[#8B183A]' : 'border-gray-100 text-gray-500'
-                      }`}
-                    >
-                      <TrackOrderIcon className="w-6 h-6" strokeWidth={10} />
+                    <button key={zone.id} type="button" onClick={() => setFormData({ ...formData, zone: zone.name as any })} className={`p-6 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 ${effectiveZone === zone.name ? 'border-[#8B183A] bg-[#8B183A]/5 text-[#8B183A]' : 'border-gray-100 text-gray-500'}`}>
                       <span className="text-xs font-bold uppercase">{zone.name}</span>
                       <span className="text-sm font-bold">৳{zone.fee}</span>
                     </button>
                   ))}
                 </div>
-              </div>
-            </section>
-
-            {/* Payment Method */}
-            <section className="bg-white rounded-3xl p-8 md:p-10 shadow-sm border border-gray-100">
-              <div className="flex items-center gap-3 mb-8">
-                <div className="w-10 h-10 bg-[#8B183A]/10 rounded-xl flex items-center justify-center text-[#8B183A]">
-                  <CreditCard className="w-5 h-5" />
+                <div className="flex gap-4 mt-8">
+                  <button type="button" onClick={handleBack} className="flex-1 bg-gray-200 text-gray-700 py-4 rounded-full font-bold">Back</button>
+                  <button type="button" onClick={handleNext} className="flex-1 bg-[#8B183A] text-white py-4 rounded-full font-bold">Next</button>
                 </div>
-                <h2 className="text-xl font-bold text-gray-900">Payment Method</h2>
-              </div>
+              </section>
+            )}
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <button
-                  type="button"
-                  onClick={() => setFormData({ ...formData, paymentMethod: 'Cash on Delivery' })}
-                  className={`p-6 rounded-2xl border-2 transition-all flex items-center gap-4 ${
-                    formData.paymentMethod === 'Cash on Delivery' ? 'border-[#8B183A] bg-[#8B183A]/5 text-[#8B183A]' : 'border-gray-100 text-gray-500'
-                  }`}
-                >
-                  <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-                    formData.paymentMethod === 'Cash on Delivery' ? 'border-[#8B183A]' : 'border-gray-300'
-                  }`}>
-                    {formData.paymentMethod === 'Cash on Delivery' && <div className="w-3 h-3 bg-[#8B183A] rounded-full" />}
-                  </div>
-                  <span className="font-bold">Cash on Delivery</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setFormData({ ...formData, paymentMethod: 'bKash' })}
-                  className={`p-6 rounded-2xl border-2 transition-all flex items-center gap-4 ${
-                    formData.paymentMethod === 'bKash' ? 'border-[#8B183A] bg-[#8B183A]/5 text-[#8B183A]' : 'border-gray-100 text-gray-500'
-                  }`}
-                >
-                  <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-                    formData.paymentMethod === 'bKash' ? 'border-[#8B183A]' : 'border-gray-300'
-                  }`}>
-                    {formData.paymentMethod === 'bKash' && <div className="w-3 h-3 bg-[#8B183A] rounded-full" />}
-                  </div>
-                  <span className="font-bold">bKash Payment</span>
-                </button>
-              </div>
-            </section>
+            {step === 3 && (
+              <section className="bg-white rounded-3xl p-8 md:p-10 shadow-sm border border-gray-100">
+                <h2 className="text-xl font-bold text-gray-900 mb-8">3. Payment Method</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {paymentSettings.codEnabled && (
+                    <button type="button" onClick={() => setFormData({ ...formData, paymentMethod: 'Cash on Delivery' })} className={`p-6 rounded-2xl border-2 transition-all flex items-center gap-4 ${formData.paymentMethod === 'Cash on Delivery' ? 'border-[#8B183A] bg-[#8B183A]/5 text-[#8B183A]' : 'border-gray-100 text-gray-500'}`}>
+                      <span className="font-bold">Cash on Delivery</span>
+                    </button>
+                  )}
+                  {paymentSettings.bkashEnabled && (
+                    <button type="button" onClick={() => setFormData({ ...formData, paymentMethod: 'bKash' })} className={`p-6 rounded-2xl border-2 transition-all flex items-center gap-4 ${formData.paymentMethod === 'bKash' ? 'border-[#8B183A] bg-[#8B183A]/5 text-[#8B183A]' : 'border-gray-100 text-gray-500'}`}>
+                      <span className="font-bold">bKash Payment</span>
+                    </button>
+                  )}
+                </div>
+                <div className="flex gap-4 mt-8">
+                  <button type="button" onClick={handleBack} className="flex-1 bg-gray-200 text-gray-700 py-4 rounded-full font-bold">Back</button>
+                  <button type="submit" className="flex-1 bg-[#8B183A] text-white py-4 rounded-full font-bold">Place Order</button>
+                </div>
+              </section>
+            )}
           </div>
 
           {/* Right Column: Order Summary */}
@@ -274,7 +241,7 @@ export default function CheckoutPage() {
                       <div className="flex-1 min-w-0">
                         <h4 className="font-bold text-sm text-gray-900 line-clamp-1">{item.product.title}</h4>
                         <p className="text-xs text-gray-500 mt-1">Qty: {item.quantity}</p>
-                        <p className="text-sm font-bold text-gray-900 mt-2">৳{(item.product.discount_price * item.quantity).toLocaleString()}</p>
+                        <p className="text-sm font-bold text-gray-900 mt-2">৳{((item.product.discount_price || 0) * (item.quantity || 0)).toLocaleString()}</p>
                       </div>
                       <button 
                         type="button"
@@ -290,24 +257,26 @@ export default function CheckoutPage() {
                 <div className="space-y-4 pt-6 border-t border-dashed border-gray-200">
                   <div className="flex justify-between text-sm text-gray-500">
                     <span>Subtotal</span>
-                    <span className="font-bold text-gray-900">৳{subtotal.toLocaleString()}</span>
+                    <span className="font-bold text-gray-900">৳{(subtotal || 0).toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between text-sm text-gray-500">
                     <span>Shipping Fee</span>
-                    <span className="font-bold text-gray-900">৳{shippingFee.toLocaleString()}</span>
+                    <span className="font-bold text-gray-900">৳{(shippingFee || 0).toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between text-2xl font-black text-gray-900 pt-6 border-t border-dashed border-gray-200">
                     <span>Total</span>
-                    <span className="text-[#8B183A]">৳{total.toLocaleString()}</span>
+                    <span className="text-[#8B183A]">৳{(total || 0).toLocaleString()}</span>
                   </div>
                 </div>
 
-                <button
-                  type="submit"
-                  className="w-full bg-[#8B183A] text-white py-5 rounded-full font-bold text-lg mt-10 hover:bg-[#721430] transition-all shadow-xl shadow-red-100"
-                >
-                  Place Order Now
-                </button>
+                {step === 3 && (
+                  <button
+                    type="submit"
+                    className="w-full bg-[#8B183A] text-white py-5 rounded-full font-bold text-lg mt-10 hover:bg-[#721430] transition-all shadow-xl shadow-red-100"
+                  >
+                    Place Order Now
+                  </button>
+                )}
 
                 <div className="mt-8 flex items-center justify-center gap-2 text-xs text-gray-400">
                   <ShieldCheck className="w-4 h-4" />
